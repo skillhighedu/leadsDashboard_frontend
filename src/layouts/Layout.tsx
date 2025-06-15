@@ -1,15 +1,20 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { Outlet } from "react-router-dom"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import type { ReactNode } from "react";
 
-export default function Layout() {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
-        <Outlet/>
+         <SidebarTrigger />
+      <main className="pl-64 min-h-screen bg-gray-50">
+     
+        {children}
       </main>
     </SidebarProvider>
-  )
+  );
 }

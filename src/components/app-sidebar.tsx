@@ -26,7 +26,7 @@ export function AppSidebar() {
 
         <SidebarGroup title="Settings">
           <Link to="/home">
-          <Button  variant="default" className="w-full justify-start bg-white text-black">
+          <Button  variant="default" className="w-full justify-start ">
             <Settings className="w-4 h-4 mr-2" />
             Preferences
           </Button>

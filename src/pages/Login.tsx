@@ -1,76 +1,84 @@
-
 import React, { useState } from "react";
-import axios from "axios";
-import { loginUser, type UserRole } from "@/services/auth.services";
-
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { adminLogin } from "@/services/admin.services"; 
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [formData, setformData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("")
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate()
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setformData({ ...formData, [e.target.name]: e.target.value.trimStart() });
+    const { name, value } = e.target;
+    if (name === "email") setEmail(value.trimStart());
+    if (name === "password") setPassword(value);
   };
 
-  const role: UserRole = "admin";
+  const login = async () => {
 
-  const postLogin = async () => {
-    try {
-      const data = await loginUser(role, formData)
-      if (data?.message) {
-        setSuccessMessage(data.message)
-      }  
-    } catch (error) {
-      let message = "Something went wrong. Please try again later.";
-      if (axios.isAxiosError(error)) {
-        message = error.response?.data?.message || message;
-      }
-      setError(message);
-      console.log(error);
-    }
+     const res = await adminLogin(email, password); // Rename your login function
+     console.log(res)
+     if(res)
+     {
+      navigate('/')
+     }
+  
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { email, password } = formData;
-    if (!email || !password) {
-      setError("All fields are required");
-      return;
-    }
-    setError("");
-    setSuccessMessage("")
-    postLogin();
+ 
+    login();
   };
+
   return (
-    <div className=" max-h-screen flex items-center justify-center">
-      <div className="mx-auto p-8 rounded-xl shadow-md w-full max-w-sm mt-10">
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            className="w-full p-3 border-2 border-gray-400 rounded-md"
-            value={formData.email}
-            onChange={handleChange}
-          />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border-0 p-8">
+        <h1 className="text-xl font-bold text-center text-gray-800 mb-6">Login</h1>
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            className="w-full p-3 border-2 border-gray-400 rounded-md"
-            value={formData.password}
-            onChange={handleChange}
-          />
+    
 
-          <button type="submit" className="w-full text-white py-3 ">
-            Login
-          </button>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={handleChange}
+              className="py-3 px-4 text-base"
+            />
+          </div>
 
-          {successMessage && <p className="text-2xl text-green-600 text-center">{successMessage}</p>}
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={handleChange}
+              className="py-3 px-4 text-base"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full font-semibold text-base transition-all"
+          >
+            Sign In
+          </Button>
         </form>
+
+     
       </div>
     </div>
   );
