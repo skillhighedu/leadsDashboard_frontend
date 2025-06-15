@@ -7,15 +7,12 @@ import Login from '@/pages/Login'
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-        <Routes>
-          <Route path="/home" element={<Login />} />
-        </Routes>
-      </Layout>
-      
+      <Routes>
+        <Route element = {<Layout/>}>
+            <Route path='/' element = {<Home/>}></Route>
+        </Route>
+        <Route path='/login' element = {<Login/>}></Route>
+      </Routes>
     </BrowserRouter>
   )
 }
