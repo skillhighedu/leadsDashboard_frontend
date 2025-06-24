@@ -5,7 +5,7 @@ import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import "./index.css";
 import { Toaster } from "sonner";
-
+import { StoreProvider } from "./context/AppContext.tsx";
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
@@ -18,7 +18,10 @@ root.render(
   <StrictMode>
     <Toaster richColors position="top-center" />
     <AuthProvider>
-      <App />
+      <StoreProvider>
+        <App />
+      </StoreProvider>
+
     </AuthProvider>
   </StrictMode>,
 );

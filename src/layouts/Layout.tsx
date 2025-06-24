@@ -10,9 +10,9 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <SidebarProvider>
       <AppSidebar />
-         <SidebarTrigger />
-      <main className="pl-64 min-h-screen bg-gray-50">
-     
+         <SidebarTrigger className="bg-white text-gray-800 hover:bg-gray-100 cursor-pointer" />
+      <main className="min-h-screen">
+
         {children}
       </main>
     </SidebarProvider>
