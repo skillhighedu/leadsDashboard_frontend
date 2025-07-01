@@ -16,11 +16,16 @@ export interface Employee {
   role: RoleInfo;
 }
 
+export interface Team {
+    id:number
+    teamName:string
+}
 
-export const fetchEmployes = async (): Promise<Employee[]> => {
+
+export const fetchExecutives = async (): Promise<Employee[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Employee[]>>(
-      "/employes/allEmployes"
+      "/teams/executives"
     );
 
     return response.data.additional ?? [];
@@ -29,11 +34,23 @@ export const fetchEmployes = async (): Promise<Employee[]> => {
   }
 };
 
-
-export const editEmployee = async (id:number,payload:Payload): Promise<Employee[]> => {
+export const fetchTeams = async (): Promise<Team[]> => {
   try {
-    const response = await apiClient.put<ApiResponse<Employee[]>>(
-      `/employes/createEmployee/${id}`, payload
+    const response = await apiClient.get<ApiResponse<Team[]>>(
+      "/teams/all-teams"
+    );
+    console.log(response)
+    return response.data.additional ?? [];
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+export const editEmployee = async (): Promise<Employee[]> => {
+  try {
+    const response = await apiClient.post<ApiResponse<Employee[]>>(
+      "/employes/createEmployee"
     );
 
     return response.data.additional ?? [];
@@ -43,16 +60,15 @@ export const editEmployee = async (id:number,payload:Payload): Promise<Employee[
 };
 
 type Payload ={
-  name:string;
-  email:string;
-  roleId:string;
-  password:string;
+  teamName:string;
+  teamLeadId?:number;
+
 }
 
-export const createEmployee = async (payload:Payload): Promise<Employee[]> => {
+export const createTeam = async (payload:Payload): Promise<Employee[]> => {
   try {
     const response = await apiClient.post<ApiResponse<Employee[]>>(
-      "/employes/createEmployee",payload
+      "/teams/create-team",payload
     );
 
     return response.data.additional ?? [];

@@ -1,19 +1,16 @@
 import apiClient from "@/config/axiosConfig";
 import type { ApiResponse } from "@/types/api";
-;
+import { toast } from "sonner";
 import { handleApiError } from "@/utils/errorHandler";
 
 export interface Permission {
-  id: number;
-  uuid: string;
-  roleId: number;
+
   uploadData: boolean;
   createData: boolean;
   editData: boolean;
   assignData: boolean;
   deleteData: boolean;
-  createdAt: string; // ISO timestamp
-  updatedAt: string;
+
 }
 
 export interface Role {
@@ -26,13 +23,68 @@ export interface Role {
 }
 
 
+export interface Payload {
+  name : string;
+  permissions: Permission
+} 
+
 export const fetchRoles = async (): Promise<Role[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Role[]>>(
       "/roles/allRoles"
     );
-    console.log(response.data.additional)
+   
 
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+export const createRole = async (payload:Payload): Promise<Role[]> => {
+  try {
+    const response = await apiClient.post<ApiResponse<Role[]>>(
+      "/roles/createRole",payload
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+export const deleteRole = async (uuid:string): Promise<Role[]> => {
+  try {
+    const response = await apiClient.delete<ApiResponse<Role[]>>(
+      `/roles/deleteRole/${uuid}`
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const editRole = async (uuid:string,payload:Payload): Promise<Role[]> => {
+  try {
+    const response = await apiClient.put<ApiResponse<Role[]>>(
+      `/roles/updateRole/${uuid}`,payload
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
     return response.data.additional ?? []
   } catch (error) {
     throw handleApiError(error);

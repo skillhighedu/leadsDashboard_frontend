@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { PlusIcon, PencilIcon, ChartLineIcon, Trash2 } from "lucide-react";
 import { fetchEmployes, type Employee } from "@/services/employes.services";
-
+import { Link } from "react-router-dom";
 export default function Employee() {
   const [employeeData, setEmployeeData] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,10 +93,12 @@ export default function Employee() {
                 <SelectItem value="intern">Intern</SelectItem>
               </SelectContent>
             </Select>
+            <Link to="/add_employee">
             <Button className="bg-primary hover:bg-primary/90 text-white">
               <PlusIcon className="mr-2 h-4 w-4" />
               Add Employee
             </Button>
+            </Link>
           </div>
         </div>
 

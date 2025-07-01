@@ -14,10 +14,10 @@ export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    toast.error("Please login to access this page");
     return <Navigate to="/login" replace />;
   }
-
+  console.log("User role:", user.role);
+  console.log("Required role:", requiredRole);
   if (requiredRole.length > 0 && !requiredRole.includes(user.role)) {
     toast.error("You don't have permission to access this page");
     return <Navigate to="/" replace />;

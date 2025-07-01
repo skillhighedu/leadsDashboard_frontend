@@ -8,6 +8,11 @@ import { useStore } from "@/context/useStore";
 import { useEffect } from "react";
 import Role from "./pages/Role";
 import Employe from "./pages/Employe";
+import AddRole from "./pages/AddRole";
+import Leads from "./pages/Leads";
+import AddEmployee from "./pages/AddEmployee";
+import Team from "./pages/Team";
+import AddTeam from "./pages/AddTeam";
 // import Analytics from "./pages/Analytics";
 
 function App() {
@@ -28,7 +33,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Protected Route - accessible to all authenticated users */}
-        <Route element={<ProtectedRoute requiredRole={['administrator', 'intern']} />}>
+        <Route element={<ProtectedRoute requiredRole={['administrator', 'intern',"leadManager"]} />}>
 
           <Route
             path="/"
@@ -39,8 +44,20 @@ function App() {
             }
           />
         </Route>
+          {/* Protected Route - accessible to all authenticated users */}
+        <Route element={<ProtectedRoute requiredRole={["leadManager"]} />}>
 
-        <Route element={<ProtectedRoute requiredRole={['administ']} />}>
+          <Route
+            path="/allLeads"
+            element={
+              <Layout>
+                <Leads />
+              </Layout>
+            }
+          />
+        </Route>
+
+        <Route element={<ProtectedRoute requiredRole={['administrator']} />}>
 
           <Route
             path="/roles"
@@ -50,11 +67,45 @@ function App() {
               </Layout>
             }
           />
+           <Route
+            path="/create-role"
+            element={
+              <Layout>
+                <AddRole/>
+              </Layout>
+            }
+          />
+          
+          
           <Route
             path="/employees"
             element={
               <Layout>
                 <Employe />
+              </Layout>
+            }
+          />
+          <Route
+            path="/teams"
+            element={
+              <Layout>
+                <Team />
+              </Layout>
+            }
+          />
+          <Route
+            path="/add_employee"
+            element={
+              <Layout>
+                <AddEmployee />
+              </Layout>
+            }
+          />
+          <Route
+            path="/create_team"
+            element={
+              <Layout>
+                <AddTeam />
               </Layout>
             }
           />

@@ -1,6 +1,6 @@
 import apiClient from "@/config/axiosConfig";
 import type { ApiResponse } from "@/types/api";
-import { toast } from "sonner";
+
 import { handleApiError } from "@/utils/errorHandler";
 
 export interface AuthResponse {

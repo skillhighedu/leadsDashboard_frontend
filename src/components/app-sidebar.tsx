@@ -7,19 +7,19 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { 
-  HomeIcon, 
-  UsersIcon, 
-  UserCogIcon, 
-  LogOutIcon ,
- Users 
+import {
+  HomeIcon,
+  UsersIcon,
+  UserCogIcon,
+  LogOutIcon,
+  Users
 
 } from "lucide-react"
-import {useAuthStore} from '@/context/authStore'
+import { useAuthStore } from '@/context/authStore'
 import { useStore } from "@/context/useStore"
 export function AppSidebar() {
-  const {logout} = useAuthStore()
-  const {user} = useStore()
+  const { logout } = useAuthStore()
+  const { user } = useStore()
   console.log("User Role:", user?.role)
   return (
     <Sidebar className="w-[250px] min-h-screen bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300">
@@ -30,8 +30,8 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="py-4">
-  {
-    user?.role?.toLowerCase() === 'administrator' && (
+        {
+          user?.role?.toLowerCase() === 'administrator' && (
             <><SidebarGroup>
               <Link to="/" className="block">
                 <Button
@@ -62,7 +62,7 @@ export function AppSidebar() {
                     Employees
                   </Button>
                 </Link>
-                </SidebarGroup><SidebarGroup>
+              </SidebarGroup><SidebarGroup>
                 <Link to="/teams" className="block">
                   <Button
                     variant="ghost"
@@ -73,28 +73,41 @@ export function AppSidebar() {
                   </Button>
                 </Link>
               </SidebarGroup></>
-    )
-  }
-       {user?.role?.toLowerCase() === 'intern' && (
-  <SidebarGroup>
-    <Link to="/assigned_leads" className="block">
-      <Button 
-        variant="ghost" 
-        className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
-      >
-        <UsersIcon className="mr-2 h-5 w-5" />
-        Assigned Leads
-      </Button>
-    </Link>
-  </SidebarGroup>
-)}
+          )
+        }
+        {user?.role?.toLowerCase() === 'intern' && (
+          <SidebarGroup>
+            <Link to="/assigned_leads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Assigned Leads
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
+         {user?.role === 'leadManager' && (
+          <SidebarGroup>
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+               All Leads
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
 
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <Button 
-          variant="ghost" 
-          onClick={()=>logout()}
+        <Button
+          variant="ghost"
+          onClick={() => logout()}
           className="w-full justify-start text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-r-full"
         >
           <LogOutIcon className="mr-2 h-5 w-5" />
