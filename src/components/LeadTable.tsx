@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { Leads } from "@/types/leads"
+import { useStore } from "@/context/useStore"
+import { use } from "react"
 
 interface LeadTableProps {
   leads: Leads[]
@@ -25,6 +27,7 @@ interface LeadTableProps {
 export function LeadTable({ leads, loading, selectedLeads, onSelectLead, onSelectAll }: LeadTableProps) {
   const UnassignedLeads = leads.filter(lead => lead.teamId == null)
 const selectedSet = new Set(selectedLeads);
+const {user} = useStore();
 
 const allSelected = UnassignedLeads.length > 0 &&
   UnassignedLeads.every(lead => selectedSet.has(lead.id));
@@ -68,7 +71,7 @@ const allSelected = UnassignedLeads.length > 0 &&
                 <Checkbox
                   checked={selectedLeads.includes(lead.id)}
                   onCheckedChange={() => onSelectLead(lead.id)}
-                  disabled={lead.teamId != null}
+                  disabled={user && user.role !== "leadManager"? lead.assignedToId !== null: lead.teamId !== null }
                 />
               </TableCell>
               <TableCell>{lead.name}</TableCell>

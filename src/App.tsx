@@ -33,7 +33,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Protected Route - accessible to all authenticated users */}
-        <Route element={<ProtectedRoute requiredRole={['administrator', 'intern',"leadManager"]} />}>
+        <Route element={<ProtectedRoute requiredRole={['administrator', 'intern',"leadManager", "executive"]} />}>
 
           <Route
             path="/"
@@ -45,7 +45,7 @@ function App() {
           />
         </Route>
           {/* Protected Route - accessible to all authenticated users */}
-        <Route element={<ProtectedRoute requiredRole={["leadManager"]} />}>
+        <Route element={<ProtectedRoute requiredRole={["leadManager", "executive"]} />}>
 
           <Route
             path="/allLeads"

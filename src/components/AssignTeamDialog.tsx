@@ -15,6 +15,8 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
+import { useStore } from "@/context/useStore" 
+
 interface Team {
   id: string
   name: string
@@ -32,6 +34,7 @@ interface AssignTeamDialogProps {
   teamsLoading: boolean
 }
 
+
 export function AssignTeamDialog({
   open,
   onOpenChange,
@@ -42,12 +45,15 @@ export function AssignTeamDialog({
   loading,
   teams,
   teamsLoading,
-}: AssignTeamDialogProps) {
+}: AssignTeamDialogProps)
+  
+ {
+const {user} = useStore()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Leads to Team</DialogTitle>
+          <DialogTitle>Assign Leads to {user?.role !== "leadManager"? "Member": "team"}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-muted-foreground mb-4">

@@ -101,7 +101,19 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-
+         {user?.role === 'executive' && (
+          <SidebarGroup>
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+               All Leads
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-gray-200 dark:border-gray-700">

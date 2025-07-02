@@ -10,9 +10,10 @@ import { AssignTeamDialog } from "@/components/AssignTeamDialog"
 import { LeadTable } from "@/components/LeadTable"
 
 import { fetchLeads } from "@/services/leads.services"
-import { fetchTeams } from "@/services/team.services"
+import { fetchTeamLeads, fetchTeams } from "@/services/team.services"
 import { assignLeadToTeam } from "@/services/assignLeads.services"
 import type { Leads } from "@/types/leads"
+import { useStore } from "@/context/useStore"
 
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Leads[]>([])
@@ -20,7 +21,7 @@ export default function LeadsPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
-
+  const { user} = useStore()
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false)
 
@@ -32,8 +33,12 @@ export default function LeadsPage() {
   const [assignLoading, setAssignLoading] = useState(false)
   const [teamsLoading, setTeamsLoading] = useState(true)
 
+
+  
+  if(user && user.role== "leadManager")
+  {
   useEffect(() => {
-    const getLeads = async () => {
+    const getTeamLeads = async () => {
       setLoading(true)
       try {
         const data = await fetchLeads(page)
@@ -46,15 +51,39 @@ export default function LeadsPage() {
         setLoading(false)
       }
     }
-    getLeads()
+    getTeamLeads()
   }, [page, statusFilter])
+  }
+  else
+  {
+ useEffect(() => {
+    const getTeamLeads = async () => {
+      setLoading(true)
+      try {
+        const data = await fetchTeamLeads()
+        setLeads(data)
+       console.log(leads)
+        setTotalPages(data.totalPages)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    getTeamLeads()
+  }, [])
+  }
+ 
 
   useEffect(() => {
     const getTeams = async () => {
       setTeamsLoading(true)
       try {
         const data = await fetchTeams()
-        setTeams(data.map((t: any) => ({ id: t.id, name: t.teamName ?? t.name ?? "" })))
+        setTeams(data.map((team: any) => ({
+          id: String(team.id),
+          name: team.name ?? team.teamName ?? ""
+        })))
       } catch (err) {
         console.error(err)
       } finally {
@@ -65,7 +94,7 @@ export default function LeadsPage() {
   }, [])
 
   const filteredLeads = useMemo(() => {
-    return leads.filter(lead => Object.values(lead).join(" ").toLowerCase().includes(search.toLowerCase()))
+    return leads && leads.filter(lead => Object.values(lead).join(" ").toLowerCase().includes(search.toLowerCase()))
   }, [leads, search])
 
   const handleAssign = async () => {
@@ -123,7 +152,7 @@ export default function LeadsPage() {
                 Clear Selection
               </Button>
               <Button disabled={!selectedLeads.length || teamsLoading} onClick={() => setIsAssignDialogOpen(true)}>
-                Assign to Team ({selectedLeads.length})
+                Assgin to {user?.role !=="leadManager"?"Members":"Teams"} ({selectedLeads.length})
               </Button>
             </div>
           </div>
