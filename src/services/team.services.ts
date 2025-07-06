@@ -38,7 +38,7 @@ export const fetchExecutives = async (): Promise<Employee[]> => {
 export const fetchTeams = async (): Promise<Team[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Team[]>>(
-      "/teams/all-teams"
+      "/teams/team"
     );
     console.log(response)
     return response.data.additional ?? [];

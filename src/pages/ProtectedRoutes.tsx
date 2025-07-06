@@ -1,26 +1,38 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useStore } from "@/context/useStore";
+import { useAuthStore } from "@/store/AuthStore";
 import { toast } from "sonner";
+import { Roles } from "@/contants/role.constant";
 
 interface ProtectedRouteProps {
   requiredRole: string[];
 }
 
 export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
-  const { user, loading } = useStore();
+  const { user, loading } = useAuthStore();
 
+  console.log("user inside route:", user,requiredRole);
+  // ✅ Correct loading check
   if (loading) {
-    return <div>Loading...</div>; // Optional spinner
+    return <div>Loading...</div>;
   }
 
+  // If no user, redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  console.log("User role:", user.role);
-  console.log("Required role:", requiredRole);
-  if (requiredRole.length > 0 && !requiredRole.includes(user.role)) {
+
+  // If user exists but no role, redirect to login
+  if (!user.role) {
+    return <Navigate to="/login" replace />;
+  }
+
+
+  const isAllowed =
+    requiredRole.includes(Roles.ALL) || requiredRole.includes(user.role);
+
+  if (!isAllowed) {
     toast.error("You don't have permission to access this page");
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" replace />; 
   }
 
   return <Outlet />;

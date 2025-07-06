@@ -15,15 +15,19 @@ export interface Leads {
   preferredLanguage?: string;
   reason?: string | null;
   referredBy?: string | null;
-  leadManagerId?: number | null;
-  teamId?: number | null;
-  assignedToId?: number | null;
+  ownerId?: number | null;
+  teamAssignedId?: number | null;
+  handlerId?: number | null;
+  batch:string;
   assignedTo?:{
+ name:string
+  },
+    owner?:{
  name:string
   },
   createdAt: string;
   updatedAt: string;
-  team:{
+  teamAssigned:{
     teamName:string;
     colorCode:string;
   }

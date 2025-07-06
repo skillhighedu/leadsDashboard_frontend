@@ -11,8 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { Leads } from "@/types/leads"
-import { useStore } from "@/context/useStore"
-import { use } from "react"
+import { useAuthStore } from "@/store/AuthStore"
+import { Button } from "./ui/button"
+
 
 interface LeadTableProps {
   leads: Leads[]
@@ -25,9 +26,9 @@ interface LeadTableProps {
 
 
 export function LeadTable({ leads, loading, selectedLeads, onSelectLead, onSelectAll }: LeadTableProps) {
-  const UnassignedLeads = leads.filter(lead => lead.teamId == null)
+  const UnassignedLeads = leads.filter(lead => lead.teamAssignedId == null)
 const selectedSet = new Set(selectedLeads);
-const {user} = useStore();
+const {user} = useAuthStore();
 
 const allSelected = UnassignedLeads.length > 0 &&
   UnassignedLeads.every(lead => selectedSet.has(lead.id));
@@ -46,8 +47,11 @@ const allSelected = UnassignedLeads.length > 0 &&
           <TableHead>Branch</TableHead>
           <TableHead>Domain</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Owner</TableHead>
           <TableHead>Assigned To Team</TableHead>
           <TableHead>Assigned To Member</TableHead>
+          <TableHead>Actions</TableHead>
+
 
         </TableRow>
       </TableHeader>
@@ -65,20 +69,20 @@ const allSelected = UnassignedLeads.length > 0 &&
             <TableRow
               key={lead.id}
               className="hover:bg-muted/50"
-              style={{ backgroundColor: lead.teamId != null && lead.team ? lead.team.colorCode : undefined }}
+              style={{ backgroundColor: lead.teamAssignedId != null && lead.teamAssigned ? lead.teamAssigned.colorCode : undefined }}
             >
               <TableCell>
                 <Checkbox
                   checked={selectedLeads.includes(lead.id)}
                   onCheckedChange={() => onSelectLead(lead.id)}
-                  disabled={user && user.role !== "leadManager"? lead.assignedToId !== null: lead.teamId !== null }
+                  disabled={user && user.role !== "leadManager"? lead.handlerId !== null: lead.teamAssignedId !== null }
                 />
               </TableCell>
               <TableCell>{lead.name}</TableCell>
               <TableCell>{lead.email}</TableCell>
               <TableCell>{lead.phoneNumber}</TableCell>
               <TableCell>{lead.college}</TableCell>
-              <TableCell>{lead.branch}</TableCell>
+              <TableCell>{lead.batch}</TableCell>
               <TableCell>{lead.domain}</TableCell>
                
               <TableCell>
@@ -93,9 +97,10 @@ const allSelected = UnassignedLeads.length > 0 &&
                   {lead.status}
                 </span>
               </TableCell>
-              <TableCell>{lead?.team?.teamName ?? "Unassigned"}</TableCell>
+              <TableCell>{lead?.owner?.name}</TableCell>
+              <TableCell>{lead?.teamAssigned?.teamName ?? "Unassigned"}</TableCell>
               <TableCell>{lead.assignedTo?.name ? lead.assignedTo.name : "-"}</TableCell>
-
+              <TableCell><Button variant="outline">Edit</Button></TableCell>
             </TableRow>
         
           ))

@@ -13,7 +13,7 @@ import { handleApiError } from "@/utils/errorHandler";
 export const fetchLeads = async (page = 1, limit = 50): Promise<LeadsResponse> => {
   try {
     const response = await apiClient.get<ApiResponse<LeadsResponse>>(
-      `/lead/getLeads?page=${page}&limit=${limit}`
+      `/leads/all-Leads?page=${page}&limit=${limit}`
     );
 
     if (!response.data.additional) {

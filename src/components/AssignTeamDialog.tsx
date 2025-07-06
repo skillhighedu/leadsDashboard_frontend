@@ -15,7 +15,8 @@ import {
   SelectItem,
 } from "@/components/ui/select"
 
-import { useStore } from "@/context/useStore" 
+import { useAuthStore } from "@/store/AuthStore";
+
 
 interface Team {
   id: string
@@ -48,7 +49,8 @@ export function AssignTeamDialog({
 }: AssignTeamDialogProps)
   
  {
-const {user} = useStore()
+  const { user } = useAuthStore();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>

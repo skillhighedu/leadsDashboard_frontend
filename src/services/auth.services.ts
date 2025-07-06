@@ -12,7 +12,7 @@ export const checkRole = async (): Promise<AuthResponse> => {
     const response = await apiClient.get<ApiResponse<AuthResponse>>(
       "/check/auth/role"
     );
-
+    console.log(response)
     const role = response.data.additional?.role;
 
     if (!role) {

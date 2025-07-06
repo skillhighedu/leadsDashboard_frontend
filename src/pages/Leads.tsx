@@ -13,7 +13,7 @@ import { fetchLeads } from "@/services/leads.services"
 import { fetchTeamLeads, fetchTeams } from "@/services/team.services"
 import { assignLeadToTeam } from "@/services/assignLeads.services"
 import type { Leads } from "@/types/leads"
-import { useStore } from "@/context/useStore"
+import { useAuthStore } from "@/store/AuthStore"
 
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Leads[]>([])
@@ -21,7 +21,7 @@ export default function LeadsPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
-  const { user} = useStore()
+  const { user} = useAuthStore()
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false)
 
@@ -103,6 +103,7 @@ export default function LeadsPage() {
     try {
       const res = await assignLeadToTeam(Number(selectedTeam), selectedLeads.map(String))
       if (res) {
+        await fetchLeads()
         setLeads(prev =>
           prev.map(lead =>
             selectedLeads.includes(lead.id) ? { ...lead, teamId: Number(selectedTeam) } : lead
@@ -128,7 +129,7 @@ export default function LeadsPage() {
     )
   }
   return (
-    <div className="p-3 max-w-7xl mx-auto">
+    <div className="p-3">
       <UploadLeadDialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />
       <AssignTeamDialog
         open={isAssignDialogOpen}

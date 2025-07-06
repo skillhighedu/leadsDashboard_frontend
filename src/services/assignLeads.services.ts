@@ -16,10 +16,6 @@ export const assignLeadToTeam = async (
       `team-assignments/teams/${teamId}/leads`,
      { leadIds }
     );
-
-   
-
-
     if (!response.data.additional) {
       throw new Error("Assignment response is missing");
     }

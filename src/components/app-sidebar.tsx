@@ -4,6 +4,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
@@ -12,26 +13,34 @@ import {
   UsersIcon,
   UserCogIcon,
   LogOutIcon,
-  Users
-
+  Users,
+  Menu
 } from "lucide-react"
-import { useAuthStore } from '@/context/authStore'
-import { useStore } from "@/context/useStore"
+import { useAuthStore } from '@/store/AuthStore'
+import { Roles } from "@/contants/role.constant"
+import Logo from "@/assets/favicon.png"
 export function AppSidebar() {
   const { logout } = useAuthStore()
-  const { user } = useStore()
-  console.log("User Role:", user?.role)
+  const { user } = useAuthStore();
+
   return (
-    <Sidebar className="w-[250px] min-h-screen bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300">
+    <Sidebar className="w-[250px] min-h-screen flex-shrink-0 flex-grow-0 bg-white  border-r border-gray-200 dark:border-gray-700 transition-all duration-300">
       <SidebarHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-          <span className="text-primary">DashBoard</span>
-        </h2>
+        <div className="flex items-center justify-between">
+       <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+  <img src={Logo} alt="Logo" className="w-20 h-20 object-contain" />
+  <span className="text-primary text-2xl tracking-wide">CRM</span>
+</h2>
+
+          <SidebarTrigger className="lg:hidden">
+            <Menu className="h-5 w-5" />
+          </SidebarTrigger>
+        </div>
       </SidebarHeader>
 
       <SidebarContent className="py-4">
         {
-          user?.role?.toLowerCase() === 'administrator' && (
+          user?.role?.toLowerCase() === Roles.ADMIN.toLowerCase() && (
             <><SidebarGroup>
               <Link to="/" className="block">
                 <Button
@@ -75,7 +84,7 @@ export function AppSidebar() {
               </SidebarGroup></>
           )
         }
-        {user?.role?.toLowerCase() === 'intern' && (
+        {user?.role?.toLowerCase() === Roles.INTERN.toLowerCase() && (
           <SidebarGroup>
             <Link to="/assigned_leads" className="block">
               <Button
@@ -88,7 +97,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-         {user?.role === 'leadManager' && (
+         {user?.role === Roles.LEAD_MANAGER && (
           <SidebarGroup>
             <Link to="/allLeads" className="block">
               <Button
@@ -101,7 +110,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-         {user?.role === 'executive' && (
+         {user?.role === Roles.EXECUTIVE && (
           <SidebarGroup>
             <Link to="/allLeads" className="block">
               <Button

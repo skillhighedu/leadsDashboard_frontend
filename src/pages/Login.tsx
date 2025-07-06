@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { adminLogin } from "@/services/admin.services"; 
 import { useNavigate } from "react-router-dom";
+import {useAuthStore} from "@/store/AuthStore"
 
 import { toast } from "sonner";
 
@@ -11,7 +12,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuthStore();
 
+   
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,15 +22,19 @@ export default function Login() {
     if (name === "password") setPassword(value);
   };
 
-  const login = async () => {
+  const handleLogin = async () => {
     try {
       setIsLoading(true);
       const res = await adminLogin(email, password);
-      if (res) {
-  
-     
-          navigate("/");
-        
+
+      setIsLoading(false)
+      if (res && res.token) {
+        // After successful login, check auth to get user role
+        const { checkAuth, isCheckingAuth } = useAuthStore.getState();
+        if (!isCheckingAuth) {
+          await checkAuth();
+        }
+        navigate("/")
       }
     } catch (error) {
       toast.error("Login failed. Please check your credentials.");
@@ -38,7 +45,7 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login();
+    handleLogin();
   };
 
   return (

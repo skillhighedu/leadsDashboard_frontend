@@ -3,30 +3,25 @@ import config from "./config";
 
 const apiUrl = config.API_BASE_URL;
 
-const api = axios.create({ baseURL: apiUrl, withCredentials: true });
+// Automatically sends cookies (including httpOnly token) on every request
+const api = axios.create({
+  baseURL: apiUrl,
+  withCredentials: true, // 🔑 required for cookies to be sent
+});
 
-// Request Interceptor: Attach token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-// Response Interceptor: Handle 401 errors
+// Handle 401 globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token"); // Clear the stored token
-      window.location.href = "/login"; // Redirect to login page
+      // Token might have expired, session invalid
+      // Only redirect if not already on login page to prevent loops
+      if (window.location.pathname !== '/login') {
+        window.location.href = "/login"; // Redirect user to login
+      }
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;
