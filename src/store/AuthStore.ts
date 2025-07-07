@@ -56,11 +56,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         console.warn("No role found in response:", res.data);
         set({ user: null, loading: false, error: null, isCheckingAuth: false });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Auth check error:", err);
-      
       // Handle 401 errors gracefully - just clear user state
-      if (err.response && err.response.status === 401) {
+      if (typeof err === 'object' && err !== null && 'response' in err && (err as { response?: { status?: number } }).response?.status === 401) {
         console.log("401 Unauthorized - clearing user state");
         set({ user: null, loading: false, error: null, isCheckingAuth: false });
       } else {

@@ -34,8 +34,11 @@ export interface Leads {
 }
 
 export interface LeadsResponse {
-  leads: Leads[];
-  page: number;
+  data: Leads[];
+  meta: {
+    page: number;
   total: number;
   totalPages: number;
+  }
+  
 }

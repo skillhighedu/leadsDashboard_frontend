@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -7,11 +7,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { useNavigate } from "react-router-dom"
+} from "@/components/ui/table";
+import { useNavigate } from "react-router-dom";
 
-import { Button } from "@/components/ui/button"
-import { fetchRoles, deleteRole } from "@/services/role.services"
+import { Button } from "@/components/ui/button";
+import { fetchRoles, deleteRole } from "@/services/role.services";
 import {
   Dialog,
   DialogContent,
@@ -20,53 +20,54 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { PlusIcon, PencilIcon, Trash2 } from "lucide-react"
-import { Link } from "react-router-dom"
+} from "@/components/ui/dialog";
+import { PlusIcon, PencilIcon, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type Permission = {
-  uploadData: boolean
-  createData: boolean
-  editData: boolean
-  assignData: boolean
-  deleteData: boolean
-}
+  uploadData: boolean;
+  createData: boolean;
+  editData: boolean;
+  assignData: boolean;
+  deleteData: boolean;
+};
 
 type Role = {
-  id: number
-  name: string
-  uuid:string
-  permissions: Permission
-}
+  id: number;
+  name: string;
+  uuid: string;
+  permissions: Permission;
+};
 
 export default function Role() {
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loadingId, setLoadingId] = useState<string | null>(null)
-  const navigate = useNavigate()
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const getRoles = async () => {
     try {
-      const response = await fetchRoles()
-      setRoles(response)
+      const response = await fetchRoles();
+      console.log(response);
+      setRoles(response);
     } catch (error) {
-      console.error("Error fetching roles:", error)
+      console.error("Error fetching roles:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    getRoles()
-  }, [])
+    getRoles();
+  }, []);
 
   const handleDeleteRole = async (uuid: string) => {
     try {
-      setLoadingId(uuid)
-      await deleteRole(uuid)
-      await getRoles() // Refresh roles list
+      setLoadingId(uuid);
+      await deleteRole(uuid);
+      await getRoles(); // Refresh roles list
     } catch (error) {
-      console.error("Error deleting role:", error)
+      console.error("Error deleting role:", error);
     } finally {
-      setLoadingId(null)
+      setLoadingId(null);
     }
-  }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -104,20 +105,30 @@ export default function Role() {
               {roles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell>{role.name}</TableCell>
-                  <TableCell>{role.permissions.uploadData ? "✅" : "❌"}</TableCell>
-                  <TableCell>{role.permissions.createData ? "✅" : "❌"}</TableCell>
-                  <TableCell>{role.permissions.editData ? "✅" : "❌"}</TableCell>
-                  <TableCell>{role.permissions.deleteData ? "✅" : "❌"}</TableCell>
+                  <TableCell>
+                    {role.permissions?.uploadData ? "✅" : "❌"}
+                  </TableCell>
+                  <TableCell>
+                    {role.permissions?.createData ? "✅" : "❌"}
+                  </TableCell>
+                  <TableCell>
+                    {role.permissions?.editData ? "✅" : "❌"}
+                  </TableCell>
+                  <TableCell>
+                    {role.permissions?.deleteData ? "✅" : "❌"}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                     <Button
-  variant="outline"
-  size="sm"
-  onClick={() => navigate("/create-role", { state: { role } })}
->
-  <PencilIcon className="h-4 w-4 mr-2" />
-  Edit
-</Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          navigate("/create-role", { state: { role } })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
 
                       <Dialog>
                         <DialogTrigger asChild>
@@ -134,8 +145,8 @@ export default function Role() {
                           <DialogHeader>
                             <DialogTitle>Confirm Deletion</DialogTitle>
                             <DialogDescription>
-                              Are you sure you want to delete <b>{role.name}</b>? This action
-                              cannot be undone.
+                              Are you sure you want to delete <b>{role.name}</b>
+                              ? This action cannot be undone.
                             </DialogDescription>
                           </DialogHeader>
                           <DialogFooter>
@@ -145,7 +156,9 @@ export default function Role() {
                               onClick={() => handleDeleteRole(role.uuid)}
                               disabled={loadingId === role.uuid}
                             >
-                              {loadingId === role.uuid ? "Deleting..." : "Delete"}
+                              {loadingId === role.uuid
+                                ? "Deleting..."
+                                : "Delete"}
                             </Button>
                           </DialogFooter>
                         </DialogContent>
@@ -159,5 +172,5 @@ export default function Role() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

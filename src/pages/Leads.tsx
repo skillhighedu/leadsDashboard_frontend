@@ -10,10 +10,11 @@ import { AssignTeamDialog } from "@/components/AssignTeamDialog"
 import { LeadTable } from "@/components/LeadTable"
 
 import { fetchLeads } from "@/services/leads.services"
-import { fetchTeamLeads, fetchTeams } from "@/services/team.services"
+import { fetchTeamLeads, fetchTeams, type Team } from "@/services/team.services"
 import { assignLeadToTeam } from "@/services/assignLeads.services"
 import type { Leads } from "@/types/leads"
 import { useAuthStore } from "@/store/AuthStore"
+import { Roles } from "@/contants/role.constant"
 
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Leads[]>([])
@@ -35,56 +36,38 @@ export default function LeadsPage() {
 
 
   
-  if(user && user.role== "leadManager")
-  {
   useEffect(() => {
-    const getTeamLeads = async () => {
+    const getLeads = async () => {
       setLoading(true)
       try {
-        const data = await fetchLeads(page)
-        setLeads(data.leads)
-        console.log(data)
-        setTotalPages(data.totalPages)
-      } catch (err) {
+        if(user && user.role === Roles.LEAD_MANAGER) {
+          const data = await fetchLeads(page)
+          setLeads(data.data)
+          setTotalPages(data.meta.totalPages)
+        } else {
+          const data = await fetchTeamLeads()
+          setLeads(data.data)
+          setTotalPages(data.meta.totalPages)
+        }
+      } catch (err: unknown) {
         console.error(err)
       } finally {
         setLoading(false)
       }
     }
-    getTeamLeads()
-  }, [page, statusFilter])
-  }
-  else
-  {
- useEffect(() => {
-    const getTeamLeads = async () => {
-      setLoading(true)
-      try {
-        const data = await fetchTeamLeads()
-        setLeads(data)
-       console.log(leads)
-        setTotalPages(data.totalPages)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    getTeamLeads()
-  }, [])
-  }
- 
+    getLeads()
+  }, [user, page, statusFilter])
 
   useEffect(() => {
     const getTeams = async () => {
       setTeamsLoading(true)
       try {
         const data = await fetchTeams()
-        setTeams(data.map((team: any) => ({
+        setTeams(data.map((team: Team) => ({
           id: String(team.id),
-          name: team.name ?? team.teamName ?? ""
+          name: team.teamName ?? ""
         })))
-      } catch (err) {
+      } catch (err: unknown) {
         console.error(err)
       } finally {
         setTeamsLoading(false)
@@ -113,7 +96,7 @@ export default function LeadsPage() {
         setSelectedTeam("")
         setIsAssignDialogOpen(false)
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.log(err)
     } finally {
       setAssignLoading(false)
