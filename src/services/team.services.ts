@@ -9,18 +9,40 @@ export interface RoleInfo {
   uuid: string;
 }
 
-export interface Employee {
+interface Employee {
   id: number;
   name: string;
-  email: string;
-  uuid: string;
-  role: RoleInfo;
+  User: {
+    email: string;
+  };
 }
 
+
 export interface Team {
-    id:number
-    teamName:string
+  id: number
+  uuid: string
+  teamName: string
+  colorCode: string
+  teamLeadId: number
+  teamLead: {
+    id: number
+    uuid: string
+    name: string
+  }
+  employees: {
+    id: number
+    uuid: string
+    name: string
+    User: {
+      email: string
+      role: {
+        name: string
+      }
+    }[]
+  }[]
 }
+
+
 
 
 export const fetchExecutives = async (): Promise<Employee[]> => {
@@ -38,10 +60,10 @@ export const fetchExecutives = async (): Promise<Employee[]> => {
 export const fetchTeams = async (): Promise<Team[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Team[]>>(
-      "/teams/team"
+      "/teams/teamMembers"
     );
     console.log(response)
-    return response.data.additional ?? [];
+    return response.data.data ?? [];
   } catch (error) {
     throw handleApiError(error);
   }
@@ -68,10 +90,12 @@ type Payload ={
 
 export const createTeam = async (payload:Payload): Promise<Employee[]> => {
   try {
+    console.log(payload);
     const response = await apiClient.post<ApiResponse<Employee[]>>(
       "/teams/create-team",payload
     );
 
+    
     return response.data.additional ?? [];
   } catch (error) {
     throw handleApiError(error);
@@ -93,4 +117,9 @@ export const fetchTeamLeads = async (): Promise<LeadsResponse> => {
     throw handleApiError(error);
   }
 };
+
+// export const fetchTeamMembers  = async (uuid: string) => {
+//     const response = await apiClient.get(`/teams/teamMembers/${uuid}`);
+//     return response
+// }
 

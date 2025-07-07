@@ -52,7 +52,9 @@ export default function Employee() {
     const matchesSearch =
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === "all" || employee.role.name.toLowerCase() === selectedRole.toLowerCase();
+    const matchesRole =
+      selectedRole === "all" ||
+      employee.roleName.toLowerCase() === selectedRole.toLowerCase();
     return matchesSearch && matchesRole;
   });
 
@@ -94,10 +96,10 @@ export default function Employee() {
               </SelectContent>
             </Select>
             <Link to="/add_employee">
-            <Button className="bg-primary hover:bg-primary/90 text-white">
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add Employee
-            </Button>
+              <Button className="bg-primary hover:bg-primary/90 text-white">
+                <PlusIcon className="mr-2 h-4 w-4" />
+                Add Employee
+              </Button>
             </Link>
           </div>
         </div>
@@ -144,7 +146,7 @@ export default function Employee() {
                           {employee.email}
                         </TableCell>
                         <TableCell className="text-gray-600 dark:text-gray-300 py-4 px-6">
-                          {employee.role.name}
+                          {employee.roleName}
                         </TableCell>
                         <TableCell className="text-gray-600 dark:text-gray-300 py-4 px-6">
                           <Button
@@ -167,7 +169,10 @@ export default function Employee() {
                               Edit
                             </Button>
                             <Dialog
-                              open={deleteDialogOpen && employeeToDelete === employee.id}
+                              open={
+                                deleteDialogOpen &&
+                                employeeToDelete === employee.id
+                              }
                               onOpenChange={(open) => {
                                 setDeleteDialogOpen(open);
                                 if (open) setEmployeeToDelete(employee.id);
@@ -189,8 +194,9 @@ export default function Employee() {
                                 <DialogHeader>
                                   <DialogTitle>Confirm Deletion</DialogTitle>
                                   <DialogDescription>
-                                    Are you sure you want to delete {employee.name}? This action
-                                    cannot be undone.
+                                    Are you sure you want to delete{" "}
+                                    {employee.name}? This action cannot be
+                                    undone.
                                   </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter>
@@ -214,7 +220,7 @@ export default function Employee() {
                       </TableRow>
                     ))
                   ) : (
-                    <TableRow>
+                    <TableRow >
                       <TableCell
                         colSpan={5}
                         className="text-center py-8 text-gray-500 dark:text-gray-400"

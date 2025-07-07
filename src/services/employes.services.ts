@@ -3,24 +3,22 @@ import type { ApiResponse } from "@/types/api";
 
 import { handleApiError } from "@/utils/errorHandler";
 
-export interface RoleInfo {
-  name: string;
-  uuid: string;
-}
+
 
 export interface Employee {
   id: number;
   name: string;
   email: string;
   uuid: string;
-  role: RoleInfo;
+  roleId: number;
+  roleName: string;
 }
 
 
 export const fetchEmployes = async (): Promise<Employee[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Employee[]>>(
-      "/employes/allEmployes"
+      "/employees/employees"
     );
 
     return response.data.additional ?? [];
@@ -33,7 +31,7 @@ export const fetchEmployes = async (): Promise<Employee[]> => {
 export const editEmployee = async (id:number,payload:Payload): Promise<Employee[]> => {
   try {
     const response = await apiClient.put<ApiResponse<Employee[]>>(
-      `/employes/createEmployee/${id}`, payload
+      `/employees/createEmployee/${id}`, payload
     );
 
     return response.data.additional ?? [];
@@ -52,7 +50,7 @@ type Payload ={
 export const createEmployee = async (payload:Payload): Promise<Employee[]> => {
   try {
     const response = await apiClient.post<ApiResponse<Employee[]>>(
-      "/employes/createEmployee",payload
+      "/employees/create-employee",payload
     );
 
     return response.data.additional ?? [];

@@ -1,4 +1,3 @@
-
 // components/LeadTable.tsx
 import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -13,6 +12,7 @@ import {
 import type { Leads } from "@/types/leads"
 import { useAuthStore } from "@/store/AuthStore"
 import { Button } from "./ui/button"
+import { Input } from "./ui/input"
 
 
 interface LeadTableProps {
@@ -26,12 +26,14 @@ interface LeadTableProps {
 
 
 export function LeadTable({ leads, loading, selectedLeads, onSelectLead, onSelectAll }: LeadTableProps) {
-  const UnassignedLeads = leads.filter(lead => lead.teamAssignedId == null)
-const selectedSet = new Set(selectedLeads);
-const {user} = useAuthStore();
+    console.log(leads)
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  const UnassignedLeads = safeLeads.filter(lead => lead.teamAssignedId == null)
+  const selectedSet = new Set(selectedLeads);
+  const {user} = useAuthStore();
 
-const allSelected = UnassignedLeads.length > 0 &&
-  UnassignedLeads.every(lead => selectedSet.has(lead.id));
+  const allSelected = UnassignedLeads.length > 0 &&
+    UnassignedLeads.every(lead => selectedSet.has(lead.id));
 
   return (
     <Table>
@@ -51,6 +53,7 @@ const allSelected = UnassignedLeads.length > 0 &&
           <TableHead>Assigned To Team</TableHead>
           <TableHead>Assigned To Member</TableHead>
           <TableHead>Actions</TableHead>
+          <TableHead>Ticket Amount</TableHead>
 
 
         </TableRow>
@@ -64,8 +67,8 @@ const allSelected = UnassignedLeads.length > 0 &&
               ))}
             </TableRow>
           ))
-        ) : leads.length ? (
-          leads.map(lead => (
+        ) : safeLeads.length ? (
+          safeLeads.map(lead => (
             <TableRow
               key={lead.id}
               className="hover:bg-muted/50"
@@ -101,6 +104,7 @@ const allSelected = UnassignedLeads.length > 0 &&
               <TableCell>{lead?.teamAssigned?.teamName ?? "Unassigned"}</TableCell>
               <TableCell>{lead.assignedTo?.name ? lead.assignedTo.name : "-"}</TableCell>
               <TableCell><Button variant="outline">Edit</Button></TableCell>
+              <TableCell><Input></Input></TableCell>
             </TableRow>
         
           ))

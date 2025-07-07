@@ -1,30 +1,22 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Link } from "react-router-dom"
-import { fetchTeams } from "@/services/team.services"
-
-interface Team {
-  id: string
-  teamName: string
-}
+import { fetchTeams, type Team } from "@/services/team.services"
+import { Skeleton } from "@/components/ui/skeleton"
+import { toast } from "sonner"
 
 export default function AddTeam() {
   const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   useEffect(() => {
     const getTeams = async () => {
       try {
         setLoading(true)
-        const response = await fetchTeams()
-        setTeams(response.map((team: any) => ({
-          ...team,
-          id: String(team.id),
-        })))
-      } catch (err) {
-        console.error("Failed to fetch teams", err)
+        const data = await fetchTeams()
+        setTeams(data)
+      } catch (error) {
+        toast.error("Failed to fetch teams")
       } finally {
         setLoading(false)
       }
@@ -33,25 +25,23 @@ export default function AddTeam() {
     getTeams()
   }, [])
 
-  const toggleDropdown = (teamId: string) => {
-    setOpenDropdown(openDropdown === teamId ? null : teamId)
-  }
-
   return (
-    <div className="p-6 w-full max-w-4xl mx-auto">
+    <div className="p-6 w-full max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-white">
           Teams
         </h2>
-        <Link to="/create_team">
-          <Button className="text-base px-4 py-2">
-            + Create Team
-          </Button>
-        </Link>
+        <Button asChild className="text-base px-4 py-2">
+          <a href="/create_team">+ Create Team</a>
+        </Button>
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground">Loading teams...</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-40 w-full rounded-xl" />
+          ))}
+        </div>
       ) : teams.length === 0 ? (
         <p className="text-muted-foreground">No teams found. Create your first team!</p>
       ) : (
@@ -66,45 +56,22 @@ export default function AddTeam() {
                   {team.teamName}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="relative">
-                  <Button
-                    variant="outline"
-                    className="w-full text-base"
-                    onClick={() => toggleDropdown(team.id)}
-                  >
-                    Team Members
-                  </Button>
-                  {openDropdown === team.id && (
-                    <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 border border-border rounded-md shadow-lg">
-                      <ul className="py-1">
-                        <li>
-                          <Link
-                            to={`/team/${team.id}/members`}
-                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            View Members
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            to={`/team/${team.id}/add-member`}
-                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            Add Member
-                          </Link>
-                        </li>
-                        <li>
-                          <Link
-                            to={`/team/${team.id}/roles`}
-                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            Manage Roles
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+              <CardContent className="space-y-3">
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">Lead:</span>{" "}
+                  {team.teamLead?.name}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">Members:</span>
+                  <ul className="mt-1 list-disc list-inside space-y-1">
+                    {team.employees.map((member) => (
+                      <li key={member.id}>
+                        <span className="text-foreground">{member.name}</span> –{" "}
+                        {member.User[0]?.email ?? "N/A"} (
+                        {member.User[0]?.role?.name ?? "N/A"})
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </CardContent>
             </Card>

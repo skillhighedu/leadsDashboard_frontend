@@ -31,9 +31,9 @@ export interface Payload {
 export const fetchRoles = async (): Promise<Role[]> => {
   try {
     const response = await apiClient.get<ApiResponse<Role[]>>(
-      "/roles/allRoles"
+      "/roles/roles",
     );
-   
+
 
     return response.data.additional ?? []
   } catch (error) {
@@ -45,7 +45,7 @@ export const fetchRoles = async (): Promise<Role[]> => {
 export const createRole = async (payload:Payload): Promise<Role[]> => {
   try {
     const response = await apiClient.post<ApiResponse<Role[]>>(
-      "/roles/createRole",payload
+      "/roles/role",payload
     );
     if(response.data.success)
     {
@@ -62,7 +62,7 @@ export const createRole = async (payload:Payload): Promise<Role[]> => {
 export const deleteRole = async (uuid:string): Promise<Role[]> => {
   try {
     const response = await apiClient.delete<ApiResponse<Role[]>>(
-      `/roles/deleteRole/${uuid}`
+      `/roles/role/${uuid}`
     );
     if(response.data.success)
     {
@@ -78,7 +78,7 @@ export const deleteRole = async (uuid:string): Promise<Role[]> => {
 export const editRole = async (uuid:string,payload:Payload): Promise<Role[]> => {
   try {
     const response = await apiClient.put<ApiResponse<Role[]>>(
-      `/roles/updateRole/${uuid}`,payload
+      `/roles/role/${uuid}`,payload
     );
     if(response.data.success)
     {
