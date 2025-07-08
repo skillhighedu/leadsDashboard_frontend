@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react"
 interface Employee {
   id: number
   name: string
+  uuid:string
 }
 
 export default function AddTeam() {

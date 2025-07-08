@@ -3,53 +3,63 @@ import type { ApiResponse } from "@/types/api";
 import type { LeadsResponse } from "@/types/leads";
 
 import { handleApiError } from "@/utils/errorHandler";
+import type { Employee } from "./employes.services";
 
 export interface RoleInfo {
   name: string;
   uuid: string;
 }
 
-interface Employee {
+interface ExecutivesResponse {
   id: number;
   name: string;
-  User: {
-    email: string;
-  };
+  uuid:string
 }
 
 
-export interface Team {
-  id: number
+
+export interface TeamResponse {
+ id: number
   uuid: string
   teamName: string
   colorCode: string
   teamLeadId: number
-  teamLead: {
+  teamLead : TeamLeadResponse[]
+  employees:EmployeeResponse[]
+}
+
+export interface TeamLeadResponse {
     id: number
     uuid: string
     name: string
-  }
-  employees: {
+}
+
+export interface EmployeeResponse {
     id: number
     uuid: string
     name: string
-    User: {
-      email: string
+    User:UserData[]
+}
+
+export interface UserData {
+    email: string
       role: {
         name: string
-      }
-    }[]
-  }[]
+    }
 }
 
 
+export interface DeleteTeamResponse {
+  message: string;
+  code: number;
+}
 
-
-export const fetchExecutives = async (): Promise<Employee[]> => {
+export const fetchExecutives = async (): Promise<ExecutivesResponse[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<Employee[]>>(
+    const response = await apiClient.get<ApiResponse<ExecutivesResponse[]>>(
       "/teams/executives"
     );
+    console.log(response)
 
     return response.data.additional ?? [];
   } catch (error) {
@@ -57,13 +67,13 @@ export const fetchExecutives = async (): Promise<Employee[]> => {
   }
 };
 
-export const fetchTeams = async (): Promise<Team[]> => {
+export const fetchTeams = async (): Promise<TeamResponse[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<Team[]>>(
+    const response = await apiClient.get<ApiResponse<TeamResponse[]>>(
       "/teams/teamMembers"
     );
     console.log(response)
-    return response.data.data ?? [];
+    return response.data.additional ?? [];
   } catch (error) {
     throw handleApiError(error);
   }
@@ -122,4 +132,42 @@ export const fetchTeamLeads = async (): Promise<LeadsResponse> => {
 //     const response = await apiClient.get(`/teams/teamMembers/${uuid}`);
 //     return response
 // }
+
+export const deleteTeam = async (id: number): Promise<DeleteTeamResponse> => {
+  try {
+    const response = await apiClient.delete<ApiResponse<DeleteTeamResponse>>(`/teams/team/${id}`);
+    // The backend returns a SuccessResponse with message and code
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export interface TeamMemberPayload {
+  employeeId: number;
+}
+
+export interface TeamMemberResponse {
+  message: string;
+  code: number;
+}
+
+export const addMemberToTeam = async (teamId: number, payload: TeamMemberPayload): Promise<TeamMemberResponse> => {
+  try {
+    const response = await apiClient.post<ApiResponse<TeamMemberResponse>>(`/teams/team/${teamId}/add-member`, payload);
+    console.log(response)
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const removeMemberFromTeam = async (teamId: number, payload: TeamMemberPayload): Promise<TeamMemberResponse> => {
+  try {
+    const response = await apiClient.delete<ApiResponse<TeamMemberResponse>>(`/teams/team/${teamId}/remove-member`, { data: payload });
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
 

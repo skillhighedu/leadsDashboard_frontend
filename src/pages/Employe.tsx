@@ -27,7 +27,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PlusIcon, PencilIcon, ChartLineIcon, Trash2 } from "lucide-react";
-import { fetchEmployes, type Employee } from "@/services/employes.services";
+import { deleteEmployee, fetchEmployes, type Employee } from "@/services/employes.services";
 import { Link } from "react-router-dom";
 export default function Employee() {
   const [employeeData, setEmployeeData] = useState<Employee[]>([]);
@@ -58,8 +58,9 @@ export default function Employee() {
     return matchesSearch && matchesRole;
   });
 
-  const handleDelete = (id: number) => {
-    setEmployeeData(employeeData.filter((employee) => employee.id !== id));
+  const handleDelete = async(uuid: string) => {
+    await deleteEmployee(uuid)
+    setEmployeeData(employeeData.filter((employee) => employee.uuid !== uuid));
     setDeleteDialogOpen(false);
     setEmployeeToDelete(null);
   };
@@ -208,7 +209,7 @@ export default function Employee() {
                                   </Button>
                                   <Button
                                     variant="destructive"
-                                    onClick={() => handleDelete(employee.id)}
+                                    onClick={() => handleDelete(employee.uuid)}
                                   >
                                     Delete
                                   </Button>

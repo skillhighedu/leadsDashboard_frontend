@@ -98,6 +98,7 @@ export default function Role() {
                 <TableHead>Create</TableHead>
                 <TableHead>Edit</TableHead>
                 <TableHead>Delete</TableHead>
+                <TableHead>Assign</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -116,6 +117,9 @@ export default function Role() {
                   </TableCell>
                   <TableCell>
                     {role.permissions?.deleteData ? "✅" : "❌"}
+                  </TableCell>
+                  <TableCell>
+                    {role.permissions?.assignData? "✅" : "❌"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

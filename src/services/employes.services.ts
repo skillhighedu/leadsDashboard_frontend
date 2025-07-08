@@ -2,6 +2,7 @@ import apiClient from "@/config/axiosConfig";
 import type { ApiResponse } from "@/types/api";
 
 import { handleApiError } from "@/utils/errorHandler";
+import { toast } from "sonner";
 
 
 
@@ -12,6 +13,7 @@ export interface Employee {
   uuid: string;
   roleId: number;
   roleName: string;
+  
 }
 
 
@@ -59,3 +61,21 @@ export const createEmployee = async (payload:Payload): Promise<Employee[]> => {
   }
 };
 
+
+
+export const deleteEmployee = async (uuid:string)=> {
+  try {
+    console.log(uuid)
+    const response = await apiClient.delete<ApiResponse<Employee[]>>(
+      `/employees/employee/${uuid}`
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
