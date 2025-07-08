@@ -12,7 +12,8 @@ const validRoles = [
   "leadManager",
   "executive",
   "intern",
-  "hrManager",
+  "hr",
+  "OpsTeam"
 ] as const
 
 const defaultPermissions = {
