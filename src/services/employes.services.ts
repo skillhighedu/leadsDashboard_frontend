@@ -29,14 +29,26 @@ export const fetchEmployes = async (): Promise<Employee[]> => {
   }
 };
 
+export type EditEmployeeResponseType = {
+    employee: {
+    id: number;
+    uuid: string;
+    name: string;
+    roleId: number;
+    roleName: string;
+  };
+}
 
-export const editEmployee = async (id:number,payload:Payload): Promise<Employee[]> => {
+export const editEmployee = async (uuid:string,payload:Payload): Promise<EditEmployeeResponseType> => {
   try {
-    const response = await apiClient.put<ApiResponse<Employee[]>>(
-      `/employees/createEmployee/${id}`, payload
+    const response = await apiClient.put<ApiResponse<EditEmployeeResponseType>>(
+      `/employees/employee/${uuid}`, payload
     );
 
-    return response.data.additional ?? [];
+    if (!response.data.additional) {
+      throw new Error("No additional data returned from API");
+    }
+    return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
   }
@@ -46,7 +58,7 @@ type Payload ={
   name:string;
   email:string;
   roleId:string;
-  password:string;
+  password?:string;
 }
 
 export const createEmployee = async (payload:Payload): Promise<Employee[]> => {

@@ -25,22 +25,53 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { PlusIcon, PencilIcon, ChartLineIcon, Trash2 } from "lucide-react";
-import { deleteEmployee, fetchEmployes, type Employee } from "@/services/employes.services";
+import {
+  deleteEmployee,
+  editEmployee,
+  fetchEmployes,
+  type Employee,
+} from "@/services/employes.services";
 import { Link } from "react-router-dom";
+import type { RoleInfo } from "@/services/team.services";
+import { fetchRoles } from "@/services/role.services";
+import { toast } from "sonner";
+
 export default function Employee() {
   const [employeeData, setEmployeeData] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [employeeToDelete, setEmployeeToDelete] = useState<number | null>(null);
+
+  const [roles, setRoles] = useState<RoleInfo[]>([]);
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    roleId: "",
+    password: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetchEmployes();
         setEmployeeData(response);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchRoles();
+        setRoles(response);
       } catch (error) {
         console.error("Error fetching employees:", error);
       }
@@ -58,11 +89,29 @@ export default function Employee() {
     return matchesSearch && matchesRole;
   });
 
-  const handleDelete = async(uuid: string) => {
-    await deleteEmployee(uuid)
+  const handleDelete = async (uuid: string) => {
+    await deleteEmployee(uuid);
     setEmployeeData(employeeData.filter((employee) => employee.uuid !== uuid));
-    setDeleteDialogOpen(false);
-    setEmployeeToDelete(null);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!employeeToEdit) return;
+
+    try {
+      await editEmployee(employeeToEdit.uuid, {
+        name: editForm.name,
+        email: editForm.email,
+        roleId: editForm.roleId,
+        ...(editForm.password.trim() ? { password: editForm.password } : {}),
+      });
+
+      const updated = await fetchEmployes();
+      setEmployeeData(updated);
+      setEditDialogOpen(false);
+      setEmployeeToEdit(null);
+    } catch (error) {
+      console.error("Edit failed", error);
+    }
   };
 
   return (
@@ -91,7 +140,6 @@ export default function Employee() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="administrator">Administrator</SelectItem>
                 <SelectItem value="executive">Executive</SelectItem>
                 <SelectItem value="intern">Intern</SelectItem>
               </SelectContent>
@@ -165,27 +213,27 @@ export default function Employee() {
                               variant="outline"
                               size="sm"
                               aria-label={`Edit ${employee.name}`}
+                              onClick={() => {
+                                setEmployeeToEdit(employee);
+                                setEditForm({
+                                  name: employee.name,
+                                  email: employee.email,
+                                  roleId: String(employee.roleId),
+                                  password: "", // leave empty
+                                });
+                                setEditDialogOpen(true);
+                              }}
                             >
                               <PencilIcon className="h-4 w-4 mr-2" />
                               Edit
                             </Button>
-                            <Dialog
-                              open={
-                                deleteDialogOpen &&
-                                employeeToDelete === employee.id
-                              }
-                              onOpenChange={(open) => {
-                                setDeleteDialogOpen(open);
-                                if (open) setEmployeeToDelete(employee.id);
-                                else setEmployeeToDelete(null);
-                              }}
-                            >
+
+                            <Dialog>
                               <DialogTrigger asChild>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                  aria-label={`Delete ${employee.name}`}
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
                                   Delete
@@ -196,23 +244,27 @@ export default function Employee() {
                                   <DialogTitle>Confirm Deletion</DialogTitle>
                                   <DialogDescription>
                                     Are you sure you want to delete{" "}
-                                    {employee.name}? This action cannot be
-                                    undone.
+                                    <b>{employee.name}</b>? This action cannot
+                                    be undone.
                                   </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter>
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => setDeleteDialogOpen(false)}
-                                  >
-                                    Cancel
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    onClick={() => handleDelete(employee.uuid)}
-                                  >
-                                    Delete
-                                  </Button>
+                                  <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                  </DialogClose>
+                                  <DialogClose asChild>
+                                    <Button
+                                      variant="destructive"
+                                      onClick={async () => {
+                                        await handleDelete(employee.uuid);
+                                        toast.success(
+                                          `Employee ${employee.name} deleted successfully`
+                                        );
+                                      }}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </DialogClose>
                                 </DialogFooter>
                               </DialogContent>
                             </Dialog>
@@ -221,7 +273,7 @@ export default function Employee() {
                       </TableRow>
                     ))
                   ) : (
-                    <TableRow >
+                    <TableRow>
                       <TableCell
                         colSpan={5}
                         className="text-center py-8 text-gray-500 dark:text-gray-400"
@@ -236,6 +288,92 @@ export default function Employee() {
           </CardContent>
         </Card>
       </div>
+
+      {employeeToEdit && (
+        <Dialog
+          open={editDialogOpen}
+          onOpenChange={(open) => setEditDialogOpen(open)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Employee</DialogTitle>
+              <DialogDescription>
+                Update name, role or password
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="block font-medium mb-1">Name</label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Email</label>
+                <Input
+                  value={editForm.email}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Role</label>
+
+                <Select
+                  value={editForm.roleId}
+                  onValueChange={(val) =>
+                    setEditForm((prev) => ({ ...prev, roleId: val }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={role.uuid} value={role.uuid}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block font-medium mb-1">New Password</label>
+                <Input
+                  type="password"
+                  placeholder="Leave blank to keep unchanged"
+                  value={editForm.password}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleEditSubmit}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </main>
   );
 }
