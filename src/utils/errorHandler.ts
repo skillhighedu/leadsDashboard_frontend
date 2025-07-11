@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "sonner";
 
 export const handleApiError = (error: unknown): string => {
-
+  console.log(error)
   if (axios.isAxiosError(error)) {
     const errors = error.response?.data?.errors;
     

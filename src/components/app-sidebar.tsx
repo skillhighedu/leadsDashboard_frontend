@@ -27,10 +27,10 @@ export function AppSidebar() {
     <Sidebar className="w-[250px] min-h-screen flex-shrink-0 flex-grow-0 bg-white  border-r border-gray-200 dark:border-gray-700 transition-all duration-300">
       <SidebarHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
-       <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-  <img src={Logo} alt="Logo" className="w-20 h-20 object-contain" />
-  <span className="text-primary text-2xl tracking-wide">CRM</span>
-</h2>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <img src={Logo} alt="Logo" className="w-20 h-20 object-contain" />
+            <span className="text-primary text-2xl tracking-wide">CRM</span>
+          </h2>
 
           <SidebarTrigger className="lg:hidden">
             <Menu className="h-5 w-5" />
@@ -86,7 +86,7 @@ export function AppSidebar() {
         }
         {user?.role?.toLowerCase() === Roles.INTERN.toLowerCase() && (
           <SidebarGroup>
-            <Link to="/assigned_leads" className="block">
+            <Link to="/allLeads" className="block">
               <Button
                 variant="ghost"
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
@@ -97,7 +97,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-         {user?.role === Roles.LEAD_MANAGER && (
+        {user?.role === Roles.LEAD_MANAGER && (
           <SidebarGroup>
             <Link to="/allLeads" className="block">
               <Button
@@ -105,7 +105,29 @@ export function AppSidebar() {
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
               >
                 <UsersIcon className="mr-2 h-5 w-5" />
-               All Leads
+                All Leads
+              </Button>
+            </Link>
+             <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Applicatiobn
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
+        {user?.role === Roles.EXECUTIVE && (
+          <SidebarGroup>
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                All Leads
               </Button>
             </Link>
           </SidebarGroup>
@@ -118,24 +140,12 @@ export function AppSidebar() {
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
               >
                 <UsersIcon className="mr-2 h-5 w-5" />
-               Staff Logins
+                Staff logins
               </Button>
             </Link>
           </SidebarGroup>
         )}
-         {user?.role === Roles.EXECUTIVE && (
-          <SidebarGroup>
-            <Link to="/allLeads" className="block">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
-              >
-                <UsersIcon className="mr-2 h-5 w-5" />
-               All Leads
-              </Button>
-            </Link>
-          </SidebarGroup>
-        )}
+        
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-gray-200 dark:border-gray-700">

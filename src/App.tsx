@@ -13,11 +13,10 @@ import Leads from "@/pages/Leads";
 import AddEmployee from "@/pages/AddEmployee";
 import Team from "@/pages/Team";
 import AddTeam from "@/pages/AddTeam";
-// import Analytics from "./pages/Analytics";
 import RolePage from "./pages/Role";
 import { Roles } from "./contants/role.constant";
-import HrDashboard from "./pages/HrDashboard";
-
+import LeaveApplication from "./pages/LeaveApplication";
+import HrDashboard from "@/pages/HrDashboard"
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
   const hasCheckedAuth = useRef(false);
@@ -57,13 +56,21 @@ function App() {
           />
         </Route>
         {/* Protected Route - accessible to all authenticated users */}
-        <Route element={<ProtectedRoute requiredRole={[Roles.EXECUTIVE,Roles.LEAD_MANAGER,Roles.VERTICAL_MANAGER]} />}>
+        <Route element={<ProtectedRoute requiredRole={[Roles.EXECUTIVE,Roles.LEAD_MANAGER,Roles.VERTICAL_MANAGER,Roles.INTERN]} />}>
 
           <Route
             path="/allLeads"
             element={
               <Layout>
                 <Leads />
+              </Layout>
+            }
+          />
+           <Route
+            path="/leave-application"
+            element={
+              <Layout>
+                <LeaveApplication/>
               </Layout>
             }
           />

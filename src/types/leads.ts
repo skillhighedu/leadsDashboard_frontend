@@ -12,24 +12,28 @@ export interface Leads {
   graduationYear: string;
   branch: string;
   college: string;
+  ticketAmount?: number
   preferredLanguage?: string;
   reason?: string | null;
   referredBy?: string | null;
   ownerId?: number | null;
   teamAssignedId?: number | null;
   handlerId?: number | null;
-  batch:string;
-  assignedTo?:{
- name:string
+  hadReferred:boolean;
+  upFrontFee:number;
+  remainingFee:number;
+  batch: string;
+  handler?: {
+    name: string
   },
-    owner?:{
- name:string
+  owner?: {
+    name: string
   },
   createdAt: string;
   updatedAt: string;
-  teamAssigned:{
-    teamName:string;
-    colorCode:string;
+  teamAssigned: {
+    teamName: string;
+    colorCode: string;
   }
 }
 
@@ -37,8 +41,8 @@ export interface LeadsResponse {
   data: Leads[];
   meta: {
     page: number;
-  total: number;
-  totalPages: number;
+    total: number;
+    totalPages: number;
   }
-  
+
 }

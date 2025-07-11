@@ -7,14 +7,21 @@ interface LayoutProps {
   children: ReactNode;
 }
 
+
 export default function Layout({ children }: LayoutProps) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-screen overflow-hidden bg-gray-50">
+        {/* Sidebar */}
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Content Area */}
+        <div className="flex flex-col flex-1 min-w-0">
+          {/* Navbar: full-width always */}
           <Navbar />
-          <main className="flex-1 overflow-auto p-2 min-w-0">
+
+          {/* Main Content */}
+          <main className="flex-1 overflow-y-auto px-6 py-6">
             {children}
           </main>
         </div>
@@ -22,3 +29,4 @@ export default function Layout({ children }: LayoutProps) {
     </SidebarProvider>
   );
 }
+

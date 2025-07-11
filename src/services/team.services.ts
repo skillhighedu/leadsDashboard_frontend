@@ -61,11 +61,20 @@ export interface DeleteTeamResponse {
   code: number;
 }
 
+export interface TeamMembersResponse {
+    id: number
+    uuid: string
+    teamId:number
+    name:string
+}
+
+
 export const fetchExecutives = async (): Promise<ExecutivesResponse[]> => {
   try {
     const response = await apiClient.get<ApiResponse<ExecutivesResponse[]>>(
       "/teams/executives"
     );
+
 
     return response.data.additional ?? [];
   } catch (error) {
@@ -87,7 +96,7 @@ export const fetchInterns = async (): Promise<InternsResponse[]> => {
 export const fetchTeams = async (): Promise<TeamResponse[]> => {
   try {
     const response = await apiClient.get<ApiResponse<TeamResponse[]>>(
-      "/teams/teamMembers"
+      "/teams/team-members"
     );
     console.log(response)
     return response.data.additional ?? [];
@@ -145,10 +154,21 @@ export const fetchTeamLeads = async (): Promise<LeadsResponse> => {
   }
 };
 
-// export const fetchTeamMembers  = async (uuid: string) => {
-//     const response = await apiClient.get(`/teams/teamMembers/${uuid}`);
-//     return response
-// }
+export const fetchTeamMembers = async (): Promise<TeamMembersResponse[]> => {
+  try {
+    const response = await apiClient.get<ApiResponse<TeamMembersResponse[]>>(
+      `/teams/team/members`
+    );
+    console.log("Saikiran",response.data.additional)
+    if (!response.data.additional) {
+      throw new Error("No leads data found in the response.");
+    }
+    return response.data.additional ?? [];
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
 
 export const deleteTeam = async (id: number): Promise<DeleteTeamResponse> => {
   try {
