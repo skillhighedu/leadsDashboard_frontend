@@ -43,7 +43,6 @@ export default function Employee() {
   const [employeeData, setEmployeeData] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
-
   const [roles, setRoles] = useState<RoleInfo[]>([]);
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -73,7 +72,7 @@ export default function Employee() {
         const response = await fetchRoles();
         setRoles(response);
       } catch (error) {
-        console.error("Error fetching employees:", error);
+        console.error("Error fetching roles:", error);
       }
     };
     fetchData();
@@ -164,21 +163,11 @@ export default function Employee() {
               <Table className="min-w-full">
                 <TableHeader>
                   <TableRow className="bg-gray-50 dark:bg-gray-700">
-                    <TableHead className="font-bold text-gray-900 dark:text-gray-100 py-4 px-6 text-left">
-                      Name
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-900 dark:text-gray-100 py-4 px-6 text-left">
-                      Email
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-900 dark:text-gray-100 py-4 px-6 text-left">
-                      Role
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-900 dark:text-gray-100 py-4 px-6 text-left">
-                      Performance
-                    </TableHead>
-                    <TableHead className="font-bold text-gray-900 dark:text-gray-100 py-4 px-6 text-left">
-                      Actions
-                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Performance</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -188,38 +177,32 @@ export default function Employee() {
                         key={employee.id}
                         className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
-                        <TableCell className="text-gray-800 dark:text-gray-100 py-4 px-6">
-                          {employee.name}
-                        </TableCell>
-                        <TableCell className="text-gray-600 dark:text-gray-300 py-4 px-6">
-                          {employee.email}
-                        </TableCell>
-                        <TableCell className="text-gray-600 dark:text-gray-300 py-4 px-6">
-                          {employee.roleName}
-                        </TableCell>
-                        <TableCell className="text-gray-600 dark:text-gray-300 py-4 px-6">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            aria-label={`View analytics for ${employee.name}`}
-                          >
+                        <TableCell>{employee.name}</TableCell>
+                        <TableCell>{employee.email}</TableCell>
+                        <TableCell>{employee.roleName}</TableCell>
+                        <TableCell>
+                          <Button variant="outline" size="sm">
                             <ChartLineIcon className="h-4 w-4 mr-2" />
                             Analytics
                           </Button>
                         </TableCell>
-                        <TableCell className="text-gray-600 dark:text-gray-300 py-4 px-6">
+                        <TableCell>
                           <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              aria-label={`Edit ${employee.name}`}
                               onClick={() => {
                                 setEmployeeToEdit(employee);
+                                const matchingRole = roles.find(
+                                  (r) =>
+                                    r.name.toLowerCase() ===
+                                    employee.roleName.toLowerCase()
+                                );
                                 setEditForm({
                                   name: employee.name,
                                   email: employee.email,
-                                  roleId: String(employee.roleId),
-                                  password: "", // leave empty
+                                  roleId: matchingRole?.uuid || "",
+                                  password: "",
                                 });
                                 setEditDialogOpen(true);
                               }}
@@ -274,10 +257,7 @@ export default function Employee() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-center py-8 text-gray-500 dark:text-gray-400"
-                      >
+                      <TableCell colSpan={5} className="text-center py-8">
                         No employees found.
                       </TableCell>
                     </TableRow>
@@ -328,7 +308,6 @@ export default function Employee() {
               </div>
               <div>
                 <label className="block font-medium mb-1">Role</label>
-
                 <Select
                   value={editForm.roleId}
                   onValueChange={(val) =>

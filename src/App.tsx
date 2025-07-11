@@ -16,6 +16,7 @@ import AddTeam from "@/pages/AddTeam";
 // import Analytics from "./pages/Analytics";
 import RolePage from "./pages/Role";
 import { Roles } from "./contants/role.constant";
+import HrDashboard from "./pages/HrDashboard";
 
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
@@ -130,7 +131,18 @@ function App() {
         }
       /> */}
         </Route>
+        
+        <Route element={<ProtectedRoute requiredRole={[Roles.HR]} />}>
 
+          <Route
+            path="/staff-logins"
+            element={
+              <Layout>
+                <HrDashboard />
+              </Layout>
+            }
+          />
+        </Route>
 
 
       </Routes>

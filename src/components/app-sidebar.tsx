@@ -110,6 +110,19 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
+         {user?.role === Roles.HR && (
+          <SidebarGroup>
+            <Link to="/staff-logins" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+               Staff Logins
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
          {user?.role === Roles.EXECUTIVE && (
           <SidebarGroup>
             <Link to="/allLeads" className="block">
