@@ -145,3 +145,30 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbar globally for elements with .hide-scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide all scrollbars inside the table card */
+.table-card *::-webkit-scrollbar {
+  display: none !important;
+}
+.table-card * {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Hide scrollbars globally for html and body */
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none !important;
+}
+html, body {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
