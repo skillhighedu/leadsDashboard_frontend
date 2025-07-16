@@ -1,6 +1,7 @@
 // store/AuthStore.ts
 import { create } from "zustand";
 import api from "@/config/axiosConfig";
+import { toast } from "sonner";
 
 interface AuthState {
   user: null | { role: string };
@@ -72,12 +73,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     try {
       // Call logout API
-      await api.post("/api/logout", {}, { withCredentials: true });
+      await api.put("/staff/logout", {}, { withCredentials: true });
     } catch (err) {
       console.error("Logout API error:", err);
     } finally {
       // Always clear local state regardless of API call success
       set({ user: null, loading: false, error: null, isCheckingAuth: false });
+
+      window.location.href = "/login"
+      toast.success("Logged out successfully")
     }
   },
 

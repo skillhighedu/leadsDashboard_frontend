@@ -24,4 +24,23 @@ export const fetchStaffLogins = async (day?: string): Promise<staffLoginsRespons
   }
 };
 
-// export const updateStaffLogin = async
+export const WorkStatus = {
+  PRESENT: "PRESENT",
+  FULL: "FULL",
+  HALF: "HALF",
+  ABSENT: "ABSENT",
+} as const;
+
+export type WorkStatusType = (typeof WorkStatus)[keyof typeof WorkStatus];
+
+
+export const updateStaffLoginStatus = async (uuid:string ,status: WorkStatusType): Promise<void> => {
+    try {
+        await apiClient.put(
+        `/staff/${uuid}/status`, {status}
+    )
+    } catch (error) {
+        throw handleApiError(error)
+    }
+    
+} 
