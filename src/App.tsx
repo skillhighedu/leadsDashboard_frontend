@@ -16,25 +16,44 @@ import AddTeam from "@/pages/AddTeam";
 import RolePage from "./pages/Role";
 import { Roles } from "./contants/role.constant";
 import LeaveApplication from "./pages/LeaveApplication";
-import HrDashboard from "@/pages/HrDashboard"
+import HrDashboard from "@/pages/HrDashboard";
+import LeaveDashboard from "./pages/LeaveDashboard";
+import useNetworkStatus from "./hooks/useNetworkStatus";
+import { toast } from "sonner";
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
   const hasCheckedAuth = useRef(false);
+  const isOnline = useNetworkStatus();
+
+  useEffect(() => {
+    console.log(isOnline)
+    if (!isOnline) {
+      toast.error("chaithu");
+    }
+  }, [isOnline]);
 
   useEffect(() => {
     // Only check auth once when app starts, user is null, and not on login page
-    if (!hasCheckedAuth.current && !user && window.location.pathname !== '/login') {
+    if (
+      !hasCheckedAuth.current &&
+      !user &&
+      window.location.pathname !== "/login"
+    ) {
       hasCheckedAuth.current = true;
       checkAuth();
-    } else if (window.location.pathname === '/login') {
+    } else if (window.location.pathname === "/login") {
       // If on login page, just set loading to false
       hasCheckedAuth.current = true;
     }
   }, []); // Empty dependency array to run only once
 
   // Show loading while checking auth and no user exists (but not on login page)
-  if (loading && !user && window.location.pathname !== '/login') {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (loading && !user && window.location.pathname !== "/login") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -45,7 +64,6 @@ function App() {
 
         {/* Protected Route - accessible to all authenticated users */}
         <Route element={<ProtectedRoute requiredRole={[Roles.ALL]} />}>
-
           <Route
             path="/"
             element={
@@ -56,8 +74,19 @@ function App() {
           />
         </Route>
         {/* Protected Route - accessible to all authenticated users */}
-        <Route element={<ProtectedRoute requiredRole={[Roles.EXECUTIVE,Roles.LEAD_MANAGER,Roles.VERTICAL_MANAGER,Roles.INTERN]} />}>
-
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRole={[
+                Roles.EXECUTIVE,
+                Roles.LEAD_MANAGER,
+                Roles.VERTICAL_MANAGER,
+                Roles.INTERN,
+                Roles.HR,
+              ]}
+            />
+          }
+        >
           <Route
             path="/allLeads"
             element={
@@ -66,18 +95,17 @@ function App() {
               </Layout>
             }
           />
-           <Route
+          <Route
             path="/leave-application"
             element={
               <Layout>
-                <LeaveApplication/>
+                <LeaveApplication />
               </Layout>
             }
           />
         </Route>
 
         <Route element={<ProtectedRoute requiredRole={[Roles.ADMIN]} />}>
-
           <Route
             path="/roles"
             element={
@@ -94,7 +122,6 @@ function App() {
               </Layout>
             }
           />
-
 
           <Route
             path="/employees"
@@ -138,9 +165,8 @@ function App() {
         }
       /> */}
         </Route>
-        
-        <Route element={<ProtectedRoute requiredRole={[Roles.HR]} />}>
 
+        <Route element={<ProtectedRoute requiredRole={[Roles.HR]} />}>
           <Route
             path="/staff-logins"
             element={
@@ -149,12 +175,18 @@ function App() {
               </Layout>
             }
           />
+
+          <Route
+            path="/leave-dashboard"
+            element={
+              <Layout>
+                <LeaveDashboard />
+              </Layout>
+            }
+          />
         </Route>
-
-
       </Routes>
     </BrowserRouter>
-
   );
 }
 

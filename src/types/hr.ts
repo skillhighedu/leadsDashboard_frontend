@@ -1,4 +1,5 @@
 export type staffLoginsRecord = {
+    employeeRecordUuid: string
     employeeId: number;
     name: string;
     loginTime: Date;
@@ -12,3 +13,5 @@ export type staffLoginsResponse =  {
     data: staffLoginsRecord[];
     count: number
 }
+
+export type LeaveStatus = "PENDING" | "APPROVED";

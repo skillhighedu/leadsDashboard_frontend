@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { fetchStaffLogins, updateStaffLoginStatus, type WorkStatusType } from "@/services/hr.services";
-import { Calendar } from "@/components/ui/calendar";
-import type { staffLoginsRecord,  } from "@/types/hr";
+import { fetchLeaveApplications, updateLeaveStatus } from "@/services/leave.services";
 
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,82 +11,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { CalendarIcon } from "lucide-react";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
+import { Skeleton } from "@/components/ui/skeleton";
+import type { LeaveResponse } from "@/types/leaveApplication";
+import type { LeaveStatus } from "@/types/hr";
 import { toast } from "sonner";
 
-const HrDashboard = () => {
+const LeaveDashboard = () => {
   const [date, setDate] = useState<Date>(new Date());
-  const [staffLogins, setStaffLogins] = useState<staffLoginsRecord[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [leaveData, setLeaveData] = useState<LeaveResponse[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const getStaffLogins = async (selectedDate: Date) => {
+  const getLeaves = async (selectedDate: Date) => {
     try {
       setLoading(true);
       const isoDate = selectedDate.toLocaleDateString("sv-SE"); // YYYY-MM-DD
-      const response = await fetchStaffLogins(isoDate);
-      setStaffLogins(response.data);
+      const { data } = await fetchLeaveApplications(isoDate);
+      setLeaveData(data);
     } catch (error) {
-      console.error("Error fetching Staff Logins:", error);
+      console.error("Error fetching leave applications:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleStatusChange = async(uuid: string, newStatus: LeaveStatus ) => {
+    try {
+        await updateLeaveStatus(uuid, {status: newStatus });
+        toast.success(`Status updated to ${newStatus}`);
+        getLeaves(date);
+    } catch (error) {
+         toast.error("Failed to update status");
+    console.error(error);
+    }
+  }
+
+  const dateString = date.toDateString();
   useEffect(() => {
-    if (date) getStaffLogins(date);
-  }, [date]); // use 'date' directly as dependency
+    if (date) getLeaves(date);
+  }, [date, dateString]);
 
   const setQuickDate = (offset: number) => {
     const newDate = new Date();
     newDate.setDate(newDate.getDate() + offset);
     setDate(newDate);
-  };
 
-  const handleStatusChange = async (uuid: string, newStatus: WorkStatusType) => {
-    try {
-        console.log(newStatus,uuid)
-      await updateStaffLoginStatus(uuid, newStatus);
-      toast.success("Status updated");
-      getStaffLogins(date);
-    } catch (error) {
-        console.log('Error: ', error)
-      toast.error("Failed to update status");
-    }
   };
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl font-bold text-zinc-800 dark:text-white">
-          HR Staff Login Dashboard
+          HR Leave Applications Dashboard
         </h1>
 
-        {/* Calendar Popover Filter */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
@@ -104,10 +88,18 @@ const HrDashboard = () => {
               weekStartsOn={0}
             />
             <div className="flex gap-2 mt-4">
-              <Button variant="secondary" className="w-1/2" onClick={() => setQuickDate(0)}>
+              <Button
+                variant="secondary"
+                className="w-1/2"
+                onClick={() => setQuickDate(0)}
+              >
                 Today
               </Button>
-              <Button variant="ghost" className="w-1/2" onClick={() => setQuickDate(-1)}>
+              <Button
+                variant="ghost"
+                className="w-1/2"
+                onClick={() => setQuickDate(-1)}
+              >
                 Yesterday
               </Button>
             </div>
@@ -118,7 +110,7 @@ const HrDashboard = () => {
       <Card className="bg-white dark:bg-zinc-900 rounded-xl shadow-md">
         <CardHeader>
           <CardTitle className="text-lg">
-            Staff Logins for:{" "}
+            Leave Applications for:{" "}
             <span className="text-blue-600">{date.toDateString()}</span>
           </CardTitle>
         </CardHeader>
@@ -129,53 +121,64 @@ const HrDashboard = () => {
                 <Skeleton key={i} className="h-10 w-full rounded-md" />
               ))}
             </div>
-          ) : staffLogins.length === 0 ? (
+          ) : leaveData.length === 0 ? (
             <p className="text-center text-gray-400 italic py-6">
-              No login records for this date.
+              No leave applications for this date.
             </p>
           ) : (
             <div className="w-full overflow-x-auto px-4">
               <Table className="min-w-[700px] border rounded-md">
                 <TableHeader className="bg-zinc-100 dark:bg-zinc-800">
+                  
                   <TableRow>
                     <TableHead className="px-4 py-2">Name</TableHead>
                     <TableHead className="px-4 py-2">Role</TableHead>
+                    <TableHead className="px-4 py-2">Leave Type</TableHead>
+                    <TableHead className="px-4 py-2">From</TableHead>
+                    <TableHead className="px-4 py-2">To</TableHead>
+                    <TableHead className="px-4 py-2">Reason</TableHead>
                     <TableHead className="px-4 py-2">Status</TableHead>
-                    <TableHead className="px-4 py-2">Login</TableHead>
-                    <TableHead className="px-4 py-2">Logout</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {staffLogins.map((log, idx) => (
-                    <TableRow key={idx} className="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+                  {leaveData.map((leave) => (
+                    <TableRow
+                      key={leave.uuid}
+                      className="hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                    >
                       <TableCell className="px-4 py-2 text-blue-600 font-medium">
-                        {log.name}
+                        {leave.name}
                       </TableCell>
-                      <TableCell className="px-4 py-2">{log.employeeRole}</TableCell>
+                      <TableCell className="px-4 py-2">{leave.role}</TableCell>
                       <TableCell className="px-4 py-2">
-                        <Select
-                          value={log.dayStatus}
-                          onValueChange={(value) =>
-                            handleStatusChange(log.employeeRecordUuid, value as WorkStatusType)
-                          }
-                        >
-                          <SelectTrigger className="w-[130px]">
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="PRESENT">PRESENT</SelectItem>
-                            <SelectItem value="FULL">FULL</SelectItem>
-                            <SelectItem value="HALF">HALF</SelectItem>
-                            <SelectItem value="ABSENT">ABSENT</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        {leave.leaveType}
                       </TableCell>
                       <TableCell className="px-4 py-2">
-                        {new Date(log.loginTime).toLocaleTimeString()}
+                        {new Date(leave.fromDate).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="px-4 py-2">
-                        {log.logoutTime ? new Date(log.logoutTime).toLocaleTimeString() : "N/A"}
+                        {new Date(leave.toDate).toLocaleDateString()}
                       </TableCell>
+                      <TableCell className="px-4 py-2">
+                        {leave.reason}
+                      </TableCell>
+                      <TableCell className="px-4 py-2">
+  <select
+    value={leave.status}
+    onChange={(e) =>
+      handleStatusChange(leave.uuid, e.target.value as LeaveStatus)
+    }
+    className={`text-sm rounded-md px-2 py-1 border focus:outline-none ${
+      leave.status === "APPROVED"
+        ? "bg-green-100 text-green-700"
+        : "bg-yellow-100 text-yellow-700"
+    }`}
+  >
+    <option value="PENDING">Pending</option>
+    <option value="APPROVED">Approved</option>
+  </select>
+</TableCell>
+
                     </TableRow>
                   ))}
                 </TableBody>
@@ -188,4 +191,4 @@ const HrDashboard = () => {
   );
 };
 
-export default HrDashboard;
+export default LeaveDashboard;

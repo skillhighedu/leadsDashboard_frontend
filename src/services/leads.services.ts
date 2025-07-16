@@ -33,7 +33,7 @@ export const fetchLeads = async (
       throw new Error("No leads data found in the response.");
     }
 
-    console.log(response.data.additional);
+    // console.log(response.data.additional);
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);

@@ -5,22 +5,22 @@ import {
   SidebarGroup,
   SidebarHeader,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import {
   HomeIcon,
   UsersIcon,
   UserCogIcon,
   LogOutIcon,
   Users,
-  Menu
-} from "lucide-react"
-import { useAuthStore } from '@/store/AuthStore'
-import { Roles } from "@/contants/role.constant"
-import Logo from "@/assets/favicon.png"
+  Menu,
+} from "lucide-react";
+import { useAuthStore } from "@/store/AuthStore";
+import { Roles } from "@/contants/role.constant";
+import Logo from "@/assets/favicon.png";
 export function AppSidebar() {
-  const { logout } = useAuthStore()
+  const { logout } = useAuthStore();
   const { user } = useAuthStore();
 
   return (
@@ -39,9 +39,9 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="py-4">
-        {
-          user?.role?.toLowerCase() === Roles.ADMIN.toLowerCase() && (
-            <><SidebarGroup>
+        {user?.role?.toLowerCase() === Roles.ADMIN.toLowerCase() && (
+          <>
+            <SidebarGroup>
               <Link to="/" className="block">
                 <Button
                   variant="ghost"
@@ -51,39 +51,42 @@ export function AppSidebar() {
                   Home
                 </Button>
               </Link>
-            </SidebarGroup><SidebarGroup>
-                <Link to="/roles" className="block">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
-                  >
-                    <UserCogIcon className="mr-2 h-5 w-5" />
-                    Roles
-                  </Button>
-                </Link>
-              </SidebarGroup><SidebarGroup>
-                <Link to="/employees" className="block">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
-                  >
-                    <UsersIcon className="mr-2 h-5 w-5" />
-                    Employees
-                  </Button>
-                </Link>
-              </SidebarGroup><SidebarGroup>
-                <Link to="/teams" className="block">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
-                  >
-                    <Users className="mr-2 h-5 w-5" />
-                    Teams
-                  </Button>
-                </Link>
-              </SidebarGroup></>
-          )
-        }
+            </SidebarGroup>
+            <SidebarGroup>
+              <Link to="/roles" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <UserCogIcon className="mr-2 h-5 w-5" />
+                  Roles
+                </Button>
+              </Link>
+            </SidebarGroup>
+            <SidebarGroup>
+              <Link to="/employees" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <UsersIcon className="mr-2 h-5 w-5" />
+                  Employees
+                </Button>
+              </Link>
+            </SidebarGroup>
+            <SidebarGroup>
+              <Link to="/teams" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <Users className="mr-2 h-5 w-5" />
+                  Teams
+                </Button>
+              </Link>
+            </SidebarGroup>
+          </>
+        )}
         {user?.role?.toLowerCase() === Roles.INTERN.toLowerCase() && (
           <SidebarGroup>
             <Link to="/allLeads" className="block">
@@ -93,6 +96,15 @@ export function AppSidebar() {
               >
                 <UsersIcon className="mr-2 h-5 w-5" />
                 Assigned Leads
+              </Button>
+            </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Application
               </Button>
             </Link>
           </SidebarGroup>
@@ -108,7 +120,7 @@ export function AppSidebar() {
                 All Leads
               </Button>
             </Link>
-             <Link to="/leave-application" className="block">
+            <Link to="/leave-application" className="block">
               <Button
                 variant="ghost"
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
@@ -132,7 +144,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-         {user?.role === Roles.HR && (
+        {user?.role === Roles.HR && (
           <SidebarGroup>
             <Link to="/staff-logins" className="block">
               <Button
@@ -143,9 +155,26 @@ export function AppSidebar() {
                 Staff logins
               </Button>
             </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Application
+              </Button>
+            </Link>
+            <Link to="/leave-dashboard" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Dashboard
+              </Button>
+            </Link>
           </SidebarGroup>
         )}
-        
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-gray-200 dark:border-gray-700">
@@ -159,5 +188,5 @@ export function AppSidebar() {
         </Button>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
