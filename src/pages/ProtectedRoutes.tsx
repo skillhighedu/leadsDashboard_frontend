@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/store/AuthStore";
 import { toast } from "sonner";
-import { Roles } from "@/contants/role.constant";
+import { Roles } from "@/constants/role.constant";
 
 interface ProtectedRouteProps {
   requiredRole: string[];

@@ -1,5 +1,5 @@
 import "./App.css";
-import Home from "@/pages/Home";
+
 import Layout from "@/layouts/Layout";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "@/pages/Login";
@@ -13,10 +13,14 @@ import Leads from "@/pages/Leads";
 import AddEmployee from "@/pages/AddEmployee";
 import Team from "@/pages/Team";
 import AddTeam from "@/pages/AddTeam";
-import RolePage from "./pages/Role";
-import { Roles } from "./contants/role.constant";
-import LeaveApplication from "./pages/LeaveApplication";
-import HrDashboard from "@/pages/HrDashboard";
+import RolePage from "@/pages/Role";
+import { Roles } from "@/constants/role.constant";
+import LeaveApplication from "@/pages/LeaveApplication";
+import HrDashboard from "@/pages/HrDashboard"
+import Home2 from "./pages/Home2";
+
+
+
 import LeaveDashboard from "./pages/LeaveDashboard";
 import useNetworkStatus from "./hooks/useNetworkStatus";
 import { toast } from "sonner";
@@ -68,7 +72,7 @@ function App() {
             path="/"
             element={
               <Layout>
-                <Home />
+                <Home2 />
               </Layout>
             }
           />
@@ -155,15 +159,8 @@ function App() {
               </Layout>
             }
           />
-          {/* Uncomment when Analytics page is ready */}
-          {/* <Route
-        path="/analytics"
-        element={
-          <Layout>
-            <Analytics />
-          </Layout>
-        }
-      /> */}
+  
+    
         </Route>
 
         <Route element={<ProtectedRoute requiredRole={[Roles.HR]} />}>
@@ -185,6 +182,19 @@ function App() {
             }
           />
         </Route>
+          <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
+
+          <Route
+            path="/lead-payments"
+            element={
+              <Layout>
+                <Leads />
+              </Layout>
+            }
+          />
+        </Route>
+
+
       </Routes>
     </BrowserRouter>
   );

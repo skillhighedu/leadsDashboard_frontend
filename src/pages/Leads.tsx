@@ -12,14 +12,14 @@ import {
 import { UploadLeadDialog } from "@/components/UploadLeadDialog";
 import { AssignTeamDialog } from "@/components/AssignTeamDialog";
 import { LeadTable } from "@/components/LeadTable";
-import { LeadStatuses } from "@/contants/status.constant";
+import { getLeadStatusesByRole } from "@/utils/get-lead-statuses-by-role";
 import { fetchLeads } from "@/services/leads.services";
 import { fetchTeamMembers, fetchTeams, type TeamResponse, type TeamMembersResponse } from "@/services/team.services";
 import { assignLeadToTeam, assignLeadToTeamMemebers, updateLeadState } from "@/services/assignLeads.services";
 import type { Leads } from "@/types/leads";
 import { useAuthStore } from "@/store/AuthStore";
-import { Roles } from "@/contants/role.constant";
-import { addTicketAmount } from "@/services/leads.services";
+import { Roles } from "@/constants/role.constant";
+import { addTicketAmount,updateUpFrontAmount } from "@/services/leads.services";
 
 
 export default function LeadsPage() {
@@ -32,36 +32,43 @@ export default function LeadsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("NEWLY_GENERATED");
+  const [statusFilter, setStatusFilter] = useState(
+    user?.role === Roles.LEAD_MANAGER ? "NEWLY_GENERATED" : "ASSIGNED"
+  );
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMembersResponse[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [ticketAmounts, setTicketAmounts] = useState<{ id: number; value: string }[]>([]);
-
-const getLeads = async (
-  page: number,
-  search: string,
-  status: string
-) => {
-  if (!user?.role) return;
-  setLoading(true);
-  try {
-    const response = await fetchLeads(page, search, status);
-    setLeads(response.data);
-    setTotalPages(response.meta.totalPages);
-  } catch (error) {
-    console.error("Error fetching leads:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  const [upFrontFees, setUpFrontFees] = useState<{ id: number; value: string }[]>([]);
 
 
-useEffect(() => {
-  getLeads(page, search, statusFilter);
-}, [user, page, search, statusFilter]);
+const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.LEAD_MANAGER);
+
+
+  const getLeads = async (
+    page: number,
+    search: string,
+    status: string
+  ) => {
+    if (!user?.role) return;
+    setLoading(true);
+    try {
+      const response = await fetchLeads(page, search, status);
+      setLeads(response.data);
+      setTotalPages(response.meta.totalPages);
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    getLeads(page, search, statusFilter);
+  }, [user, page, search, statusFilter]);
 
   const handleAssigntoTeam = async () => {
     if (!selectedTeam || selectedLeads.length === 0) return;
@@ -118,35 +125,61 @@ useEffect(() => {
     );
   };
 
-  // ✅ Handle blur API call
-  const handleTicketBlur = async (id: number) => {
-    const current = ticketAmounts.find((t) => t.id === id);
-    if (!current) return;
-
-    const amount = parseFloat(current.value);
-    if (isNaN(amount)) return;
-
-    try {
-      const response = await addTicketAmount(id.toString(), amount);
-      if (response) {
-       await getLeads(page, search, statusFilter);
-      }
-    } catch (err) {
-      console.error("Error updating ticketAmount", err);
-    }
+    // ✅ Handle typing
+  const handleUpFrontChange = (id: number, value: string) => {
+    setUpFrontFees((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, value } : item))
+    );
   };
 
-  //Handle state change
-const handleStatusChange = async (leadId: number, newStatus: string) => {
+
+ const handleTicketBlur = async (id: number) => {
+  const ticket = ticketAmounts.find((t) => t.id === id);
+
+  if (!ticket) return;
+
+  const ticketValue = parseFloat(ticket.value);
+  if (isNaN(ticketValue) || ticketValue <= 0) return;
+
   try {
-    const response = await updateLeadState(Number(leadId), newStatus.toUpperCase());
+    const response = await addTicketAmount(id.toString(), ticketValue);
     if (response) {
       await getLeads(page, search, statusFilter);
     }
-  } catch (error) {
-    console.error("Failed to update status:", error);
+  } catch (err) {
+    console.error("Error updating ticket amount:", err);
   }
 };
+const handleUpFrontBlur = async (id: number) => {
+  const upFrontFee = upFrontFees.find((t) => t.id === id);
+
+  if (!upFrontFee) return;
+
+  const upFrontFeeValue = parseFloat(upFrontFee.value);
+  if (isNaN(upFrontFeeValue) || upFrontFeeValue <= 0) return;
+
+  try {
+    const response = await updateUpFrontAmount(id.toString(), upFrontFeeValue);
+    if (response) {
+      await getLeads(page, search, statusFilter);
+    }
+  } catch (err) {
+    console.error("Error updating ticket amount:", err);
+  }
+};
+
+
+  //Handle state change
+  const handleStatusChange = async (leadId: number, newStatus: string) => {
+    try {
+      const response = await updateLeadState(Number(leadId), newStatus.toUpperCase());
+      if (response) {
+        await getLeads(page, search, statusFilter);
+      }
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
+  };
 
   const loadTeamData = async (role: string) => {
     try {
@@ -174,7 +207,7 @@ const handleStatusChange = async (leadId: number, newStatus: string) => {
 
   return (
     <div className="p-3">
-      <UploadLeadDialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />
+      <UploadLeadDialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} refreshLeads={() => getLeads(page, search, statusFilter)} />
       <AssignTeamDialog
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
@@ -231,7 +264,7 @@ const handleStatusChange = async (leadId: number, newStatus: string) => {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="min-w-[220px] w-fit px-2 py-1">
-                {LeadStatuses.map((s) => (
+                {availableStatuses.map((s) => (
                   <SelectItem
                     key={s}
                     value={s}
@@ -249,20 +282,23 @@ const handleStatusChange = async (leadId: number, newStatus: string) => {
           </div>
 
           <LeadTable
-            leads={leads}
-            loading={loading}
-            selectedLeads={selectedLeads}
-            setSelectedLeads={setSelectedLeads}
-            onSelectLead={handleSelectLead}
-            onSelectAll={handleSelectAll}
-            handleTicketBlur={handleTicketBlur}
-            handleTicketChange={handleTicketChange}
-            setTicketAmounts={setTicketAmounts}
-            ticketAmounts={ticketAmounts}
+  leads={leads}
+  loading={loading}
+  selectedLeads={selectedLeads}
+  setSelectedLeads={setSelectedLeads}
+  onSelectLead={handleSelectLead}
+  onSelectAll={handleSelectAll}
+  handleTicketBlur={handleTicketBlur}
+  handleTicketChange={handleTicketChange}
+  handleUpFrontBlur={handleUpFrontBlur}
+  handleUpFrontChange={handleUpFrontChange}
+  setTicketAmounts={setTicketAmounts}
+  ticketAmounts={ticketAmounts}
+  upFrontFees={upFrontFees} // ✅ new
+  setUpFrontFee={setUpFrontFees} // ✅ new
+  onStatusChange={handleStatusChange}
+/>
 
-            onStatusChange={handleStatusChange}
-
-          />
 
           <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
             <Button disabled={page === 1 || loading} onClick={() => setPage(page - 1)} variant="outline">

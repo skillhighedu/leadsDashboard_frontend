@@ -16,7 +16,7 @@ export const fetchLeads = async (
   status = ''
 ): Promise<LeadsResponse> => {
   try {
-    console.log("hey",search)
+ 
     const query = new URLSearchParams({
       page: page.toString(),
       limit: '50',
@@ -58,20 +58,42 @@ export const uploadLeadsFile = async (file: File) => {
     }
 }
 
+
 export const addTicketAmount = async (
-  leadId:string,
-  ticketAmount:number
+  leadId: string,
+  ticketAmount: number,
 ): Promise<LeadsResponse> => {
   try {
-    console.log(leadId,ticketAmount)
+   
     const response = await apiClient.put<ApiResponse<LeadsResponse>>(
-      `/team-assignments/lead/${leadId}/ticket-amount`,{ticketAmount}
+      `/team-assignments/lead/${leadId}/ticket-amount`,
+      {ticketAmount}
     );
 
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
 
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const updateUpFrontAmount = async (
+  leadId: string,
+  upFrontFee: number,
+): Promise<LeadsResponse> => {
+  try {
+   
+    const response = await apiClient.put<ApiResponse<LeadsResponse>>(
+      `/team-assignments/lead/${leadId}/upfront-amount`,
+      {upFrontFee}
+    );
+
+    if (!response.data.additional) {
+      throw new Error("No leads data found in the response.");
+    }
 
     return response.data.additional;
   } catch (error) {

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useAuthStore } from "@/store/AuthStore";
 import type { TeamMembersResponse, TeamResponse } from "@/services/team.services";
-import { Roles } from "@/contants/role.constant";
+import { Roles } from "@/constants/role.constant";
 
 interface AssignTeamDialogProps {
   open: boolean;

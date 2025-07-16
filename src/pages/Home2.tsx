@@ -4,6 +4,7 @@ import {
   fetchAnalytics,
   type TeamStatusAnalytics,
   type LeadAnalyticsResponse,
+  fetchTeamAnalytics,
 } from "@/services/analytics.services";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,39 +49,7 @@ const SkeletonCard = () => (
   </div>
 );
 
-// Overall summary card
-const OverallSummary = ({ data }: { data: LeadAnalyticsResponse }) => {
-  return (
-    <Card className="border shadow-md bg-white">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-primary">
-          Overall Lead Summary
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {data.leadStatusCounts.map((item) => (
-          <div key={item.status} className="space-y-1">
-            <span
-              className={cn(
-                "text-xs font-semibold px-2 py-0.5 rounded",
-                statusColors[item.status] || "bg-gray-100 text-gray-800"
-              )}
-            >
-              {item.status.replace(/_/g, " ")}
-            </span>
-            <div className="text-xl font-bold text-foreground">{item.count}</div>
-          </div>
-        ))}
-        <div className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">Total Revenue</span>
-          <div className="text-xl font-bold text-green-700">
-            ₹{data.revenue.total.toLocaleString("en-IN")}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+
 
 // Per-team analytics card
 const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
@@ -188,8 +157,7 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
 
 
 export default function Home() {
-  const [allTeams, setAllTeams] = useState<TeamStatusAnalytics[]>([]);
-  const [allData, setAllData] = useState<LeadAnalyticsResponse | null>(null);
+  const [allTeam, setAllTeam] = useState<TeamStatusAnalytics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -222,13 +190,10 @@ export default function Home() {
         toDate,
       };
 
-      const [teamData, overallData] = await Promise.all([
-        fetchAllTeamsAnalytics(filters),
-        fetchAnalytics(filters),
-      ]);
-
-      setAllTeams(Array.isArray(teamData) ? teamData : [teamData]);
-      setAllData(overallData);
+      const teamData = await fetchTeamAnalytics(filters)
+      
+      setAllTeam(teamData);
+    
     } catch (err) {
       console.error("Failed to fetch analytics:", err);
       setError("Failed to load team analytics. Please try again.");
@@ -309,8 +274,8 @@ export default function Home() {
           </div>
         ) : (
           <>
-            {allData && <OverallSummary data={allData} />}
-            {allTeams.map((team) => (
+          
+            {allTeam.map((team) => (
               <TeamAnalyticsCard key={team.teamAssignedId} team={team} />
             ))}
           </>

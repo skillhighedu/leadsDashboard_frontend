@@ -17,7 +17,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useAuthStore } from "@/store/AuthStore";
-import { Roles } from "@/contants/role.constant";
+import { Roles } from "@/constants/role.constant";
 import Logo from "@/assets/favicon.png";
 export function AppSidebar() {
   const { logout } = useAuthStore();
@@ -89,6 +89,16 @@ export function AppSidebar() {
         )}
         {user?.role?.toLowerCase() === Roles.INTERN.toLowerCase() && (
           <SidebarGroup>
+            <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
+  
             <Link to="/allLeads" className="block">
               <Button
                 variant="ghost"
@@ -111,6 +121,15 @@ export function AppSidebar() {
         )}
         {user?.role === Roles.LEAD_MANAGER && (
           <SidebarGroup>
+             <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
             <Link to="/allLeads" className="block">
               <Button
                 variant="ghost"
@@ -133,6 +152,15 @@ export function AppSidebar() {
         )}
         {user?.role === Roles.EXECUTIVE && (
           <SidebarGroup>
+             <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
             <Link to="/allLeads" className="block">
               <Button
                 variant="ghost"
@@ -142,10 +170,28 @@ export function AppSidebar() {
                 All Leads
               </Button>
             </Link>
+               <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Applicatiobn
+              </Button>
+            </Link>
           </SidebarGroup>
         )}
         {user?.role === Roles.HR && (
           <SidebarGroup>
+             <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
             <Link to="/staff-logins" className="block">
               <Button
                 variant="ghost"

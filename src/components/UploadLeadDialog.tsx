@@ -15,9 +15,11 @@ import { UploadResultDialog } from "@/components/ui/UploadResultDailog"; // ✅ 
 interface UploadLeadDialogProps {
   open: boolean;
   onOpenChange: (value: boolean) => void;
+  refreshLeads: (page:number, search:string, statusFilter:string) => Promise<void>;
+
 }
 
-export function UploadLeadDialog({ open, onOpenChange }: UploadLeadDialogProps) {
+export function UploadLeadDialog({ open, onOpenChange,refreshLeads }: UploadLeadDialogProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [showForm, setShowForm] = useState(false);
 
@@ -64,6 +66,7 @@ export function UploadLeadDialog({ open, onOpenChange }: UploadLeadDialogProps) 
         skippedLeadsCount: result.skippedLeadsCount,
       });
       setShowResultDialog(true);
+     await refreshLeads(1, "", "ALL");
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");

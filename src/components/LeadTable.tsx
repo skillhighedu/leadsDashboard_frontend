@@ -18,22 +18,24 @@ import {
 } from "@/components/ui/select";
 import type { Leads } from "@/types/leads";
 import { useAuthStore } from "@/store/AuthStore";
-import { Button } from "./ui/button";
+// import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-
-import { LeadStatuses } from "@/contants/status.constant";
-
-import { Roles } from "@/contants/role.constant";
+import { LeadStatuses } from "@/constants/status.constant";
+import { Roles } from "@/constants/role.constant";
 
 interface LeadTableProps {
   leads: Leads[];
   loading: boolean;
   selectedLeads: number[];
   setSelectedLeads: React.Dispatch<React.SetStateAction<number[]>>;
-  ticketAmounts: { id: number, value: string }[]
-  setTicketAmounts: React.Dispatch<React.SetStateAction<{ id: number; value: string; }[]>>;
-  handleTicketBlur: (id: number) => void
-  handleTicketChange: (id: number, value: string) => void
+  ticketAmounts: { id: number; value: string }[];
+  setTicketAmounts: React.Dispatch<React.SetStateAction<{ id: number; value: string }[]>>;
+  upFrontFees: { id: number; value: string }[];
+  setUpFrontFee: React.Dispatch<React.SetStateAction<{ id: number; value: string }[]>>;
+  handleTicketBlur: (id: number) => void;
+  handleUpFrontBlur:(id: number) => void;
+  handleTicketChange: (id: number, value: string) => void;
+  handleUpFrontChange: (id: number, value: string) => void;
   onSelectLead: (id: number) => void;
   onSelectAll: () => void;
   onStatusChange: (leadId: number, newStatus: string) => void;
@@ -46,28 +48,31 @@ export function LeadTable({
   setSelectedLeads,
   ticketAmounts,
   setTicketAmounts,
+  upFrontFees,
+  setUpFrontFee,
   handleTicketBlur,
+  handleUpFrontBlur,
   handleTicketChange,
+  handleUpFrontChange,
   onSelectLead,
-  onStatusChange
-
-
+  onStatusChange,
 }: LeadTableProps) {
-  const safeLeads = Array.isArray(leads) ? leads : [];
   const { user } = useAuthStore();
+  const safeLeads = Array.isArray(leads) ? leads : [];
 
-
-  // ✅ Sync initial values when leads change
   useEffect(() => {
-    const initial = safeLeads.map((lead) => ({
+    const initialTickets = safeLeads.map((lead) => ({
       id: lead.id,
       value: lead.ticketAmount?.toString() || "",
     }));
-    setTicketAmounts(initial);
+    setTicketAmounts(initialTickets);
+
+    const initialUpFront = safeLeads.map((lead) => ({
+      id: lead.id,
+      value: lead.upFrontFee?.toString() || "",
+    }));
+    setUpFrontFee(initialUpFront);
   }, [leads]);
-
-
-
 
   const selectableLeads = safeLeads.filter((lead) =>
     user && user.role === Roles.LEAD_MANAGER
@@ -76,7 +81,6 @@ export function LeadTable({
   );
 
   const selectedSet = new Set(selectedLeads);
-
   const allSelected =
     selectableLeads.length > 0 &&
     selectableLeads.every((lead) => selectedSet.has(lead.id));
@@ -99,9 +103,15 @@ export function LeadTable({
           <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
+          <TableHead>Whatsapp Number</TableHead>
           <TableHead>College</TableHead>
           <TableHead>Branch</TableHead>
           <TableHead>Domain</TableHead>
+          <TableHead>Had Referred</TableHead>
+          <TableHead>Referred By</TableHead>
+          <TableHead> Preferred Language</TableHead>
+
+        
           <TableHead>Owner</TableHead>
           <TableHead>Assigned To Team</TableHead>
           <TableHead>Assigned To Member</TableHead>
@@ -109,7 +119,7 @@ export function LeadTable({
           <TableHead>Remaining Fee</TableHead>
           <TableHead>Ticket Amount</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Actions</TableHead>
+          {/* <TableHead>Actions</TableHead> */}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -129,14 +139,12 @@ export function LeadTable({
               user && user.role !== Roles.LEAD_MANAGER
                 ? lead.handlerId !== null
                 : lead.teamAssignedId !== null;
-         const isDisabledForInputs =
-  user && (user.role !== Roles.EXECUTIVE && user.role !== Roles.INTERN)
-    ? lead.handlerId !== null
-    : lead.teamAssignedId !== null;
-
 
             const ticketValue =
               ticketAmounts.find((item) => item.id === lead.id)?.value || "";
+
+            const upFrontValue =
+              upFrontFees.find((item) => item.id === lead.id)?.value || "";
 
             return (
               <TableRow
@@ -159,31 +167,47 @@ export function LeadTable({
                 <TableCell>{lead.name}</TableCell>
                 <TableCell>{lead.email}</TableCell>
                 <TableCell>{lead.phoneNumber}</TableCell>
+                <TableCell>{lead.whatsappNumber}</TableCell>
                 <TableCell>{lead.college}</TableCell>
                 <TableCell>{lead.batch}</TableCell>
                 <TableCell>{lead.domain}</TableCell>
+                <TableCell>{lead.hadReferred ? "Yes" : "No"}</TableCell>
+                <TableCell>{lead.referredBy}</TableCell>
+                <TableCell>{lead.preferredLanguage}</TableCell>
+
                 <TableCell>{lead?.owner?.name}</TableCell>
                 <TableCell>{lead?.teamAssigned?.teamName ?? "Unassigned"}</TableCell>
                 <TableCell>{lead.handler?.name || "-"}</TableCell>
-                <TableCell>{lead.upFrontFee}</TableCell>
+                <TableCell>
+                  <Input
+                    type="number"
+                    className="w-24"
+                    value={upFrontValue}
+                    onChange={(e) =>
+                      handleUpFrontChange(lead.id, e.target.value)
+                    }
+                    onBlur={() => handleUpFrontBlur(lead.id)}
+                    disabled={user?.role === Roles.LEAD_MANAGER}
+                  />
+                </TableCell>
                 <TableCell>{lead.remainingFee}</TableCell>
                 <TableCell>
                   <Input
                     type="number"
                     className="w-24"
                     value={ticketValue}
-                    onChange={(e) => handleTicketChange(lead.id, e.target.value)}
+                    onChange={(e) =>
+                      handleTicketChange(lead.id, e.target.value)
+                    }
                     onBlur={() => handleTicketBlur(lead.id)}
-                    disabled={!isDisabledForInputs}
+                    disabled={user?.role === Roles.LEAD_MANAGER}
                   />
                 </TableCell>
                 <TableCell>
                   <Select
+                    disabled={user?.role === Roles.LEAD_MANAGER}
                     value={lead.status}
-                    onValueChange={(value) => {
-
-                    onStatusChange(lead.id, value)
-                    }}
+                    onValueChange={(value) => onStatusChange(lead.id, value)}
                   >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue />
@@ -200,15 +224,24 @@ export function LeadTable({
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>
-                  <Button variant="outline" disabled={lead.ownerId !== undefined && lead.ownerId === lead.handlerId}>Edit</Button>
-                </TableCell>
+                {/* <TableCell>
+                  <Button
+                    variant="outline"
+                    disabled={
+                      lead.ownerId !== undefined &&
+                      lead.ownerId !== null &&
+                      lead.ownerId !== lead.handlerId
+                    }
+                  >
+                    Delete
+                  </Button>
+                </TableCell> */}
               </TableRow>
             );
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={13} className="text-center text-muted-foreground">
+            <TableCell colSpan={15} className="text-center text-muted-foreground">
               No leads found
             </TableCell>
           </TableRow>
@@ -217,4 +250,3 @@ export function LeadTable({
     </Table>
   );
 }
-
