@@ -166,7 +166,7 @@ export default function Employee() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead>Performance</TableHead>
+
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -180,12 +180,7 @@ export default function Employee() {
                         <TableCell>{employee.name}</TableCell>
                         <TableCell>{employee.email}</TableCell>
                         <TableCell>{employee.roleName}</TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm">
-                            <ChartLineIcon className="h-4 w-4 mr-2" />
-                            Analytics
-                          </Button>
-                        </TableCell>
+                       
                         <TableCell>
                           <div className="flex gap-2">
                             <Button

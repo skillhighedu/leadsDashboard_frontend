@@ -29,7 +29,7 @@ export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
 
   const isAllowed =
     requiredRole.includes(Roles.ALL) || requiredRole.includes(user.role);
-
+    console.log("isAllowed:", isAllowed, "user role:", user.role, "requiredRole:", requiredRole); 
   if (!isAllowed) {
     toast.error("You don't have permission to access this page");
     return <Navigate to="/" replace />; 

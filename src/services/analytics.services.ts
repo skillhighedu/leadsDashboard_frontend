@@ -37,6 +37,36 @@ type DateFilters = {
   fromDate: Date;
   toDate: Date;
 };
+
+export type RawTeamAnalytics = {
+  id: number;
+  name: string;
+  teamName: string;
+  teamLead: {
+    name: string;
+  };
+  teamStatuses :{
+   count :number;
+   status:string
+  }[];
+  employees: {
+    id: number;
+    name: string;
+    statuses: {
+      status: string;
+      count: number;
+    }[];
+  }[];
+  statuses: {
+    status: string;
+    count: number;
+    totalTicketAmount?: number;
+    generatedAmount?: number;
+    projectedAmount?: number;
+  }[];
+};
+
+
 export const fetchAllTeamsAnalytics = async (filters: DateFilters): Promise<TeamStatusAnalytics> => {
   try {
     const response = await apiClient.get<ApiResponse<TeamStatusAnalytics>>(
@@ -67,12 +97,10 @@ export const fetchAnalytics = async (filters: DateFilters): Promise<LeadAnalytic
   }
 };
 
-
-
-export const fetchTeamAnalytics = async (filters: DateFilters): Promise<LeadAnalyticsResponse> => {
+export const fetchTeamsAnalytics = async (filters: DateFilters): Promise<RawTeamAnalytics[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<LeadAnalyticsResponse>>(
-      "/lead-analytics/team-leads/analytics?teamAssignedId=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
+    const response = await apiClient.get<ApiResponse<RawTeamAnalytics[]>>(
+      "/lead-analytics/team-leads/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
     
     if (!response.data.additional) {

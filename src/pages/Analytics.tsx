@@ -1,320 +1,317 @@
-// import React, { useState } from "react"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select"
-// import { Chart } from "@/components/ui/chart"
+import { useEffect, useState, useMemo } from "react";
+import {
+  fetchAllTeamsAnalytics,
+  fetchAnalytics,
+  type TeamStatusAnalytics,
+  type LeadAnalyticsResponse,
+} from "@/services/analytics.services";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { format, subDays } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
-// export default function Analytics() {
-//   // State for selected year
-//   const [selectedYear, setSelectedYear] = useState("2025")
 
-//   // Sample sales data
-//   const salesData = {
-//     2025: {
-//       monthly: [
-//         { month: "Jan", sales: 4000 },
-//         { month: "Feb", sales: 3000 },
-//         { month: "Mar", sales: 5000 },
-//         { month: "Apr", sales: 4500 },
-//         { month: "May", sales: 6000 },
-//         { month: "Jun", sales: 5500 },
-//         { month: "Jul", sales: 7000 },
-//         { month: "Aug", sales: 6500 },
-//         { month: "Sep", sales: 8000 },
-//         { month: "Oct", sales: 7500 },
-//         { month: "Nov", sales: 9000 },
-//         { month: "Dec", sales: 8500 },
-//       ],
-//       categories: [
-//         { category: "Electronics", sales: 25000 },
-//         { category: "Clothing", sales: 18000 },
-//         { category: "Books", sales: 12000 },
-//         { category: "Home Decor", sales: 8000 },
-//       ],
-//       regions: [
-//         { region: "North America", sales: 35000 },
-//         { region: "India", sales: 25000 },
-//         { region: "Europe", sales: 15000 },
-//         { region: "Asia", sales: 10000 },
-//       ],
-//     },
-//     2024: {
-//       monthly: [
-//         { month: "Jan", sales: 3500 },
-//         { month: "Feb", sales: 2800 },
-//         { month: "Mar", sales: 4500 },
-//         { month: "Apr", sales: 4000 },
-//         { month: "May", sales: 5500 },
-//         { month: "Jun", sales: 5000 },
-//         { month: "Jul", sales: 6500 },
-//         { month: "Aug", sales: 6000 },
-//         { month: "Sep", sales: 7500 },
-//         { month: "Oct", sales: 7000 },
-//         { month: "Nov", sales: 8500 },
-//         { month: "Dec", sales: 8000 },
-//       ],
-//       categories: [
-//         { category: "Electronics", sales: 22000 },
-//         { category: "Clothing", sales: 16000 },
-//         { category: "Books", sales: 10000 },
-//         { category: "Home Decor", sales: 7000 },
-//       ],
-//       regions: [
-//         { region: "North America", sales: 32000 },
-//         { region: "India", sales: 23000 },
-//         { region: "Europe", sales: 14000 },
-//         { region: "Asia", sales: 9000 },
-//       ],
-//     },
-//   }
+// Status colors
+const statusColors: Record<string, string> = {
+  ASSIGNED: "bg-yellow-200 text-yellow-900",
+  IN_PROGRESS: "bg-orange-200 text-orange-900",
+  COMPLETED: "bg-green-200 text-green-900",
+  REJECTED: "bg-red-200 text-red-900",
+  PENDING: "bg-blue-100 text-blue-800",
+  FOLLOW_UP: "bg-purple-100 text-purple-800",
+  PAID: "bg-green-100 text-green-800",
+  CBL: "bg-cyan-100 text-cyan-800",
+  NOT_INTERESTED: "bg-gray-100 text-gray-600",
+};
 
-//   // Chart colors
-//   const chartColors = {
-//     primary: "#007bff",
-//     secondary: "#10b981",
-//     tertiary: "#f59e0b",
-//     quaternary: "#d1d5db",
-//   }
+// Skeleton loader
+const SkeletonCard = () => (
+  <div className="animate-pulse space-y-4">
+    <div className="h-6 bg-gray-200 rounded w-1/4" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {[1, 2].map((i) => (
+        <Card key={i} className="border shadow-sm">
+          <CardHeader className="py-2">
+            <div className="h-4 bg-gray-200 rounded w-1/3" />
+          </CardHeader>
+          <CardContent className="py-2">
+            <div className="h-3 bg-gray-200 rounded" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+);
 
-//   // Line Chart Configuration
-//   const monthlySalesChart = {
-//     type: "line",
-//     data: {
-//       labels: salesData[selectedYear].monthly.map((item) => item.month),
-//       datasets: [
-//         {
-//           label: "Sales ($)",
-//           data: salesData[selectedYear].monthly.map((item) => item.sales),
-//           borderColor: chartColors.primary,
-//           backgroundColor: chartColors.primary + "33", // 20% opacity
-//           fill: true,
-//           tension: 0.4,
-//         },
-//       ],
-//     },
-//     options: {
-//       responsive: true,
-//       maintainAspectRatio: false,
-//       plugins: {
-//         legend: {
-//           display: true,
-//           position: "top",
-//           labels: {
-//             color: "#374151",
-//             usePointStyle: true,
-//           },
-//         },
-//         tooltip: {
-//           backgroundColor: "#ffffff",
-//           titleColor: "#1f2937",
-//           bodyColor: "#1f2937",
-//           borderColor: "#e5e7eb",
-//           borderWidth: 1,
-//         },
-//       },
-//       scales: {
-//         x: {
-//           title: {
-//             display: true,
-//             text: "Month",
-//             color: "#374151",
-//           },
-//           ticks: { color: "#374151" },
-//           grid: { display: false },
-//         },
-//         y: {
-//           title: {
-//             display: true,
-//             text: "Sales ($)",
-//             color: "#374151",
-//           },
-//           ticks: { color: "#374151" },
-//           grid: { color: "#e5e7eb" },
-//         },
-//       },
-//     },
-//   }
+// Overall summary card
+const OverallSummary = ({ data }: { data: LeadAnalyticsResponse }) => {
+  return (
+    <Card className="border shadow-md bg-white">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold text-primary">
+          Overall Lead Summary
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {data.leadStatusCounts.map((item) => (
+          <div key={item.status} className="space-y-1">
+            <span
+              className={cn(
+                "text-xs font-semibold px-2 py-0.5 rounded",
+                statusColors[item.status] || "bg-gray-100 text-gray-800"
+              )}
+            >
+              {item.status.replace(/_/g, " ")}
+            </span>
+            <div className="text-xl font-bold text-foreground">{item.count}</div>
+          </div>
+        ))}
+        <div className="space-y-1">
+          <span className="text-xs font-semibold text-muted-foreground">Total Revenue</span>
+          <div className="text-xl font-bold text-green-700">
+            ₹{data.revenue.total.toLocaleString("en-IN")}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
-//   // Bar Chart Configuration
-//   const categorySalesChart = {
-//     type: "bar",
-//     data: {
-//       labels: salesData[selectedYear].categories.map((item) => item.category),
-//       datasets: [
-//         {
-//           label: "Sales ($)",
-//           data: salesData[selectedYear].categories.map((item) => item.sales),
-//           backgroundColor: chartColors.secondary,
-//           borderColor: chartColors.secondary,
-//           borderWidth: 1,
-//         },
-//       ],
-//     },
-//     options: {
-//       responsive: true,
-//       maintainAspectRatio: false,
-//       plugins: {
-//         legend: {
-//           display: true,
-//           position: "top",
-//           labels: {
-//             color: "#374151",
-//             usePointStyle: true,
-//           },
-//         },
-//         tooltip: {
-//           backgroundColor: "#ffffff",
-//           titleColor: "#1f2937",
-//           bodyColor: "#1f2937",
-//           borderColor: "#e5e7eb",
-//           borderWidth: 1,
-//         },
-//       },
-//       scales: {
-//         x: {
-//           title: {
-//             display: true,
-//             text: "Category",
-//             color: "#374151",
-//           },
-//           ticks: { color: "#374151" },
-//           grid: { display: false },
-//         },
-//         y: {
-//           title: {
-//             display: true,
-//             text: "Sales ($)",
-//             color: "#374151",
-//           },
-//           ticks: { color: "#374151" },
-//           grid: { color: "#e5e7eb" },
-//         },
-//       },
-//     },
-//   }
+// Per-team analytics card
+const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-//   // Pie Chart Configuration
-//   const regionSalesChart = {
-//     type: "pie",
-//     data: {
-//       labels: salesData[selectedYear].regions.map((item) => item.region),
-//       datasets: [
-//         {
-//           label: "Sales ($)",
-//           data: salesData[selectedYear].regions.map((item) => item.sales),
-//           backgroundColor: [
-//             chartColors.primary,
-//             chartColors.secondary,
-//             chartColors.tertiary,
-//             chartColors.quaternary,
-//           ],
-//           borderColor: "#ffffff",
-//           borderWidth: 2,
-//         },
-//       ],
-//     },
-//     options: {
-//       responsive: true,
-//       maintainAspectRatio: false,
-//       plugins: {
-//         legend: {
-//           display: true,
-//           position: "top",
-//           labels: {
-//             color: "#374151",
-//             usePointStyle: true,
-//           },
-//         },
-//         tooltip: {
-//           backgroundColor: "#ffffff",
-//           titleColor: "#1f2937",
-//           bodyColor: "#1f2937",
-//           borderColor: "#e5e7eb",
-//           borderWidth: 1,
-//         },
-//       },
-//     },
-//   }
+  const pendingStatus = useMemo(
+    () => team.statuses.find((s) => s.status === "PENDING"),
+    [team.statuses]
+  );
 
-//   return (
-//     <main className="flex-1 p-8 bg-gray-100 dark:bg-gray-900">
-//       <div className="container mx-auto max-w-6xl">
-//         {/* Header with Title and Year Filter */}
-//         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-//           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-//             Sales Analytics
-//           </h1>
-//           <Select
-//             value={selectedYear}
-//             onValueChange={setSelectedYear}
-//             aria-label="Select year"
-//           >
-//             <SelectTrigger className="w-full sm:w-48 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700">
-//               <SelectValue placeholder="Select Year" />
-//             </SelectTrigger>
-//             <SelectContent>
-//               <SelectItem value="2025">2025</SelectItem>
-//               <SelectItem value="2024">2024</SelectItem>
-//             </SelectContent>
-//           </Select>
-//         </div>
+  const otherStatuses = useMemo(
+    () =>
+      team.statuses.filter(
+        (s) => s.status !== "PENDING" && (s.count > 0 || s.totalTicketAmount > 0)
+      ),
+    [team.statuses]
+  );
 
-//         {/* Charts Grid */}
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//           {/* Monthly Sales Line Chart */}
-//           <Card className="shadow-xl border-0 bg-white dark:bg-gray-800">
-//             <CardHeader>
-//               <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-//                 Monthly Sales Trend
-//               </CardTitle>
-//             </CardHeader>
-//             <CardContent className="p-6">
-//               <div className="h-[300px]">
-//                 ```chartjs
-//                 {monthlySalesChart}
-//                 ```
-//               </div>
-//             </CardContent>
-//           </Card>
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-foreground">{team.teamName}</h2>
+        <Badge variant="outline" className="text-xs">
+          Team Lead: {team.teamLeadName}
+        </Badge>
+      </div>
 
-//           {/* Sales by Category Bar Chart */}
-//           <Card className="shadow-xl border-0 bg-white dark:bg-gray-800">
-//             <CardHeader>
-//               <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-//                 Sales by Category
-//               </CardTitle>
-//             </CardHeader>
-//             <CardContent className="p-6">
-//               <div className="h-[300px]">
-//                 ```chartjs
-//                 {categorySalesChart}
-//                 ```
-//               </div>
-//             </CardContent>
-//           </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Pending card */}
+        {pendingStatus && (pendingStatus.count > 0 || pendingStatus.totalTicketAmount > 0) && (
+          <Card className="border border-blue-400/40 shadow-sm bg-gradient-to-br from-blue-50 to-white">
+            <CardHeader className="py-2">
+              <CardTitle className="text-base text-blue-900 font-medium flex items-center justify-between">
+                Pending Leads
+                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                  {pendingStatus.count} leads
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="py-2 space-y-1">
+              <p className="text-gray-700 text-sm">
+                <span className="font-medium text-muted-foreground">Generated:</span>{" "}
+                ₹{pendingStatus.generatedAmount.toLocaleString("en-IN")}
+              </p>
+              {pendingStatus.projectedAmount !== undefined && (
+                <p className="text-gray-700 text-sm">
+                  <span className="font-medium text-muted-foreground">Projected:</span>{" "}
+                  ₹{pendingStatus.projectedAmount.toLocaleString("en-IN")}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-//           {/* Sales by Region Pie Chart */}
-//           <Card className="shadow-xl border-0 bg-white dark:bg-gray-800">
-//             <CardHeader>
-//               <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-//                 Sales by Region
-//               </CardTitle>
-//             </CardHeader>
-//             <CardContent className="p-6">
-//               <div className="h-[300px]">
-//                 ```chartjs
-//                 {regionSalesChart}
-//                 ```
-//               </div>
-//             </CardContent>
-//           </Card>
-//         </div>
-//       </div>
-//     </main>
-//   )
-// }
+        {/* Other statuses */}
+        {otherStatuses.length > 0 && (
+          <Card className="border shadow-sm bg-white">
+            <CardHeader className="py-2 flex justify-between items-center">
+              <CardTitle className="text-base font-medium text-foreground">
+                Other Statuses
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </CardHeader>
+            <CardContent className="py-2">
+              <p className="text-sm text-gray-700 mb-2">
+                Total: {otherStatuses.reduce((sum, s) => sum + s.count, 0)} leads
+              </p>
+              {isExpanded && (
+                <ul className="divide-y divide-muted">
+                  {otherStatuses.map((status) => (
+                    <li
+                      key={status.status}
+                      className="py-2 flex items-center justify-between text-sm"
+                    >
+                      <span
+                        className={cn(
+                          "text-xs font-medium px-2 py-0.5 rounded",
+                          statusColors[status.status] || "bg-gray-200 text-gray-800"
+                        )}
+                      >
+                        {status.status.replace(/_/g, " ")}
+                      </span>
+                      <div className="text-right space-y-0.5 text-xs text-gray-700">
+                        <p>{status.count} leads</p>
+                        <p>₹{status.totalTicketAmount.toLocaleString("en-IN")}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </section>
+  );
+};
+
+
+
+export default function Analytics() {
+  const [allTeams, setAllTeams] = useState<TeamStatusAnalytics[]>([]);
+  const [allData, setAllData] = useState<LeadAnalyticsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  const handleRangeFilter = (range: "today" | "yesterday") => {
+    const today = new Date();
+    if (range === "today") {
+      setFromDate(today);
+      setToDate(today);
+    } else {
+      const yday = subDays(today, 1);
+      setFromDate(yday);
+      setToDate(yday);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      setError(null);
+
+  const filters = {
+  fromDate: fromDate ?? new Date(),
+  toDate: toDate ?? new Date(),
+};
+      const [teamData, overallData] = await Promise.all([
+        fetchAllTeamsAnalytics(filters),
+        fetchAnalytics(filters),
+      ]);
+
+      setAllTeams(Array.isArray(teamData) ? teamData : [teamData]);
+      setAllData(overallData);
+    } catch (err) {
+      console.error("Failed to fetch analytics:", err);
+      setError("Failed to load team analytics. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleRefresh();
+  }, [fromDate, toDate]);
+
+  return (
+    <div className="min-h-screen bg-muted/40 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto sticky top-0 z-10 bg-muted/40 backdrop-blur-sm py-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Team Analytics Dashboard
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Real-time insights into team performance and revenue metrics
+            </p>
+          </div>
+
+          <div className="flex gap-2 items-center flex-wrap">
+            <Button size="sm" variant="outline" onClick={() => handleRangeFilter("today")}>
+              Today
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleRangeFilter("yesterday")}>
+              Yesterday
+            </Button>
+            <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn("justify-start text-left font-normal min-w-[220px]", !fromDate && "text-muted-foreground")}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {fromDate && toDate
+                    ? `${format(fromDate, "dd MMM")} - ${format(toDate, "dd MMM")}`
+                    : "Pick date range"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={{ from: fromDate, to: toDate }}
+                  onSelect={(range) => {
+                    setFromDate(range?.from);
+                    setToDate(range?.to);
+                  }}
+                  initialFocus
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+            <Button size="sm" onClick={handleRefresh} disabled={loading}>
+              Refresh
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto space-y-6 mt-4">
+        {loading ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : error ? (
+          <div className="text-center text-red-600 bg-red-50 p-3 rounded-lg">
+            {error}
+            <Button variant="link" size="sm" onClick={handleRefresh}>
+              Retry
+            </Button>
+          </div>
+        ) : (
+          <>
+            {allData && <OverallSummary data={allData} />}
+            {allTeams.map((team) => (
+              <TeamAnalyticsCard key={team.teamAssignedId} team={team} />
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

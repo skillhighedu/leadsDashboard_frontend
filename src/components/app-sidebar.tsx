@@ -15,6 +15,7 @@ import {
   LogOutIcon,
   Users,
   Menu,
+  ChartNoAxesColumnIncreasingIcon
 } from "lucide-react";
 import { useAuthStore } from "@/store/AuthStore";
 import { Roles } from "@/constants/role.constant";
@@ -49,6 +50,17 @@ export function AppSidebar() {
                 >
                   <HomeIcon className="mr-2 h-5 w-5" />
                   Home
+                </Button>
+              </Link>
+            </SidebarGroup>
+             <SidebarGroup>
+              <Link to="/analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Analytics
                 </Button>
               </Link>
             </SidebarGroup>
@@ -98,6 +110,17 @@ export function AppSidebar() {
                   Home
                 </Button>
               </Link>
+              <Link to="/team-analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
+                  Team Analytics
+             
+                </Button>
+              </Link>
+              
   
             <Link to="/allLeads" className="block">
               <Button
@@ -119,7 +142,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-        {user?.role === Roles.LEAD_MANAGER && (
+        {user?.role === Roles.VERTICAL_MANAGER && (
           <SidebarGroup>
              <Link to="/" className="block">
                 <Button
@@ -128,6 +151,15 @@ export function AppSidebar() {
                 >
                   <HomeIcon className="mr-2 h-5 w-5" />
                   Home
+                </Button>
+              </Link>
+               <Link to="/analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Analytics
                 </Button>
               </Link>
             <Link to="/allLeads" className="block">
@@ -159,6 +191,16 @@ export function AppSidebar() {
                 >
                   <HomeIcon className="mr-2 h-5 w-5" />
                   Home
+                </Button>
+              </Link>
+               <Link to="/team-analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
+                  Team Analytics
+             
                 </Button>
               </Link>
             <Link to="/allLeads" className="block">
@@ -219,6 +261,38 @@ export function AppSidebar() {
                 Leave Dashboard
               </Button>
             </Link>
+          </SidebarGroup>
+        )}
+         {user?.role === Roles.OPSTEAM && (
+          <SidebarGroup>
+             <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                All Leads
+              </Button>
+            </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Application
+              </Button>
+            </Link>
+         
           </SidebarGroup>
         )}
       </SidebarContent>

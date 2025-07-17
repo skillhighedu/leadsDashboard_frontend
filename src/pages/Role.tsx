@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { PlusIcon, PencilIcon, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AdminHeader } from "@/components/Header";
 
 type Permission = {
   uploadData: boolean;
@@ -71,6 +72,7 @@ export default function Role() {
 
   return (
     <div className="container mx-auto p-6">
+    
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Roles

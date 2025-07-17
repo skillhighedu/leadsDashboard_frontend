@@ -214,14 +214,10 @@ export default function Home() {
     try {
       setError(null);
 
-      if (!fromDate || !toDate) {
-        throw new Error("Please select both from and to dates.");
-      }
-      const filters = {
-        fromDate,
-        toDate,
-      };
-
+  const filters = {
+  fromDate: fromDate ?? new Date(),
+  toDate: toDate ?? new Date(),
+};
       const [teamData, overallData] = await Promise.all([
         fetchAllTeamsAnalytics(filters),
         fetchAnalytics(filters),

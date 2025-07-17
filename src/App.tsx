@@ -6,7 +6,6 @@ import Login from "@/pages/Login";
 import { ProtectedRoute } from "@/pages/ProtectedRoutes";
 import { useAuthStore } from "@/store/AuthStore";
 import { useEffect, useRef } from "react";
-
 import Employe from "@/pages/Employe";
 import AddRole from "@/pages/AddRole";
 import Leads from "@/pages/Leads";
@@ -17,20 +16,21 @@ import RolePage from "@/pages/Role";
 import { Roles } from "@/constants/role.constant";
 import LeaveApplication from "@/pages/LeaveApplication";
 import HrDashboard from "@/pages/HrDashboard"
-import Home2 from "./pages/Home2";
-
-
-
-import LeaveDashboard from "./pages/LeaveDashboard";
-import useNetworkStatus from "./hooks/useNetworkStatus";
+import Rules from "@/pages/Rules";
+import LeaveDashboard from "@/pages/LeaveDashboard";
+import useNetworkStatus from "@/hooks/useNetworkStatus";
 import { toast } from "sonner";
+import Analytics from "@/pages/Analytics";
+import TeamAnalytics from "@/pages/TeamAnalytics";
+
+
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
   const hasCheckedAuth = useRef(false);
   const isOnline = useNetworkStatus();
 
   useEffect(() => {
-    console.log(isOnline)
+
     if (!isOnline) {
       toast.error("chaithu");
     }
@@ -72,8 +72,9 @@ function App() {
             path="/"
             element={
               <Layout>
-                <Home2 />
+                <Rules />
               </Layout>
+
             }
           />
         </Route>
@@ -87,10 +88,12 @@ function App() {
                 Roles.VERTICAL_MANAGER,
                 Roles.INTERN,
                 Roles.HR,
+                Roles.OPSTEAM
               ]}
             />
           }
         >
+          
           <Route
             path="/allLeads"
             element={
@@ -99,6 +102,7 @@ function App() {
               </Layout>
             }
           />
+          
           <Route
             path="/leave-application"
             element={
@@ -118,6 +122,7 @@ function App() {
               </Layout>
             }
           />
+          
           <Route
             path="/create-role"
             element={
@@ -159,9 +164,38 @@ function App() {
               </Layout>
             }
           />
-  
-    
+
+
         </Route>
+        
+        <Route element={<ProtectedRoute requiredRole={[Roles.ADMIN,Roles.VERTICAL_MANAGER]} />}>
+         
+           <Route
+            path="/analytics"
+            element={
+              <Layout>
+                <Analytics/> 
+              </Layout>
+            }
+          />
+        
+
+        </Route>
+
+           <Route element={<ProtectedRoute requiredRole={[Roles.EXECUTIVE,Roles.INTERN]} />}>
+         
+           <Route
+            path="/team-analytics"
+            element={
+              <Layout>
+                <TeamAnalytics/> 
+              </Layout>
+            }
+          />
+        
+
+        </Route>
+
 
         <Route element={<ProtectedRoute requiredRole={[Roles.HR]} />}>
           <Route
@@ -182,7 +216,7 @@ function App() {
             }
           />
         </Route>
-          <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
+        <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
 
           <Route
             path="/lead-payments"
