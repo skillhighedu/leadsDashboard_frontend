@@ -1,5 +1,5 @@
 import apiClient from "@/config/axiosConfig";
-import type { LeaveApplicationPayload, LeaveApplicationResponse, LeavesResponse, UpdatedLeaveResponse, UpdateLeaveStatusPayload } from "@/types/leaveApplication";
+import type { LeaveApplicationPayload, LeaveApplicationResponse, LeaveResponse, LeavesResponse, UpdatedLeaveResponse, UpdateLeaveStatusPayload } from "@/types/leaveApplication";
 import type { ApiResponse } from "@/types/api";
 import { handleApiError } from "@/utils/errorHandler";
 
@@ -19,9 +19,20 @@ export const submitLeaveApplication = async (payload:LeaveApplicationPayload): P
   }
 };
 
-export const fetchLeaveApplications = async(date: string): Promise<LeavesResponse> => {
+
+export const fetchMyLeaveApplications = async (): Promise<LeaveResponse> => {
+  const response = await apiClient.get<ApiResponse<LeaveResponse>>("/staff/my-leaves");
+
+  if (!response.data.additional) {
+    throw new Error("No additional data returned from API");
+  }
+
+  return response.data.additional;
+};
+
+export const fetchLeaveApplications = async(): Promise<LeavesResponse> => {
     const response = await apiClient.get<ApiResponse<LeavesResponse>>("/staff/leave-applications", {
-        params: {date},
+   
     });
     if (!response.data.additional) {
         throw new Error("No additional data returned from API");
