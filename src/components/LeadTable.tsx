@@ -75,7 +75,7 @@ export function LeadTable({
   }, [leads]);
 
   const selectableLeads = safeLeads.filter((lead) =>
-    user && user.role === Roles.LEAD_MANAGER
+    user && user.role === Roles.VERTICAL_MANAGER
       ? lead.teamAssignedId === null
       : lead.handlerId === null
   );
@@ -136,7 +136,7 @@ export function LeadTable({
         ) : safeLeads.length ? (
           safeLeads.map((lead) => {
             const isDisabled =
-              user && user.role !== Roles.LEAD_MANAGER
+              user && user.role !== Roles.VERTICAL_MANAGER
                 ? lead.handlerId !== null
                 : lead.teamAssignedId !== null;
 
@@ -187,7 +187,7 @@ export function LeadTable({
                       handleUpFrontChange(lead.id, e.target.value)
                     }
                     onBlur={() => handleUpFrontBlur(lead.id)}
-                    disabled={user?.role === Roles.LEAD_MANAGER}
+                    disabled={user?.role === Roles.VERTICAL_MANAGER}
                   />
                 </TableCell>
                 <TableCell>{lead.remainingFee}</TableCell>
@@ -200,12 +200,12 @@ export function LeadTable({
                       handleTicketChange(lead.id, e.target.value)
                     }
                     onBlur={() => handleTicketBlur(lead.id)}
-                    disabled={user?.role === Roles.LEAD_MANAGER}
+                    disabled={user?.role === Roles.VERTICAL_MANAGER}
                   />
                 </TableCell>
                 <TableCell>
                   <Select
-                    disabled={user?.role === Roles.LEAD_MANAGER}
+                    disabled={user?.role === Roles.VERTICAL_MANAGER}
                     value={lead.status}
                     onValueChange={(value) => onStatusChange(lead.id, value)}
                   >

@@ -5,7 +5,7 @@ import { type LeadStatus, LeadStatuses } from "@/constants/status.constant";
 
 export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
     [Roles.ADMIN]: [...LeadStatuses],
-    [Roles.LEAD_MANAGER]: [
+    [Roles.VERTICAL_MANAGER]: [
         "ASSIGNED",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
@@ -67,6 +67,5 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "PENDING",
     ],
     [Roles.ALL]: [],
-    [Roles.VERTICAL_MANAGER]: [],
     [Roles.HR]: []
 };

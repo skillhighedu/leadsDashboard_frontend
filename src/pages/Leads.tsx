@@ -33,7 +33,7 @@ export default function LeadsPage() {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(
-    user?.role === Roles.LEAD_MANAGER ? "NEWLY_GENERATED" : "ASSIGNED"
+    user?.role === Roles.VERTICAL_MANAGER ? "NEWLY_GENERATED" : "ASSIGNED"
   );
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMembersResponse[]>([]);
@@ -44,7 +44,7 @@ export default function LeadsPage() {
   const [upFrontFees, setUpFrontFees] = useState<{ id: number; value: string }[]>([]);
 
 
-const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.LEAD_MANAGER);
+const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.VERTICAL_MANAGER);
 
 
   const getLeads = async (
@@ -183,7 +183,7 @@ const handleUpFrontBlur = async (id: number) => {
 
   const loadTeamData = async (role: string) => {
     try {
-      if (role === Roles.LEAD_MANAGER) {
+      if (role === Roles.VERTICAL_MANAGER) {
         const teams = await fetchTeams();
         console.log(teams)
         setTeams(teams);
@@ -246,7 +246,7 @@ const handleUpFrontBlur = async (id: number) => {
                 disabled={!selectedLeads.length || teamsLoading}
                 onClick={() => setIsAssignDialogOpen(true)}
               >
-                Assign to {user?.role !== Roles.LEAD_MANAGER ? "Members" : "Teams"} ({selectedLeads.length})
+                Assign to {user?.role !== Roles.VERTICAL_MANAGER ? "Members" : "Teams"} ({selectedLeads.length})
               </Button>
             </div>
           </div>

@@ -27,7 +27,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusIcon, PencilIcon, ChartLineIcon, Trash2 } from "lucide-react";
+import { PlusIcon, PencilIcon,  Trash2 } from "lucide-react";
 import {
   deleteEmployee,
   editEmployee,
