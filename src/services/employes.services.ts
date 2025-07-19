@@ -13,7 +13,7 @@ export interface Employee {
   uuid: string;
   roleId: number;
   roleName: string;
-  
+  employmentStatus: EmploymentStatus
 }
 
 
@@ -87,6 +87,42 @@ export const deleteEmployee = async (uuid:string)=> {
       
     }
     return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const EmploymentStatus = {
+  IS_WORKING: "IS_WORKING",
+  NOT_WORKING: "NOT_WORKING",
+} as const;
+
+export type EmploymentStatus = keyof typeof EmploymentStatus;
+
+export type UpdateEmployeeStatusResponse = {
+  id: number;
+  uuid: string;
+  name: string;
+  employmentStatus: EmploymentStatus;
+  teamId: number;
+};
+
+export const updateEmployeeStatus = async (
+  uuid: string,
+  status: EmploymentStatus
+): Promise<UpdateEmployeeStatusResponse> => {
+  try {
+    const response = await apiClient.put<ApiResponse<UpdateEmployeeStatusResponse>>(
+      `employees/employee-status/${uuid}`,
+      { status }
+    );
+
+    if (!response.data.additional) {
+      throw new Error("No additional data returned from API");
+    }
+
+    console.log(response)
+    return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
   }

@@ -23,22 +23,45 @@ import { Input } from "./ui/input";
 import { LeadStatuses } from "@/constants/status.constant";
 import { Roles } from "@/constants/role.constant";
 
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 interface LeadTableProps {
   leads: Leads[];
   loading: boolean;
   selectedLeads: number[];
   setSelectedLeads: React.Dispatch<React.SetStateAction<number[]>>;
   ticketAmounts: { id: number; value: string }[];
-  setTicketAmounts: React.Dispatch<React.SetStateAction<{ id: number; value: string }[]>>;
+  setTicketAmounts: React.Dispatch<
+    React.SetStateAction<{ id: number; value: string }[]>
+  >;
   upFrontFees: { id: number; value: string }[];
-  setUpFrontFee: React.Dispatch<React.SetStateAction<{ id: number; value: string }[]>>;
+  setUpFrontFee: React.Dispatch<
+    React.SetStateAction<{ id: number; value: string }[]>
+  >;
   handleTicketBlur: (id: number) => void;
-  handleUpFrontBlur:(id: number) => void;
+  handleUpFrontBlur: (id: number) => void;
   handleTicketChange: (id: number, value: string) => void;
   handleUpFrontChange: (id: number, value: string) => void;
   onSelectLead: (id: number) => void;
   onSelectAll: () => void;
   onStatusChange: (leadId: number, newStatus: string) => void;
+  handleDeleteLead: (uuid: string, name: string) => void;
+  canDelete?: boolean;
+  referredByInputs: { id: number; value: string }[];
+  
+  handleReferredByChange: (id: number, value: string) => void;
+  handleReferredByBlur: (id: number) => void;
 }
 
 export function LeadTable({
@@ -56,6 +79,11 @@ export function LeadTable({
   handleUpFrontChange,
   onSelectLead,
   onStatusChange,
+  handleDeleteLead,
+  canDelete,
+  referredByInputs,
+  handleReferredByChange,
+  handleReferredByBlur,
 }: LeadTableProps) {
   const { user } = useAuthStore();
   const safeLeads = Array.isArray(leads) ? leads : [];
@@ -75,7 +103,7 @@ export function LeadTable({
   }, [leads]);
 
   const selectableLeads = safeLeads.filter((lead) =>
-    user && user.role === Roles.LEAD_MANAGER
+    user && user.role === Roles.VERTICAL_MANAGER
       ? lead.teamAssignedId === null
       : lead.handlerId === null
   );
@@ -111,7 +139,6 @@ export function LeadTable({
           <TableHead>Referred By</TableHead>
           <TableHead> Preferred Language</TableHead>
 
-        
           <TableHead>Owner</TableHead>
           <TableHead>Assigned To Team</TableHead>
           <TableHead>Assigned To Member</TableHead>
@@ -136,7 +163,7 @@ export function LeadTable({
         ) : safeLeads.length ? (
           safeLeads.map((lead) => {
             const isDisabled =
-              user && user.role !== Roles.LEAD_MANAGER
+              user && user.role !== Roles.VERTICAL_MANAGER
                 ? lead.handlerId !== null
                 : lead.teamAssignedId !== null;
 
@@ -145,6 +172,8 @@ export function LeadTable({
 
             const upFrontValue =
               upFrontFees.find((item) => item.id === lead.id)?.value || "";
+
+            // Remove this function definition. The actual handleDeleteLead is passed as a prop to LeadTable and should not be redefined here.
 
             return (
               <TableRow
@@ -172,11 +201,28 @@ export function LeadTable({
                 <TableCell>{lead.batch}</TableCell>
                 <TableCell>{lead.domain}</TableCell>
                 <TableCell>{lead.hadReferred ? "Yes" : "No"}</TableCell>
-                <TableCell>{lead.referredBy}</TableCell>
+                <TableCell>
+                  <Input
+                    className="w-32"
+                    placeholder="Enter email"
+                    type="email"
+                    value={
+                      referredByInputs.find((item) => item.id === lead.id)
+                        ?.value ?? ""
+                    }
+                    onChange={(e) =>
+                      handleReferredByChange(lead.id, e.target.value)
+                    }
+                    onBlur={() => handleReferredByBlur(lead.id)}
+                  />
+                </TableCell>
+
                 <TableCell>{lead.preferredLanguage}</TableCell>
 
                 <TableCell>{lead?.owner?.name}</TableCell>
-                <TableCell>{lead?.teamAssigned?.teamName ?? "Unassigned"}</TableCell>
+                <TableCell>
+                  {lead?.teamAssigned?.teamName ?? "Unassigned"}
+                </TableCell>
                 <TableCell>{lead.handler?.name || "-"}</TableCell>
                 <TableCell>
                   <Input
@@ -187,7 +233,7 @@ export function LeadTable({
                       handleUpFrontChange(lead.id, e.target.value)
                     }
                     onBlur={() => handleUpFrontBlur(lead.id)}
-                    disabled={user?.role === Roles.LEAD_MANAGER}
+                    disabled={user?.role === Roles.VERTICAL_MANAGER}
                   />
                 </TableCell>
                 <TableCell>{lead.remainingFee}</TableCell>
@@ -200,12 +246,12 @@ export function LeadTable({
                       handleTicketChange(lead.id, e.target.value)
                     }
                     onBlur={() => handleTicketBlur(lead.id)}
-                    disabled={user?.role === Roles.LEAD_MANAGER}
+                    disabled={user?.role === Roles.VERTICAL_MANAGER}
                   />
                 </TableCell>
                 <TableCell>
                   <Select
-                    disabled={user?.role === Roles.LEAD_MANAGER}
+                    disabled={user?.role === Roles.VERTICAL_MANAGER}
                     value={lead.status}
                     onValueChange={(value) => onStatusChange(lead.id, value)}
                   >
@@ -224,6 +270,47 @@ export function LeadTable({
                     </SelectContent>
                   </Select>
                 </TableCell>
+
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        disabled={!canDelete}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Confirm Deletion</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete <b>{lead.name}</b>?
+                          This action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button
+                            variant="destructive"
+                            onClick={() =>
+                              handleDeleteLead(lead.uuid, lead.name)
+                            }
+                          >
+                            Delete
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </TableCell>
+
                 {/* <TableCell>
                   <Button
                     variant="outline"
@@ -241,7 +328,10 @@ export function LeadTable({
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={15} className="text-center text-muted-foreground">
+            <TableCell
+              colSpan={15}
+              className="text-center text-muted-foreground"
+            >
               No leads found
             </TableCell>
           </TableRow>

@@ -27,16 +27,19 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusIcon, PencilIcon, ChartLineIcon, Trash2 } from "lucide-react";
+import { PlusIcon, PencilIcon, Trash2 } from "lucide-react";
 import {
   deleteEmployee,
   editEmployee,
+  EmploymentStatus,
   fetchEmployes,
+  updateEmployeeStatus,
   type Employee,
 } from "@/services/employes.services";
 import { Link } from "react-router-dom";
 import type { RoleInfo } from "@/services/team.services";
 import { fetchRoles } from "@/services/role.services";
+
 import { toast } from "sonner";
 
 export default function Employee() {
@@ -47,7 +50,12 @@ export default function Employee() {
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<{
+    name: string;
+    email: string;
+    roleId: string;
+    password: string;
+  }>({
     name: "",
     email: "",
     roleId: "",
@@ -70,6 +78,7 @@ export default function Employee() {
     const fetchData = async () => {
       try {
         const response = await fetchRoles();
+
         setRoles(response);
       } catch (error) {
         console.error("Error fetching roles:", error);
@@ -110,6 +119,21 @@ export default function Employee() {
       setEmployeeToEdit(null);
     } catch (error) {
       console.error("Edit failed", error);
+    }
+  };
+  const handleStatusChange = async (
+    employeeId: string,
+    newStatus: EmploymentStatus
+  ) => {
+    try {
+      await updateEmployeeStatus(employeeId, newStatus);
+      toast.success("Employment status updated");
+
+      const updated = await fetchEmployes();
+      setEmployeeData(updated);
+    } catch (error) {
+      console.error("Status update failed", error);
+      toast.error("Failed to update status");
     }
   };
 
@@ -166,6 +190,7 @@ export default function Employee() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
 
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -174,13 +199,60 @@ export default function Employee() {
                   {filteredEmployees.length > 0 ? (
                     filteredEmployees.map((employee) => (
                       <TableRow
-                        key={employee.id}
+                        key={employee.uuid}
                         className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
                         <TableCell>{employee.name}</TableCell>
                         <TableCell>{employee.email}</TableCell>
                         <TableCell>{employee.roleName}</TableCell>
-                       
+                        <TableCell>
+                          <Select
+                            value={employee.employmentStatus}
+                            onValueChange={async (value) =>
+                              handleStatusChange(
+                                employee.uuid,
+                                value as EmploymentStatus
+                              )
+                            }
+                          >
+                            <SelectTrigger className="w-[160px]">
+                              <SelectValue>
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`h-2 w-2 rounded-full ${
+                                      employee.employmentStatus ===
+                                      EmploymentStatus.IS_WORKING
+                                        ? "bg-green-500"
+                                        : "bg-red-500"
+                                    }`}
+                                  ></span>
+                                  <span>
+                                    {employee.employmentStatus ===
+                                    EmploymentStatus.IS_WORKING
+                                      ? "Working"
+                                      : "Not Working"}
+                                  </span>
+                                </div>
+                              </SelectValue>
+                            </SelectTrigger>
+
+                            <SelectContent>
+                              <SelectItem value={EmploymentStatus.IS_WORKING}>
+                                <div className="flex items-center gap-2">
+                                  <span className="h-2 w-2 rounded-full bg-green-500" />
+                                  Working
+                                </div>
+                              </SelectItem>
+                              <SelectItem value={EmploymentStatus.NOT_WORKING}>
+                                <div className="flex items-center gap-2">
+                                  <span className="h-2 w-2 rounded-full bg-red-500" />
+                                  Not Working
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+
                         <TableCell>
                           <div className="flex gap-2">
                             <Button
