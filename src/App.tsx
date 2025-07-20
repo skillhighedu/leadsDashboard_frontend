@@ -32,7 +32,7 @@ function App() {
   useEffect(() => {
 
     if (!isOnline) {
-      toast.error("chaithu");
+      toast.error("No internet connection");
     }
   }, [isOnline]);
 
@@ -84,7 +84,6 @@ function App() {
             <ProtectedRoute
               requiredRole={[
                 Roles.EXECUTIVE,
-                Roles.LEAD_MANAGER,
                 Roles.VERTICAL_MANAGER,
                 Roles.INTERN,
                 Roles.HR,
