@@ -1,34 +1,64 @@
-import React from "react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+
 const roleRules = [
   {
-    role: "ADMIN",
+    role: "Vertical Manager",
     permissions: [
-      "Can view and manage all leads and teams",
-      "Can upload leads and assign to any team",
-      "Access to full analytics and revenue reports",
-      "Can create/update users, teams, and configurations",
+      "Can upload leads using the designated Excel format.",
+      "Can assign leads to any team.",
+      "Can delete leads only if they are not assigned to any team",
+      "Cannot edit lead status or ticket fields (upfront fee, remaining fee)",
+      "Cannot assign leads directly to individual team members — only to team-level",
+      "Can apply for leave using the leave application system.",
     ],
   },
   {
-    role: "LEAD_MANAGER",
+    role: "Executive",
     permissions: [
-      "Can view leads assigned to their team",
-      "Can upload leads for their own team",
-      "Can assign leads to team members",
-      "Can update ticket amount, fee, and lead status",
+      "Can upload leads using the designated Excel format",
+      "Can assign leads to own team members or to self.",
+      "Can edit lead status and ticket fields (upfront fee, remaining fee).",
+      "Can delete unassigned leads (leads not yet allocated to a team).",
+      "Acts as a Team Lead, responsible for managing internal team operations.",
+      "Can apply for leave using the leave application system.",
     ],
   },
   {
-    role: "TEAM_MEMBER",
+    role: "Intern",
     permissions: [
-      "Can only view and update their own leads",
-      "Can change lead status (e.g., PENDING → IN_PROGRESS → COMPLETED)",
-      "Cannot reassign leads or edit ticket amount",
+      "Cannot upload leads.",
+      "Can edit lead status and ticket fields (upfront fee, remaining fee).",
+      "Cannot delete leads, regardless of assignment status.",
+      "Acts as a Team Member, responsible for managing own leads.",
+      "Can apply for leave using the leave application system.",
     ],
   },
+  {
+    role: "OPS Team",
+    permissions: [
+        "Can update lead status (e.g., move a lead from pending to paid ).",
+        "Can view the analytics dashboard, including lead counts by status (PAID, PENDING) and total revenue from PAID leads.",
+      "Cannot upload leads",
+      "Cannot assign leads to own team members or to self.",
+      "Cannot update ticket fields (upfront or remaining fee).",
+      "Cannot delete leads, regardless of assignment status.",
+      "Can apply for leave using the leave application system.",
+    ],
+  },
+  {
+    role: "HR",
+    permissions: [
+      "Can view staff login records, filterable by date (today, yesterday, or a specific date).",
+      "Can update login status for any staff member within 3 days of the original work date.",
+      "Can approve or reject leave applications submitted by other employees.",
+      "Cannot upload, assign, or delete leads — no access to lead management",
+      "Can apply for leave using the leave application system.",
+    ],
+  },
+  
 ];
 
 const operationalRules = [
@@ -38,6 +68,7 @@ const operationalRules = [
   "Only ADMIN can delete a lead permanently",
   "Statuses must follow: PENDING → IN_PROGRESS → COMPLETED/REJECTED",
   "Revenue is calculated only from COMPLETED + PAID leads",
+"Employees cannot log in on a day for which they have an approved full-day leave.",
 ];
 
 export default function Rules() {
