@@ -22,6 +22,7 @@ import useNetworkStatus from "@/hooks/useNetworkStatus";
 import { toast } from "sonner";
 import Analytics from "@/pages/Analytics";
 import TeamAnalytics from "@/pages/TeamAnalytics";
+import OpsAnalytics from "./pages/OpsAnalytics";
 
 
 function App() {
@@ -188,6 +189,19 @@ function App() {
             element={
               <Layout>
                 <TeamAnalytics/> 
+              </Layout>
+            }
+          />
+        
+
+        </Route>
+           <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
+         
+           <Route
+            path="/ops-analytics"
+            element={
+              <Layout>
+                <OpsAnalytics/> 
               </Layout>
             }
           />

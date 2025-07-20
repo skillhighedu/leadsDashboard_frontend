@@ -62,17 +62,6 @@ export default function LeadsPage() {
   const [assignLoading, setAssignLoading] = useState(false);
   const [teamsLoading, setTeamsLoading] = useState(true);
 
-  const [ticketAmounts, setTicketAmounts] = useState<
-    { id: number; value: string }[]
-  >([]);
-  const [upFrontFees, setUpFrontFees] = useState<
-    { id: number; value: string }[]
-  >([]);
-
-  const availableStatuses = getLeadStatusesByRole(
-    (user?.role as Roles) ?? Roles.VERTICAL_MANAGER
-  );
-
   const [ticketAmounts, setTicketAmounts] = useState<{ id: number; value: string }[]>([]);
   const [upFrontFees, setUpFrontFees] = useState<{ id: number; value: string }[]>([]);
 
@@ -337,12 +326,12 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
         <CardContent>
           <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
             <h2 className="text-xl font-semibold">All Leads</h2>
-            <div className="flex flex-wrap gap-2">
-              {user?.role !== Roles.INTERN && (
+                 {user?.role !== Roles.INTERN && (  <div className="flex flex-wrap gap-2">
+       
                 <Button onClick={() => setIsUploadDialogOpen(true)}>
                   Upload Leads
                 </Button>
-              )}
+          
 
               <Button
                 variant="outline"
@@ -363,7 +352,9 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
        
               </Button>
             </div>
+                )}
           </div>
+          
 
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <Input
@@ -407,7 +398,7 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
             setUpFrontFee={setUpFrontFees} // ✅ new
             onStatusChange={handleStatusChange}
             handleDeleteLead={handleDeleteLead}
-            canDelete={user?.role !== Roles.INTERN}
+            canDelete={user?.role !== Roles.INTERN && user?.role !== Roles.EXECUTIVE && user?.role !== Roles.OPSTEAM }
             referredByInputs={referredByInputs}
             
             handleReferredByBlur={handleReferredByBlur}
