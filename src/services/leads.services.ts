@@ -2,8 +2,9 @@
 
 import apiClient from "@/config/axiosConfig";
 import type { ApiResponse } from "@/types/api";
-import type { LeadsResponse } from "@/types/leads";
+import type { CreateLeadInput, Leads, LeadsResponse, UpdateReferredByInput } from "@/types/leads";
 import { handleApiError } from "@/utils/errorHandler";
+import { toast } from "sonner";
 
 /**
  * Fetch leads from the backend with optional pagination
@@ -136,3 +137,54 @@ export const leadAnalytics = async (): Promise<LeadAnalyticsResponse> => {
   }
 };
 
+export const deleteLead = async (uuid:string)=> {
+  try {
+    const response = await apiClient.delete<ApiResponse<LeadsResponse>>(
+      `/leads/${uuid}`
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+export const createLead = async (leadData: CreateLeadInput): Promise<LeadsResponse> => {
+    try {
+        const response = await apiClient.post<ApiResponse<LeadsResponse>>(
+            "/leads/createLead", leadData
+        );
+        if (!response.data.additional) {
+            throw new Error("No leads data found in the response.");
+        }
+
+        return response.data.additional;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+}
+
+export const updateReferredBy = async (
+  id: number,
+  data: UpdateReferredByInput
+): Promise<Leads> => {
+  try {
+    const response = await apiClient.put<ApiResponse<Leads>>(
+      `/leads/${id}/referred-by`,
+      data
+    );
+
+    if (!response.data.additional) {
+      throw new Error("No updated lead data found in response.");
+    }
+
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

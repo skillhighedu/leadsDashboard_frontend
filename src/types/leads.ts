@@ -44,5 +44,24 @@ export interface LeadsResponse {
     total: number;
     totalPages: number;
   }
-
 }
+
+export interface UpdateReferredByInput {
+  referrerEmail: string;
+}
+
+export type CreateLeadInput = Omit<
+  Leads,
+  | "id"
+  | "uuid"
+  | "createdAt"
+  | "updatedAt"
+  | "owner"
+  | "teamAssigned"
+  | "handler"
+  | "ownerId"
+  | "handlerId"
+  | "teamAssignedId"
+> & {
+  ownerId?: number;
+};
