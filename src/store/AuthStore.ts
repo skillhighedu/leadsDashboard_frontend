@@ -3,14 +3,21 @@ import { create } from "zustand";
 import api from "@/config/axiosConfig";
 import { toast } from "sonner";
 
+interface User {
+  role: string;
+  isActive?: boolean; // Optional for admin
+}
+
 interface AuthState {
-  user: null | { role: string };
+  user: User | null;
   loading: boolean;
   error: string | null;
   isCheckingAuth: boolean; // Add flag to prevent multiple simultaneous checks
   checkAuth: () => Promise<void>;
   logout: () => void;
   login: (userData: { role: string }) => void;
+  updateIsActive: (active: boolean) => void;
+  setUser: (user: User | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -27,7 +34,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // Check if we're on login page - if so, don't check auth
-    if (window.location.pathname === '/login') {
+    if (window.location.pathname === "/login") {
       console.log("On login page, skipping auth check");
       set({ loading: false, isCheckingAuth: false });
       return;
@@ -39,20 +46,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await api.get("/check/auth/role", {
         withCredentials: true, // send cookie
       });
-      
+
       console.log("Auth response:", res);
       console.log("Response data:", res.data);
-      
-      // Handle different possible response structures
-      let userRole = null;
-      
-      if(res.data && res.data.additional && res.data.additional.role) 
-      {
-        userRole = res.data.additional.role;
-      }
 
-      if (userRole) {
-        set({ user: { role: userRole }, loading: false, error: null, isCheckingAuth: false });
+      // Handle different possible response structures
+      //   let userRole = null;
+
+      //   if(res.data && res.data.additional && res.data.additional.role)
+      //   {
+      //     userRole = res.data.additional.role;
+      //   }
+
+      const role = res.data?.additional?.role;
+      const isActive = res.data?.additional?.isActive;
+      
+      
+
+
+      if (role) {
+        set({
+          user: { role: role, isActive },
+          loading: false,
+          error: null,
+          isCheckingAuth: false,
+        });
       } else {
         console.warn("No role found in response:", res.data);
         set({ user: null, loading: false, error: null, isCheckingAuth: false });
@@ -60,7 +78,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (err: unknown) {
       console.error("Auth check error:", err);
       // Handle 401 errors gracefully - just clear user state
-      if (typeof err === 'object' && err !== null && 'response' in err && (err as { response?: { status?: number } }).response?.status === 401) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err &&
+        (err as { response?: { status?: number } }).response?.status === 401
+      ) {
         console.log("401 Unauthorized - clearing user state");
         set({ user: null, loading: false, error: null, isCheckingAuth: false });
       } else {
@@ -71,21 +94,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    const {user} = get();
+    if (user?.isActive) {
+    toast.warning("Please deactivate before logging out.");
+    return;
+  }
     try {
+        
       // Call logout API
       await api.put("/staff/logout", {}, { withCredentials: true });
-    } catch (err) {
-      console.error("Logout API error:", err);
-    } finally {
-      // Always clear local state regardless of API call success
-      set({ user: null, loading: false, error: null, isCheckingAuth: false });
 
-      window.location.href = "/login"
-      toast.success("Logged out successfully")
-    }
+      toast.success("Logged out successfully");
+      set({ user: null, loading: false, error: null, isCheckingAuth: false });
+        window.location.href = "/login";
+    } catch (err: unknown) {
+        console.error("Logout API error:", err);
+        toast.error("To logout, first activate your login and then deactivate.");
+    } 
   },
 
-  login: (userData: { role: string }) => {
+  login: (userData: User) => {
     set({ user: userData, loading: false, error: null, isCheckingAuth: false });
   },
+
+  updateIsActive: (active: boolean) => {
+    set((state) => {
+        if (!state.user) return {};
+        return {
+            user: {
+                ...state.user,
+                isActive: active
+            }
+        }
+    })
+  },
+
+  setUser: (user: User | null) => {
+    set({user});
+  }
 }));

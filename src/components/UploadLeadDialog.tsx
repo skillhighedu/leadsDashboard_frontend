@@ -118,6 +118,7 @@ export function UploadLeadDialog({
         upFrontFee: 0,
         remainingFee: 0,
         batch: "",
+
       });
     } catch (error) {
       console.error("Create Lead Error:", error);

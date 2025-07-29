@@ -19,6 +19,7 @@ export const assignLeadToTeam = async (
     if (!response.data.additional) {
       throw new Error("Assignment response is missing");
     }
+    console.log(response)
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
@@ -37,6 +38,7 @@ export const assignLeadToTeamMemebers = async (
     if (!response.data.additional) {
       throw new Error("Assignment response is missing");
     }
+    
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);

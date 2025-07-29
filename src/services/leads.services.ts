@@ -14,7 +14,8 @@ import { toast } from "sonner";
 export const fetchLeads = async (
   page = 1,
   search = '',
-  status = ''
+  status = '',
+  day?: string
 ): Promise<LeadsResponse> => {
   try {
  
@@ -25,11 +26,15 @@ export const fetchLeads = async (
       status: status || 'NEWLY_GENERATED',
     });
 
+    if (day){
+        query.append("day", day)
+    }
 
     const response = await apiClient.get<ApiResponse<LeadsResponse>>(
       `/leads/all-leads?${query.toString()}`
     );
 
+    console.log(response)
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
