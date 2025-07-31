@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { adminLogin } from "@/services/admin.services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/AuthStore";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff,  } from "lucide-react";
 
 import { toast } from "sonner";
 
@@ -23,7 +23,23 @@ export default function Login() {
     if (name === "password") setPassword(value);
   };
 
+  const validateForm = () => {
+    if (!email){
+        toast.error("Email is required");
+        return false;
+    }
+    
+    if (!password) {
+        toast.error("Password is required");
+        return false
+    }
+    
+    return true
+  }
   const handleLogin = async () => {
+
+    if (!validateForm()) return;
+
     try {
       setIsLoading(true);
       const res = await adminLogin(email, password);

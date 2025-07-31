@@ -35,6 +35,7 @@ export interface Leads {
     teamName: string;
     colorCode: string;
   }
+  assignedAt:string
 }
 
 export interface LeadsResponse {
@@ -62,6 +63,7 @@ export type CreateLeadInput = Omit<
   | "ownerId"
   | "handlerId"
   | "teamAssignedId"
+   | "assignedAt"
 > & {
   ownerId?: number;
 };

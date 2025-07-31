@@ -13,7 +13,11 @@ import { UploadLeadDialog } from "@/components/UploadLeadDialog";
 import { AssignTeamDialog } from "@/components/AssignTeamDialog";
 import { LeadTable } from "@/components/LeadTable";
 import { getLeadStatusesByRole } from "@/utils/get-lead-statuses-by-role";
-import { deleteLead, fetchLeads, updateReferredBy } from "@/services/leads.services";
+import {
+  deleteLead,
+  fetchLeads,
+  updateReferredBy,
+} from "@/services/leads.services";
 import {
   fetchTeamMembers,
   fetchTeams,
@@ -33,9 +37,17 @@ import {
   updateUpFrontAmount,
 } from "@/services/leads.services";
 import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format, subDays } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function LeadsPage() {
-  const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
+  //   const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
   const [referredByInputs, setReferredByInputs] = useState<
     { id: number; value: string; originalValue: string }[]
   >([]);
@@ -49,32 +61,46 @@ export default function LeadsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState(
 
-    user?.role && allowedRoles.includes(user.role as Roles)
-      ? "NEWLY_GENERATED"
-      : "ASSIGNED"
+  const [statusFilter, setStatusFilter] = useState(() => {
+    if (
+      user?.role === Roles.VERTICAL_MANAGER ||
+      user?.role === Roles.MARKETING_HEAD ||
+      user?.role === Roles.LEAD_GEN_MANAGER
+    )
+      return "NEWLY_GENERATED";
+    return "ASSIGNED";
+  });
 
-  );
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMembersResponse[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
   const [teamsLoading, setTeamsLoading] = useState(true);
 
+
+  const [date, setDate] = useState<Date | undefined>(undefined);
+
+  const availableStatuses = getLeadStatusesByRole(
+    (user?.role as Roles) ?? Roles.MARKETING_HEAD
+  );
+
   const [ticketAmounts, setTicketAmounts] = useState<{ id: number; value: string }[]>([]);
   const [upFrontFees, setUpFrontFees] = useState<{ id: number; value: string }[]>([]);
 
 
-const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.VERTICAL_MANAGER);
 
 
-
-  const getLeads = async (page: number, search: string, status: string) => {
+  const getLeads = async (
+    page: number,
+    search: string,
+    status: string,
+    day?: string
+  ) => {
     if (!user?.role) return;
     setLoading(true);
     try {
-      const response = await fetchLeads(page, search, status);
+      const response = await fetchLeads(page, search, status, day);
       setLeads(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
@@ -85,14 +111,15 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
   };
 
   useEffect(() => {
-    getLeads(page, search, statusFilter);
-  }, [user, page, search, statusFilter]);
+    const formatted = date ? format(date, "yyyy-MM-dd") : undefined;
+    getLeads(page, search, statusFilter, formatted);
+  }, [user, page, search, statusFilter, date]);
 
   useEffect(() => {
     const referredData = leads.map((lead) => ({
       id: lead.id,
       value: lead.referredBy ?? "",
-       originalValue: lead.referredBy ?? ""
+      originalValue: lead.referredBy ?? "",
     }));
     setReferredByInputs(referredData);
   }, [leads]);
@@ -104,40 +131,39 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
   };
 
   const handleReferredByBlur = async (id: number) => {
-  const referred = referredByInputs.find((r) => r.id === id);
-  if (!referred) return;
+    const referred = referredByInputs.find((r) => r.id === id);
+    if (!referred) return;
 
-  // ✅ Avoid API call if nothing changed or input is empty
-  if (
-    referred.value.trim() === (referred.originalValue?.trim() ?? "") ||
-    referred.value.trim() === ""
-  ) {
-    return;
-  }
-
-  try {
-    const res = await updateReferredBy(id, { referrerEmail: referred.value });
-
-    if (res) {
-      toast.success("Referred by updated successfully.");
-
-      // ✅ Update original value locally to avoid re-triggering
-      setReferredByInputs((prev) =>
-        prev.map((r) =>
-          r.id === id ? { ...r, originalValue: referred.value } : r
-        )
-      );
-
-      await getLeads(page, search, statusFilter);
+    // ✅ Avoid API call if nothing changed or input is empty
+    if (
+      referred.value.trim() === (referred.originalValue?.trim() ?? "") ||
+      referred.value.trim() === ""
+    ) {
+      return;
     }
-  } catch (error) {
-    // toast.error(
-    //   error?.response?.data?.message || "Failed to update referred by."
-    // );
-    console.error("Failed to update referred by:", error);
-  }
-};
 
+    try {
+      const res = await updateReferredBy(id, { referrerEmail: referred.value });
+
+      if (res) {
+        toast.success("Referred by updated successfully.");
+
+        // ✅ Update original value locally to avoid re-triggering
+        setReferredByInputs((prev) =>
+          prev.map((r) =>
+            r.id === id ? { ...r, originalValue: referred.value } : r
+          )
+        );
+
+        await getLeads(page, search, statusFilter);
+      }
+    } catch (error) {
+      // toast.error(
+      //   error?.response?.data?.message || "Failed to update referred by."
+      // );
+      console.error("Failed to update referred by:", error);
+    }
+  };
 
   const handleAssigntoTeam = async () => {
     if (!selectedTeam || selectedLeads.length === 0) return;
@@ -277,7 +303,11 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
 
   const loadTeamData = async (role: string) => {
     try {
-      if (role === Roles.VERTICAL_MANAGER) {
+      if (
+        role === Roles.VERTICAL_MANAGER ||
+        role === Roles.MARKETING_HEAD ||
+        user?.role === Roles.LEAD_GEN_MANAGER
+      ) {
         const teams = await fetchTeams();
         console.log(teams);
         setTeams(teams);
@@ -292,9 +322,6 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
     }
   };
 
-  
-
-  
   useEffect(() => {
     if (user?.role) {
       loadTeamData(user.role);
@@ -326,12 +353,50 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
         <CardContent>
           <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
             <h2 className="text-xl font-semibold">All Leads</h2>
-                 {user?.role !== Roles.INTERN && (  <div className="flex flex-wrap gap-2">
-       
+
+            <div className="flex flex-wrap gap-2">
+              {user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC && (
+
+ 
                 <Button onClick={() => setIsUploadDialogOpen(true)}>
                   Upload Leads
                 </Button>
           
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <CalendarIcon className="w-4 h-4" />
+                    {date ? format(date, "dd MMM yyyy") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-4">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(selected) => selected && setDate(selected)}
+                    captionLayout="dropdown"
+                    showOutsideDays
+                    weekStartsOn={1}
+                  />
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      variant="secondary"
+                      className="w-1/2"
+                      onClick={() => setDate(new Date())}
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-1/2"
+                      onClick={() => setDate(subDays(new Date(), 1))}
+                    >
+                      Yesterday
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               <Button
                 variant="outline"
@@ -346,7 +411,7 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
               >
 
                 Assign to{" "}
-                {user?.role !== Roles.VERTICAL_MANAGER ? "Members" : "Teams"} (
+                {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
                 {selectedLeads.length})
 
        
@@ -398,9 +463,12 @@ const availableStatuses = getLeadStatusesByRole((user?.role as Roles) ?? Roles.V
             setUpFrontFee={setUpFrontFees} // ✅ new
             onStatusChange={handleStatusChange}
             handleDeleteLead={handleDeleteLead}
-            canDelete={user?.role !== Roles.INTERN && user?.role !== Roles.EXECUTIVE && user?.role !== Roles.OPSTEAM }
+
+            canDelete={
+              user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC
+            }
+
             referredByInputs={referredByInputs}
-            
             handleReferredByBlur={handleReferredByBlur}
             handleReferredByChange={handleReferredByChange}
           />

@@ -59,7 +59,7 @@ interface LeadTableProps {
   handleDeleteLead: (uuid: string, name: string) => void;
   canDelete?: boolean;
   referredByInputs: { id: number; value: string }[];
-  
+
   handleReferredByChange: (id: number, value: string) => void;
   handleReferredByBlur: (id: number) => void;
 }
@@ -103,7 +103,9 @@ export function LeadTable({
   }, [leads]);
 
   const selectableLeads = safeLeads.filter((lead) =>
-    user && user.role === Roles.VERTICAL_MANAGER
+    (user && user.role === Roles.VERTICAL_MANAGER) ||
+    user?.role === Roles.MARKETING_HEAD ||
+    user?.role === Roles.LEAD_GEN_MANAGER
       ? lead.teamAssignedId === null
       : lead.handlerId === null
   );
@@ -143,6 +145,7 @@ export function LeadTable({
 
           <TableHead>Owner</TableHead>
           <TableHead>Assigned To Team</TableHead>
+          <TableHead>Assigned At</TableHead>
           <TableHead>Assigned To Member</TableHead>
           <TableHead>UpFront Fee</TableHead>
           <TableHead>Remaining Fee</TableHead>
@@ -164,8 +167,19 @@ export function LeadTable({
           ))
         ) : safeLeads.length ? (
           safeLeads.map((lead) => {
+            const MANAGER_ROLES = [
+              Roles.LEAD_GEN_MANAGER,
+              Roles.MARKETING_HEAD,
+              Roles.VERTICAL_MANAGER,
+            ] as const;
+
+            type ManagerRole = (typeof MANAGER_ROLES)[number];
+
+            const hasManagerRole = (role: string): role is ManagerRole =>
+              (MANAGER_ROLES as readonly string[]).includes(role);
+
             const isDisabled =
-              user && user.role !== Roles.VERTICAL_MANAGER
+              user && !hasManagerRole(user.role)
                 ? lead.handlerId !== null
                 : lead.teamAssignedId !== null;
 
@@ -229,6 +243,14 @@ export function LeadTable({
                 <TableCell>
                   {lead?.teamAssigned?.teamName ?? "Unassigned"}
                 </TableCell>
+                <TableCell>
+                  {lead.assignedAt
+                    ? new Date(lead.assignedAt).toLocaleString("en-IN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })
+                    : "-"}
+                </TableCell>
                 <TableCell>{lead.handler?.name || "-"}</TableCell>
                 <TableCell>
                   <Input
@@ -239,7 +261,11 @@ export function LeadTable({
                       handleUpFrontChange(lead.id, e.target.value)
                     }
                     onBlur={() => handleUpFrontBlur(lead.id)}
-                    disabled={user?.role === Roles.VERTICAL_MANAGER}
+                    disabled={
+                      user?.role === Roles.VERTICAL_MANAGER ||
+                      user?.role === Roles.MARKETING_HEAD ||
+                      user?.role === Roles.LEAD_GEN_MANAGER
+                    }
                   />
                 </TableCell>
                 <TableCell>{lead.remainingFee}</TableCell>
@@ -252,12 +278,20 @@ export function LeadTable({
                       handleTicketChange(lead.id, e.target.value)
                     }
                     onBlur={() => handleTicketBlur(lead.id)}
-                    disabled={user?.role === Roles.VERTICAL_MANAGER}
+                    disabled={
+                      user?.role === Roles.VERTICAL_MANAGER ||
+                      user?.role === Roles.MARKETING_HEAD ||
+                      user?.role === Roles.LEAD_GEN_MANAGER
+                    }
                   />
                 </TableCell>
                 <TableCell>
                   <Select
-                    disabled={user?.role === Roles.VERTICAL_MANAGER}
+                    disabled={
+                      user?.role === Roles.VERTICAL_MANAGER ||
+                      user?.role === Roles.MARKETING_HEAD ||
+                      user?.role === Roles.LEAD_GEN_MANAGER
+                    }
                     value={lead.status}
                     onValueChange={(value) => onStatusChange(lead.id, value)}
                   >

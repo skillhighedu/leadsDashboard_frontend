@@ -97,9 +97,27 @@ export function AppSidebar() {
                 </Button>
               </Link>
             </SidebarGroup>
+            <Link to="/staff-logins" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Staff logins
+              </Button>
+            </Link>
+              <Link to="/leave-dashboard" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Dashboard
+              </Button>
+            </Link>
           </>
         )}
-        {user?.role?.toLowerCase() === Roles.INTERN.toLowerCase() && (
+        {user?.role?.toLowerCase() === Roles.INTERN.toLowerCase()  && (
           <SidebarGroup>
             <Link to="/" className="block">
                 <Button
@@ -142,7 +160,50 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-        {user?.role === Roles.VERTICAL_MANAGER && (
+        { user?.role?.toLowerCase() === Roles.TL_IC.toLowerCase() && (
+          <SidebarGroup>
+            <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
+              <Link to="/team-analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
+                  Team Analytics
+             
+                </Button>
+              </Link>
+              
+  
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Assigned Leads
+              </Button>
+            </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Application
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
+        { user?.role === Roles.LEAD_GEN_MANAGER && (
           <SidebarGroup>
              <Link to="/" className="block">
                 <Button
@@ -182,6 +243,87 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
+        {user?.role === Roles.VERTICAL_MANAGER  && (
+          <SidebarGroup>
+             <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
+               <Link to="/analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Analytics
+                </Button>
+              </Link>
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                All Leads
+              </Button>
+            </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Applicatiobn
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
+        {user?.role === Roles.MARKETING_HEAD && (
+          <SidebarGroup>
+             <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
+               <Link to="/analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Analytics
+                </Button>
+              </Link>
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                All Leads
+              </Button>
+            </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Applicatiobn
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
+
         {user?.role === Roles.EXECUTIVE && (
           <SidebarGroup>
              <Link to="/" className="block">
@@ -223,6 +365,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
+        
         {user?.role === Roles.HR && (
           <SidebarGroup>
              <Link to="/" className="block">
@@ -311,7 +454,12 @@ export function AppSidebar() {
         <Button
           variant="ghost"
           onClick={() => logout()}
-          className="w-full justify-start text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-r-full"
+    disabled={user?.isActive} // 🔒 disables logout while active
+    className={`w-full justify-start rounded-r-full ${
+      user?.isActive
+        ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+        : "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+    }`}
         >
           <LogOutIcon className="mr-2 h-5 w-5" />
           Logout

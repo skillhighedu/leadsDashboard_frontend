@@ -24,6 +24,44 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "NEWLY_GENERATED",
         "PENDING"
     ],
+    [Roles.LEAD_GEN_MANAGER]: [
+        "ASSIGNED",
+        "DNP", // Do Not Pick
+        "FOLLOW_UP",
+        "CBL", // Callback Later
+        "NOT_INTERESTED",
+        "PAID",
+        "BUSY",
+        "SWITCH_OFF",
+        "OUT_OF_SERVICE",
+        "NOT_CONNECTED",
+        "SENT_DETAILS",
+        "TIME",
+        "HUNG_UP",
+        "GIVEN",
+        "JUNK",
+        "NEWLY_GENERATED",
+        "PENDING"
+    ],
+    [Roles.MARKETING_HEAD]: [
+        "ASSIGNED",
+        "DNP", // Do Not Pick
+        "FOLLOW_UP",
+        "CBL", // Callback Later
+        "NOT_INTERESTED",
+        "PAID",
+        "BUSY",
+        "SWITCH_OFF",
+        "OUT_OF_SERVICE",
+        "NOT_CONNECTED",
+        "SENT_DETAILS",
+        "TIME",
+        "HUNG_UP",
+        "GIVEN",
+        "JUNK",
+        "NEWLY_GENERATED",
+        "PENDING"
+    ],
     [Roles.EXECUTIVE]: [
         "ASSIGNED",
         "DNP", // Do Not Pick
@@ -44,6 +82,25 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "PENDING"
     ],
     [Roles.INTERN]: [
+        "ASSIGNED",
+        "DNP", // Do Not Pick
+        "FOLLOW_UP",
+        "CBL", // Callback Later
+        "NOT_INTERESTED",
+        "PAID",
+        "BUSY",
+        "SWITCH_OFF",
+        "OUT_OF_SERVICE",
+        "NOT_CONNECTED",
+        "SENT_DETAILS",
+        "TIME",
+        "HUNG_UP",
+        "GIVEN",
+        "JUNK",
+        "NEWLY_GENERATED",
+        "PENDING"
+    ],
+    [Roles.TL_IC]: [
         "ASSIGNED",
         "DNP", // Do Not Pick
         "FOLLOW_UP",

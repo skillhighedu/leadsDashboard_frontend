@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select"
 import { fetchExecutives, createTeam } from "@/services/team.services"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { useNavigate } from "react-router-dom"
 
 interface Employee {
   id: number
@@ -27,6 +29,7 @@ export default function AddTeam() {
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
 
+  const navigate = useNavigate()
   useEffect(() => {
     const getExecutives = async () => {
       try {
@@ -46,7 +49,7 @@ export default function AddTeam() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!teamName || !teamLeadId) {
-      alert("Please fill all fields")
+      toast.error("Please fill all fields")
       return
     }
 
@@ -59,12 +62,15 @@ export default function AddTeam() {
     try {
       setCreating(true)
       await createTeam(payload)
-      alert("Team created successfully!")
+      toast.success("Team created successfully!")
+      
       setTeamName("")
       setTeamLeadId(null)
+
+      navigate("/teams", {state: {refresh: true}})
+
     } catch (error) {
       console.error("Failed to create team", error)
-      alert("Failed to create team")
     } finally {
       setCreating(false)
     }

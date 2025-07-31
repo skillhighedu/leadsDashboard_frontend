@@ -15,3 +15,7 @@ export type staffLoginsResponse =  {
 }
 
 export type LeaveStatus = "PENDING" | "APPROVED";
+
+export type IsActiveResponse =  {
+    isActive: boolean
+}

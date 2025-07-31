@@ -59,6 +59,7 @@ export interface UserData {
 export interface DeleteTeamResponse {
   message: string;
   code: number;
+  status: number
 }
 
 export interface TeamMembersResponse {
@@ -170,11 +171,12 @@ export const fetchTeamMembers = async (): Promise<TeamMembersResponse[]> => {
 };
 
 
-export const deleteTeam = async (id: number): Promise<DeleteTeamResponse> => {
+export const deleteTeam = async (id: number) => {
   try {
     const response = await apiClient.delete<ApiResponse<DeleteTeamResponse>>(`/teams/team/${id}`);
     // The backend returns a SuccessResponse with message and code
-    return response.data.data;
+    console.log(response)
+    return response.data;
   } catch (error) {
     throw handleApiError(error);
   }
@@ -211,7 +213,7 @@ export const removeMemberFromTeam = async (teamId: number, payload: TeamMemberPa
 
 export interface EditTeamPayload {
     teamName: string;
-    colerCode: string;
+    colorCode: string;
     teamLeadId: number;
 }
 

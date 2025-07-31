@@ -15,7 +15,7 @@ import AddTeam from "@/pages/AddTeam";
 import RolePage from "@/pages/Role";
 import { Roles } from "@/constants/role.constant";
 import LeaveApplication from "@/pages/LeaveApplication";
-import HrDashboard from "@/pages/HrDashboard"
+import HrDashboard from "@/pages/HrDashboard";
 import Rules from "@/pages/Rules";
 import LeaveDashboard from "@/pages/LeaveDashboard";
 import useNetworkStatus from "@/hooks/useNetworkStatus";
@@ -24,16 +24,17 @@ import Analytics from "@/pages/Analytics";
 import TeamAnalytics from "@/pages/TeamAnalytics";
 import OpsAnalytics from "./pages/OpsAnalytics";
 
-
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
+
   const hasCheckedAuth = useRef(false);
   const isOnline = useNetworkStatus();
 
   useEffect(() => {
-
     if (!isOnline) {
-      toast.error("No internet connection");
+
+      toast.error("Check your internet connection");
+
     }
   }, [isOnline]);
 
@@ -75,7 +76,6 @@ function App() {
               <Layout>
                 <Rules />
               </Layout>
-
             }
           />
         </Route>
@@ -86,14 +86,16 @@ function App() {
               requiredRole={[
                 Roles.EXECUTIVE,
                 Roles.VERTICAL_MANAGER,
+                Roles.LEAD_GEN_MANAGER,
+                Roles.MARKETING_HEAD,
                 Roles.INTERN,
+                Roles.TL_IC,
                 Roles.HR,
-                Roles.OPSTEAM
+                Roles.OPSTEAM,
               ]}
             />
           }
         >
-          
           <Route
             path="/allLeads"
             element={
@@ -102,7 +104,7 @@ function App() {
               </Layout>
             }
           />
-          
+
           <Route
             path="/leave-application"
             element={
@@ -122,7 +124,7 @@ function App() {
               </Layout>
             }
           />
-          
+
           <Route
             path="/create-role"
             element={
@@ -164,36 +166,45 @@ function App() {
               </Layout>
             }
           />
-
-
         </Route>
-        
-        <Route element={<ProtectedRoute requiredRole={[Roles.ADMIN,Roles.VERTICAL_MANAGER]} />}>
-         
-           <Route
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRole={[
+                Roles.ADMIN,
+                Roles.VERTICAL_MANAGER,
+                Roles.MARKETING_HEAD,
+                Roles.LEAD_GEN_MANAGER,
+              ]}
+            />
+          }
+        >
+          <Route
             path="/analytics"
             element={
               <Layout>
-                <Analytics/> 
+                <Analytics />
               </Layout>
             }
           />
-        
-
         </Route>
 
-           <Route element={<ProtectedRoute requiredRole={[Roles.EXECUTIVE,Roles.INTERN]} />}>
-         
-           <Route
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRole={[Roles.EXECUTIVE, Roles.INTERN, Roles.TL_IC]}
+            />
+          }
+        >
+          <Route
             path="/team-analytics"
             element={
               <Layout>
-                <TeamAnalytics/> 
+                <TeamAnalytics />
               </Layout>
             }
           />
-        
-
         </Route>
            <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
          
@@ -209,6 +220,27 @@ function App() {
 
         </Route>
 
+        <Route
+          element={<ProtectedRoute requiredRole={[Roles.HR, Roles.ADMIN]} />}
+        >
+          <Route
+            path="/staff-logins"
+            element={
+              <Layout>
+                <HrDashboard />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/leave-dashboard"
+            element={
+              <Layout>
+                <LeaveDashboard />
+              </Layout>
+            }
+          />
+        </Route>
 
         <Route element={<ProtectedRoute requiredRole={[Roles.HR]} />}>
           <Route
@@ -230,7 +262,6 @@ function App() {
           />
         </Route>
         <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
-
           <Route
             path="/lead-payments"
             element={
@@ -240,8 +271,6 @@ function App() {
             }
           />
         </Route>
-
-
       </Routes>
     </BrowserRouter>
   );

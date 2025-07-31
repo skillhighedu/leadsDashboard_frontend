@@ -6,7 +6,6 @@ import {
   fetchTeams,
   type TeamResponse,
   deleteTeam,
-  type DeleteTeamResponse,
   addMemberToTeam,
   removeMemberFromTeam,
   fetchInterns,
@@ -64,6 +63,7 @@ export default function AddTeam() {
         setInterns(internsData);
         setExecutives(execsData);
       } catch (err) {
+        console.log(err)
         toast.error("Failed to load data");
       } finally {
         setLoading(false);
@@ -75,8 +75,9 @@ export default function AddTeam() {
   const handleDelete = async (id: number) => {
     setDeletingId(id);
     try {
-      const res: DeleteTeamResponse = await deleteTeam(id);
+      const res = await deleteTeam(id);
       setTeams((prev) => prev.filter((team) => team.id !== id));
+      console.log(res)
       toast.success(res.message);
     } catch {
       toast.error("Failed to delete team");
@@ -130,7 +131,7 @@ export default function AddTeam() {
     try {
       await editTeam(editingTeam.id, {
         teamName: editForm.teamName,
-        colerCode: editForm.colorCode,
+        colorCode: editForm.colorCode,
         teamLeadId: editForm.teamLeadId,
       });
       toast.success("Team updated successfully");
@@ -299,6 +300,7 @@ export default function AddTeam() {
                     </DialogContent>
                   </Dialog>
                 </div>
+                
               </CardContent>
             </Card>
           ))}
