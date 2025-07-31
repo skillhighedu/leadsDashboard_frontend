@@ -47,7 +47,7 @@ export function AssignTeamDialog({
 }: AssignTeamDialogProps) {
   const { user } = useAuthStore();
   const isExecutive = user?.role === Roles.EXECUTIVE;
-  const isLeadManager = user?.role === Roles.LEAD_MANAGER;
+
 
   const handleAssign = () => {
     isExecutive ? onAssignToMember() : onAssign();

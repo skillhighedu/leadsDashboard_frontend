@@ -180,6 +180,48 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
             </CardContent>
           </Card>
         )}
+
+        {team.members?.length > 0 && (
+  <Card className="border shadow-sm bg-white">
+    <CardHeader className="py-2">
+      <CardTitle className="text-base font-medium text-foreground">
+        Member Breakdown
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="py-2 space-y-2">
+      {team.members.map((member) => (
+        <div key={member.memberId} className="border rounded p-2">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-1">
+            {member.memberName}
+          </h3>
+          {member.statuses.length === 0 ? (
+            <p className="text-xs text-gray-500">No leads</p>
+          ) : (
+            <ul className="divide-y divide-muted">
+              {member.statuses.map((status) => (
+                <li key={status.status} className="py-1 flex justify-between text-sm">
+                  <span
+                    className={cn(
+                      "text-xs font-medium px-2 py-0.5 rounded",
+                      statusColors[status.status] || "bg-gray-100 text-gray-800"
+                    )}
+                  >
+                    {status.status.replace(/_/g, " ")}
+                  </span>
+                  <div className="text-right text-xs">
+                    <p>{status.count} leads</p>
+                    <p>₹{status.totalTicketAmount.toLocaleString("en-IN")}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </CardContent>
+  </Card>
+)}
+
       </div>
     </section>
   );
@@ -222,7 +264,7 @@ export default function Analytics() {
         fetchAllTeamsAnalytics(filters),
         fetchAnalytics(filters),
       ]);
-
+      console.log(teamData,overallData)
       setAllTeams(Array.isArray(teamData) ? teamData : [teamData]);
       setAllData(overallData);
     } catch (err) {

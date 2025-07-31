@@ -8,8 +8,14 @@ export type StatusSummary = {
   status: LeadStatus;
   count: number;
   totalTicketAmount: number;
-  generatedAmount:number;
-  projectedAmount:number;
+  generatedAmount: number;
+  projectedAmount: number;
+};
+
+export type MemberAnalytics = {
+  memberId: number;
+  memberName: string;
+  statuses: StatusSummary[];
 };
 
 export type TeamStatusAnalytics = {
@@ -17,6 +23,7 @@ export type TeamStatusAnalytics = {
   teamName: string;
   teamLeadName: string;
   statuses: StatusSummary[];
+  members: MemberAnalytics[];
 };
 
 export interface LeadStatusCount {
@@ -31,7 +38,7 @@ export interface LeadRevenue {
 export interface LeadAnalyticsResponse {
   leadStatusCounts: LeadStatusCount[];
   revenue: LeadRevenue;
-}
+}   
 
 type DateFilters = {
   fromDate: Date;
@@ -72,7 +79,7 @@ export const fetchAllTeamsAnalytics = async (filters: DateFilters): Promise<Team
     const response = await apiClient.get<ApiResponse<TeamStatusAnalytics>>(
       "lead-analytics/lead-VM/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
-    
+    console.log(response)
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
@@ -88,6 +95,8 @@ export const fetchAnalytics = async (filters: DateFilters): Promise<LeadAnalytic
       "lead-analytics/leads/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
     
+  
+
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
@@ -103,6 +112,33 @@ export const fetchTeamsAnalytics = async (filters: DateFilters): Promise<RawTeam
       "/lead-analytics/team-leads/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
     
+    if (!response.data.additional) {
+      throw new Error("Analytics data is missing");
+    }
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+type LeadStatusCounts = {
+  status: string;
+  count: number;
+};
+
+export type OpsAnalyticsResponse = {
+  leadStatusCounts: LeadStatusCounts[];
+  revenue: {
+    total: number;
+  };
+};
+
+export const fetchOpsAnalytics = async (filters: DateFilters): Promise<OpsAnalyticsResponse> => {
+  try {
+    const response = await apiClient.get<ApiResponse<OpsAnalyticsResponse>>(
+      "/lead-analytics/ops-team/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
+    );
+  
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }

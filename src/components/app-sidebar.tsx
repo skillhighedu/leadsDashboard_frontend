@@ -59,7 +59,7 @@ export function AppSidebar() {
                   variant="ghost"
                   className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
                 >
-                  <HomeIcon className="mr-2 h-5 w-5" />
+                  <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
                   Analytics
                 </Button>
               </Link>
@@ -238,7 +238,7 @@ export function AppSidebar() {
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
               >
                 <UsersIcon className="mr-2 h-5 w-5" />
-                Leave Applicatiobn
+                   Leave Application
               </Button>
             </Link>
           </SidebarGroup>
@@ -360,7 +360,7 @@ export function AppSidebar() {
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
               >
                 <UsersIcon className="mr-2 h-5 w-5" />
-                Leave Applicatiobn
+                    Leave Application
               </Button>
             </Link>
           </SidebarGroup>
@@ -417,13 +417,23 @@ export function AppSidebar() {
                   Home
                 </Button>
               </Link>
+               <Link to="/ops-analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
+                  Analytics
+             
+                </Button>
+              </Link>
             <Link to="/allLeads" className="block">
               <Button
                 variant="ghost"
                 className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
               >
                 <UsersIcon className="mr-2 h-5 w-5" />
-                All Leads
+                 Leads
               </Button>
             </Link>
             <Link to="/leave-application" className="block">
