@@ -128,7 +128,9 @@ export function LeadTable({
       <TableHeader>
         <TableRow>
           <TableHead>
-            <Checkbox checked={allSelected} onCheckedChange={handleSelectAll} />
+            {user?.role !== Roles.INTERN && (
+              <Checkbox checked={allSelected} onCheckedChange={handleSelectAll} />
+            )}
           </TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
@@ -200,6 +202,7 @@ export function LeadTable({
                       : undefined,
                 }}
               >
+              {user?.role !== Roles.INTERN ? (
                 <TableCell>
                   <Checkbox
                     checked={selectedLeads.includes(lead.id)}
@@ -207,6 +210,9 @@ export function LeadTable({
                     disabled={isDisabled}
                   />
                 </TableCell>
+              ) : (
+                <TableCell />
+              )}
                 <TableCell>{lead.name}</TableCell>
                 <TableCell>{lead.email}</TableCell>
                 <TableCell>{lead.phoneNumber}</TableCell>
@@ -312,7 +318,8 @@ export function LeadTable({
                         variant="outline"
                         size="sm"
                         className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                        disabled={!canDelete}
+                      disabled={!canDelete || lead.teamAssignedId !== null}
+
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete

@@ -131,5 +131,3 @@ export const fetchTeamsActualAnalytics = async (filters: DateFilters): Promise<L
     throw handleApiError(error);
   }
 };
-
-
