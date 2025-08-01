@@ -31,6 +31,10 @@ export interface LeadRevenue {
 export interface LeadAnalyticsResponse {
   leadStatusCounts: LeadStatusCount[];
   revenue: LeadRevenue;
+  fees: {
+    totalGenerated: number,
+    totalProjected: number
+  }
 }
 
 type DateFilters = {
@@ -73,6 +77,7 @@ export const fetchAllTeamsAnalytics = async (filters: DateFilters): Promise<Team
       "lead-analytics/lead-VM/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
     
+    
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
@@ -111,3 +116,20 @@ export const fetchTeamsAnalytics = async (filters: DateFilters): Promise<RawTeam
     throw handleApiError(error);
   }
 };
+
+export const fetchTeamsActualAnalytics = async (filters: DateFilters): Promise<LeadAnalyticsResponse> => {
+  try {
+    const response = await apiClient.get<ApiResponse<LeadAnalyticsResponse>>(
+      "/lead-analytics/team/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
+    );
+    
+    if (!response.data.additional) {
+      throw new Error("Analytics data is missing");
+    }
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+

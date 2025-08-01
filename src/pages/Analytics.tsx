@@ -71,12 +71,27 @@ const OverallSummary = ({ data }: { data: LeadAnalyticsResponse }) => {
             <div className="text-xl font-bold text-foreground">{item.count}</div>
           </div>
         ))}
+
+        {data?.fees && (
+      <>
         <div className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">Total Revenue</span>
+          <span className="text-xs font-semibold text-muted-foreground">
+            Total Generated Revenue
+          </span>
           <div className="text-xl font-bold text-green-700">
-            ₹{data.revenue.total.toLocaleString("en-IN")}
+            ₹{data.fees.totalGenerated}
           </div>
         </div>
+        <div className="space-y-1">
+          <span className="text-xs font-semibold text-muted-foreground">
+            Total Projected Revenue
+          </span>
+          <div className="text-xl font-bold text-green-700">
+            ₹{data.fees.totalProjected}
+          </div>
+        </div>
+      </>
+    )}
       </CardContent>
     </Card>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchTeamsAnalytics, type RawTeamAnalytics } from "@/services/analytics.services";
+import { fetchTeamsActualAnalytics, fetchTeamsAnalytics, type LeadAnalyticsResponse, type RawTeamAnalytics } from "@/services/analytics.services";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ const AnalyticsPage = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [leadSummary, setLeadSummary] = useState<LeadAnalyticsResponse | null>(null);
+
 
   const loadData = async () => {
     setLoading(true);
@@ -37,8 +39,9 @@ const AnalyticsPage = () => {
         toDate: toDate ?? new Date(),
       };
       const data = await fetchTeamsAnalytics(filters);
-      console.log(data)
+      const leadsAnalyticsData = await fetchTeamsActualAnalytics(filters);
       const normalizedTeams = Array.isArray(data) ? data : [data];
+      setLeadSummary(leadsAnalyticsData)
       setTeams(normalizedTeams);
     } catch (err) {
       console.error(err);
@@ -103,7 +106,31 @@ const AnalyticsPage = () => {
       ) : error ? (
         <div className="text-red-600">{error}</div>
       ) : (
-        <div className="space-y-8">
+        
+         <div className="space-y-8">
+          {/* Lead Summary Section */}
+          {leadSummary?.fees && typeof leadSummary.fees.totalGenerated === "number" && (
+  <Card className="bg-muted/50 border border-muted-foreground/10 shadow-sm">
+    <CardHeader>
+      <CardTitle className="text-lg">Overall Lead Summary</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
+          <span className="text-muted-foreground">Total Generated Amount</span>
+          <span className="font-semibold">{leadSummary.fees.totalGenerated}</span>
+        </div>
+        <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
+          <span className="text-muted-foreground">Total Projected Amount</span>
+          <span className="font-semibold">₹ {leadSummary.fees.totalProjected}</span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+)}
+
+
+          {/* Per-Team Analytics Section */}
           {teams.map((team) => (
             <Card key={team.id} className="border shadow-sm">
               <CardHeader>
@@ -117,7 +144,9 @@ const AnalyticsPage = () => {
 
               <CardContent className="space-y-6">
                 <section>
-                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">Team Status</h3>
+                  <h3 className="font-semibold text-sm text-muted-foreground mb-2">
+                    Team Status
+                  </h3>
                   {Array.isArray(team.teamStatuses) && team.teamStatuses.length > 0 ? (
                     <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-sm">
                       {team.teamStatuses.map((s) => (
