@@ -51,6 +51,7 @@ export function UploadLeadDialog({
     upFrontFee: 0,
     remainingFee: 0,
     batch: "",
+    preferredLanguage: ""
   });
 
   const handleInputChange = (
@@ -83,6 +84,7 @@ export function UploadLeadDialog({
       "upFrontFee",
       "remainingFee",
       "batch",
+      "preferredLanguage"
     ];
 
     for (const field of requiredFields) {
@@ -118,7 +120,7 @@ export function UploadLeadDialog({
         upFrontFee: 0,
         remainingFee: 0,
         batch: "",
-
+        preferredLanguage: ""
       });
     } catch (error) {
       console.error("Create Lead Error:", error);
@@ -176,6 +178,7 @@ export function UploadLeadDialog({
                   { id: "domain", label: "Domain" },
                   { id: "branch", label: "Branch" },
                   { id: "graduationYear", label: "Graduation Year" },
+                  { id: "preferredLanguage", label: "Preferred Language" },
                   { id: "batch", label: "Batch" },
                   { id: "upFrontFee", label: "Upfront Fee (₹)" },
                   { id: "remainingFee", label: "Remaining Fee (₹)" },
