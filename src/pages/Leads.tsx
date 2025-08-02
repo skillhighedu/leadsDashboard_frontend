@@ -61,6 +61,7 @@ export default function LeadsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
+
   const [statusFilter, setStatusFilter] = useState(() => {
     if (
       user?.role === Roles.VERTICAL_MANAGER ||
@@ -70,23 +71,25 @@ export default function LeadsPage() {
       return "NEWLY_GENERATED";
     return "ASSIGNED";
   });
+
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMembersResponse[]>([]);
   const [selectedTeam, setSelectedTeam] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
   const [teamsLoading, setTeamsLoading] = useState(true);
-  const [ticketAmounts, setTicketAmounts] = useState<
-    { id: number; value: string }[]
-  >([]);
-  const [upFrontFees, setUpFrontFees] = useState<
-    { id: number; value: string }[]
-  >([]);
+
 
   const [date, setDate] = useState<Date | undefined>(undefined);
 
   const availableStatuses = getLeadStatusesByRole(
     (user?.role as Roles) ?? Roles.MARKETING_HEAD
   );
+
+  const [ticketAmounts, setTicketAmounts] = useState<{ id: number; value: string }[]>([]);
+  const [upFrontFees, setUpFrontFees] = useState<{ id: number; value: string }[]>([]);
+
+
+
 
   const getLeads = async (
     page: number,
@@ -350,12 +353,15 @@ export default function LeadsPage() {
         <CardContent>
           <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
             <h2 className="text-xl font-semibold">All Leads</h2>
+
             <div className="flex flex-wrap gap-2">
               {user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC && (
+
+ 
                 <Button onClick={() => setIsUploadDialogOpen(true)}>
                   Upload Leads
                 </Button>
-              )}
+          
 
               <Popover>
                 <PopoverTrigger asChild>
@@ -403,12 +409,17 @@ export default function LeadsPage() {
                 disabled={!selectedLeads.length || teamsLoading}
                 onClick={() => setIsAssignDialogOpen(true)}
               >
+
                 Assign to{" "}
                 {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
                 {selectedLeads.length})
+
+       
               </Button>
             </div>
+                )}
           </div>
+          
 
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <Input
@@ -452,9 +463,11 @@ export default function LeadsPage() {
             setUpFrontFee={setUpFrontFees} // ✅ new
             onStatusChange={handleStatusChange}
             handleDeleteLead={handleDeleteLead}
+
             canDelete={
               user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC
             }
+
             referredByInputs={referredByInputs}
             handleReferredByBlur={handleReferredByBlur}
             handleReferredByChange={handleReferredByChange}

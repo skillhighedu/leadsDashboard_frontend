@@ -1,10 +1,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Roles } from "@/constants/role.constant";
+import { useAuthStore } from "@/store/AuthStore";
+
+
 
 
 const roleRules = [
   {
+
     role: "Vertical Manager",
     permissions: [
       "Can upload leads using the designated Excel format.",
@@ -33,10 +38,12 @@ const roleRules = [
       "Can edit lead status and ticket fields (upfront fee, remaining fee).",
       "Cannot delete leads, regardless of assignment status.",
       "Acts as a Team Member, responsible for managing own leads.",
+
       "Can apply for leave using the leave application system.",
     ],
   },
   {
+
     role: "OPS Team",
     permissions: [
         "Can update lead status (e.g., move a lead from pending to paid ).",
@@ -45,16 +52,19 @@ const roleRules = [
       "Cannot assign leads to own team members or to self.",
       "Cannot update ticket fields (upfront or remaining fee).",
       "Cannot delete leads, regardless of assignment status.",
+
       "Can apply for leave using the leave application system.",
     ],
   },
   {
+
     role: "HR",
     permissions: [
       "Can view staff login records, filterable by date (today, yesterday, or a specific date).",
       "Can update login status for any staff member within 3 days of the original work date.",
       "Can approve or reject leave applications submitted by other employees.",
       "Cannot upload, assign, or delete leads — no access to lead management",
+
       "Can apply for leave using the leave application system.",
     ],
   },
@@ -71,47 +81,52 @@ const operationalRules = [
 "Employees cannot log in on a day for which they have an approved full-day leave.",
 ];
 
+
 export default function Rules() {
+const { user } = useAuthStore();
+
+  const currentRole = roleRules.find((r) => r.role === user?.role);
+
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
-      <h1 className="text-3xl font-bold text-primary">Platform Rules & Permissions</h1>
+      <h1 className="text-3xl font-bold text-primary">Your Role Permissions</h1>
       <p className="text-muted-foreground text-sm">
-        These rules govern how users interact with leads, teams, and revenue on the CRM.
+        Below are the permissions assigned to your current role: <span className="font-medium">{user?.role}</span>
       </p>
 
       <Separator />
 
-      <div className="space-y-4">
-        {roleRules.map((rule) => (
-          <Card key={rule.role} className="border">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">{rule.role} Permissions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc pl-5 space-y-1 text-sm text-foreground">
-                {rule.permissions.map((p, i) => (
-                  <li key={i}>{p}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {currentRole ? (
+        <Card className="border">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">{currentRole.role} Permissions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-foreground">
+              {currentRole.permissions.map((p, i) => (
+                <li key={i}>{p}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : (
+        <p className="text-sm text-destructive">Role not found. Please contact admin.</p>
+      )}
 
       <Separator />
 
-      <Card className="border">
+      {/* <Card className="border">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">General Operational Rules</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="list-decimal pl-5 space-y-1 text-sm text-foreground">
+          <ol className="list-decimal pl-5 space-y-1 text-sm text-foreground">
             {operationalRules.map((r, i) => (
               <li key={i}>{r}</li>
             ))}
-          </ul>
+          </ol>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

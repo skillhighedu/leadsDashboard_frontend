@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { PlusIcon, PencilIcon, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AdminHeader } from "@/components/Header";
+
 
 type Permission = {
   uploadData: boolean;

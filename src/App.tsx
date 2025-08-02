@@ -22,7 +22,11 @@ import useNetworkStatus from "@/hooks/useNetworkStatus";
 import { toast } from "sonner";
 import Analytics from "@/pages/Analytics";
 import TeamAnalytics from "@/pages/TeamAnalytics";
+
 import Profile from "./pages/Profile";
+
+import OpsAnalytics from "./pages/OpsAnalytics";
+
 
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
@@ -32,7 +36,9 @@ function App() {
 
   useEffect(() => {
     if (!isOnline) {
+
       toast.error("Check your internet connection");
+
     }
   }, [isOnline]);
 
@@ -83,7 +89,6 @@ function App() {
             <ProtectedRoute
               requiredRole={[
                 Roles.EXECUTIVE,
-                Roles.LEAD_MANAGER,
                 Roles.VERTICAL_MANAGER,
                 Roles.LEAD_GEN_MANAGER,
                 Roles.MARKETING_HEAD,
@@ -204,6 +209,19 @@ function App() {
               </Layout>
             }
           />
+        </Route>
+           <Route element={<ProtectedRoute requiredRole={[Roles.OPSTEAM]} />}>
+         
+           <Route
+            path="/ops-analytics"
+            element={
+              <Layout>
+                <OpsAnalytics/> 
+              </Layout>
+            }
+          />
+        
+
         </Route>
 
         <Route

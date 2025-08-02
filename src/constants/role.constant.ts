@@ -2,11 +2,13 @@ export const Roles = {
   ALL: "ALL",
   ADMIN: "ADMIN",
   VERTICAL_MANAGER: "verticalManager",
+
   MARKETING_HEAD: "marketingHead",
   LEAD_MANAGER: "leadManager",
   EXECUTIVE: "bdm",
   INTERN: "experiencedIntern",
   TL_IC: "tl-ic",
+
   HR: "hr",
   OPSTEAM: "OpsTeam",
   LEAD_GEN_MANAGER: "leadGenerationManager",
