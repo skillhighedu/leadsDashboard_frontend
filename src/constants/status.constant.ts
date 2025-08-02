@@ -1,8 +1,8 @@
 export const LeadStatuses = [
   "ASSIGNED",
-  "DNP", // Do Not Pick
+  "DNP", 
   "FOLLOW_UP",
-  "CBL", // Callback Later
+  "CBL", 
   "NOT_INTERESTED",
   "PAID",
   "BUSY",
