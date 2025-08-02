@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { Roles } from "@/constants/role.constant";
+import { useNavigate } from "react-router-dom";
+
 
 export function Navbar() {
   const { user, setUser } = useAuthStore();
@@ -27,6 +29,8 @@ export function Navbar() {
     if (!user?.role) return "User";
     return user.role.charAt(0).toUpperCase() + user.role.slice(1);
   };
+
+  const navigate = useNavigate();
 
   const handleToggleActivation = async () => {
     try {
@@ -117,7 +121,7 @@ export function Navbar() {
           )
         )}
 
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
           <User className="h-15 w-15" />
         </Button>
       </div>

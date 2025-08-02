@@ -121,11 +121,32 @@ export const updateEmployeeStatus = async (
       throw new Error("No additional data returned from API");
     }
 
-    console.log(response)
+    
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
   }
 };
 
+export interface ProfileResponse {
+    name: string;
+    email: string;
+    role: string;
+}
+
+export const fetchProfile = async (
+): Promise<ProfileResponse> => {
+  try {
+   const response = await apiClient.get<ApiResponse<ProfileResponse>>("/users/profile");
+
+   if (!response.data.additional) {
+      throw new Error("No additional data returned from API");
+    }
+
+    console.log(response)
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
 

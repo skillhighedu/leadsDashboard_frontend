@@ -22,7 +22,11 @@ import useNetworkStatus from "@/hooks/useNetworkStatus";
 import { toast } from "sonner";
 import Analytics from "@/pages/Analytics";
 import TeamAnalytics from "@/pages/TeamAnalytics";
+
+import Profile from "./pages/Profile";
+
 import OpsAnalytics from "./pages/OpsAnalytics";
+
 
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
@@ -219,6 +223,32 @@ function App() {
         
 
         </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              requiredRole={[ Roles.EXECUTIVE,
+                Roles.LEAD_MANAGER,
+                Roles.VERTICAL_MANAGER,
+                Roles.LEAD_GEN_MANAGER,
+                Roles.MARKETING_HEAD,
+                Roles.INTERN,
+                Roles.TL_IC,
+                Roles.HR,
+                Roles.OPSTEAM, Roles.ADMIN]}
+            />
+          }
+        >
+          <Route
+            path="/profile"
+            element={
+              <Layout>
+                < Profile/>
+              </Layout>
+            }
+          />
+        </Route>
+
 
         <Route
           element={<ProtectedRoute requiredRole={[Roles.HR, Roles.ADMIN]} />}
