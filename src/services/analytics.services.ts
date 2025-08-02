@@ -11,14 +11,17 @@ export type StatusSummary = {
   generatedAmount:number;
   projectedAmount:number;
 };
-
 export type TeamStatusAnalytics = {
   teamAssignedId: number;
   teamName: string;
   teamLeadName: string;
   statuses: StatusSummary[];
+  members: {
+    memberId: number;
+    memberName: string;
+    statuses: StatusSummary[];
+  }[];
 };
-
 export interface LeadStatusCount {
   status: LeadStatus;
   count: number;
@@ -123,6 +126,33 @@ export const fetchTeamsActualAnalytics = async (filters: DateFilters): Promise<L
       "/lead-analytics/team/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
     
+    if (!response.data.additional) {
+      throw new Error("Analytics data is missing");
+    }
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+type LeadStatusCounts = {
+  status: string;
+  count: number;
+};
+export type OpsAnalyticsResponse = {
+  leadStatusCounts: LeadStatusCounts[];
+  revenue: {
+    total: number;
+  };
+};
+
+export const fetchOpsAnalytics = async (filters: DateFilters): Promise<OpsAnalyticsResponse> => {
+  try {
+    const response = await apiClient.get<ApiResponse<OpsAnalyticsResponse>>(
+      "/lead-analytics/ops-team/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
+    );
+  
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }

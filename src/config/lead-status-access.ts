@@ -124,5 +124,6 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "PENDING",
     ],
     [Roles.ALL]: [],
+    [Roles.LEAD_MANAGER]: [],
     [Roles.HR]: []
 };
