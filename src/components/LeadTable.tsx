@@ -136,9 +136,11 @@ export function LeadTable({
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Whatsapp Number</TableHead>
+          <TableHead>Year</TableHead>
           <TableHead>College</TableHead>
           <TableHead>Branch</TableHead>
-          <TableHead>Domain</TableHead>
+          <TableHead>Interested Domain</TableHead>
+          <TableHead>Batch</TableHead>
           <TableHead>Had Referred</TableHead>
           <TableHead>Referred By</TableHead>
           <TableHead> Preferred Language</TableHead>
@@ -217,9 +219,12 @@ export function LeadTable({
                 <TableCell>{lead.email}</TableCell>
                 <TableCell>{lead.phoneNumber}</TableCell>
                 <TableCell>{lead.whatsappNumber}</TableCell>
+                <TableCell>{lead.graduationYear}</TableCell>
+                
                 <TableCell>{lead.college}</TableCell>
-                <TableCell>{lead.batch}</TableCell>
+                <TableCell>{lead.branch}</TableCell>
                 <TableCell>{lead.domain}</TableCell>
+                <TableCell>{lead.batch}</TableCell>
                 <TableCell>{lead.hadReferred ? "Yes" : "No"}</TableCell>
                 <TableCell>
                   <Input

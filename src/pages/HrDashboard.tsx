@@ -38,11 +38,14 @@ import {
 } from "@/components/ui/select";
 
 import { toast } from "sonner";
+import { handleApiError } from "@/utils/errorHandler";
+import { useAuthStore } from "@/store/AuthStore";
 
 const HrDashboard = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [staffLogins, setStaffLogins] = useState<staffLoginsRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const {user} = useAuthStore()
 
   const getStaffLogins = async (selectedDate: Date) => {
     try {
@@ -51,7 +54,7 @@ const HrDashboard = () => {
       const response = await fetchStaffLogins(isoDate);
       setStaffLogins(response.data);
     } catch (error) {
-      console.error("Error fetching Staff Logins:", error);
+      handleApiError( error);
     } finally {
       setLoading(false);
     }
@@ -69,12 +72,11 @@ const HrDashboard = () => {
 
   const handleStatusChange = async (uuid: string, newStatus: WorkStatusType) => {
     try {
-        console.log(newStatus,uuid)
       await updateStaffLoginStatus(uuid, newStatus);
       toast.success("Status updated");
       getStaffLogins(date);
     } catch (error) {
-        console.log('Error: ', error)
+        handleApiError(error)
       toast.error("Failed to update status");
     }
   };
@@ -83,7 +85,7 @@ const HrDashboard = () => {
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl font-bold text-zinc-800 dark:text-white">
-          HR Staff Login Dashboard
+          {user?.role} Staff Login Dashboard
         </h1>
 
         {/* Calendar Popover Filter */}

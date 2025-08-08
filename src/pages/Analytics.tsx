@@ -9,27 +9,29 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { format, subDays } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronDown, ChevronUp, CalendarIcon } from "lucide-react";
+import { format, subDays,  } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-
-// Status colors
+// --- status colors ---
 const statusColors: Record<string, string> = {
-  ASSIGNED: "bg-yellow-200 text-yellow-900",
+  CGFL: "bg-yellow-200 text-yellow-900",
   IN_PROGRESS: "bg-orange-200 text-orange-900",
   COMPLETED: "bg-green-200 text-green-900",
+  FULLY_PAID: "bg-green-300 text-green-900",
   REJECTED: "bg-red-200 text-red-900",
-  PENDING: "bg-blue-100 text-blue-800",
   FOLLOW_UP: "bg-purple-100 text-purple-800",
   PAID: "bg-green-100 text-green-800",
   CBL: "bg-cyan-100 text-cyan-800",
   NOT_INTERESTED: "bg-gray-100 text-gray-600",
 };
 
-// Skeleton loader
+// --- Skeleton Loader ---
 const SkeletonCard = () => (
   <div className="animate-pulse space-y-4">
     <div className="h-6 bg-gray-200 rounded w-1/4" />
@@ -48,14 +50,36 @@ const SkeletonCard = () => (
   </div>
 );
 
-// Overall summary card
-const OverallSummary = ({ data }: { data: LeadAnalyticsResponse }) => {
+// --- Overall Summary Card ---
+const OverallSummary = ({
+  data,
+  fromDate,
+  toDate,
+}: {
+  data: LeadAnalyticsResponse;
+  fromDate?: Date;
+  toDate?: Date;
+}) => {
+  const formatDate = (date: Date) => format(date, "dd MMM yyyy");
+
+  const renderDateText = () => {
+    if (!fromDate || !toDate) return null;
+
+    const isSameDay = fromDate.toDateString() === toDate.toDateString();
+    return isSameDay
+      ? `Date: ${formatDate(fromDate)}`
+      : `From: ${formatDate(fromDate)} - To: ${formatDate(toDate)}`;
+  };
+
   return (
     <Card className="border shadow-md bg-white">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-primary">
           Overall Lead Summary
         </CardTitle>
+        {fromDate && toDate && (
+          <p className="text-sm text-muted-foreground mt-1">{renderDateText()}</p>
+        )}
       </CardHeader>
       <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {data.leadStatusCounts.map((item) => (
@@ -73,43 +97,38 @@ const OverallSummary = ({ data }: { data: LeadAnalyticsResponse }) => {
         ))}
 
         {data?.fees && (
-      <>
-        <div className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">
-            Total Generated Revenue
-          </span>
-          <div className="text-xl font-bold text-green-700">
-            ₹{data.fees.totalGenerated}
-          </div>
-        </div>
-        <div className="space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground">
-            Total Projected Revenue
-          </span>
-          <div className="text-xl font-bold text-green-700">
-            ₹{data.fees.totalProjected}
-          </div>
-        </div>
-      </>
-    )}
+          <>
+            <div className="space-y-1">
+              <span className="text-xs font-semibold text-muted-foreground">
+                Total Generated Revenue
+              </span>
+              <div className="text-xl font-bold text-green-700">
+                ₹{data.fees.totalGenerated}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs font-semibold text-muted-foreground">
+                Total Projected Revenue
+              </span>
+              <div className="text-xl font-bold text-green-700">
+                ₹{data.fees.totalProjected}
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
 };
 
-// Per-team analytics card
+// --- Per-Team Analytics ---
 const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const pendingStatus = useMemo(
-    () => team.statuses.find((s) => s.status === "PENDING"),
-    [team.statuses]
-  );
 
   const otherStatuses = useMemo(
     () =>
       team.statuses.filter(
-        (s) => s.status !== "PENDING" && (s.count > 0 || s.totalTicketAmount > 0)
+        (s) => s.status !== "PAID" && (s.count > 0 || s.totalTicketAmount > 0)
       ),
     [team.statuses]
   );
@@ -123,45 +142,32 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Pending card */}
-        {pendingStatus && (pendingStatus.count > 0 || pendingStatus.totalTicketAmount > 0) && (
-          <Card className="border border-blue-400/40 shadow-sm bg-gradient-to-br from-blue-50 to-white">
-            <CardHeader className="py-2">
-              <CardTitle className="text-base text-blue-900 font-medium flex items-center justify-between">
-                Pending Leads
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                  {pendingStatus.count} leads
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="py-2 space-y-1">
-              <p className="text-gray-700 text-sm">
-                <span className="font-medium text-muted-foreground">Generated:</span>{" "}
-                ₹{pendingStatus.generatedAmount.toLocaleString("en-IN")}
-              </p>
-              {pendingStatus.projectedAmount !== undefined && (
-                <p className="text-gray-700 text-sm">
-                  <span className="font-medium text-muted-foreground">Projected:</span>{" "}
-                  ₹{pendingStatus.projectedAmount.toLocaleString("en-IN")}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        )}
+      <Card className="border border-blue-400/40 shadow-sm bg-gradient-to-br from-blue-50 to-white">
+        <CardHeader className="py-2">
+          <CardTitle className="text-base text-blue-900 font-medium">
+            Team Revenue Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="py-2 text-sm text-gray-800 space-y-1">
+          <div>
+            <span className="font-medium text-muted-foreground">Total Generated:</span>{" "}
+            ₹{team.totalGenerated.toLocaleString("en-IN")}
+          </div>
+          <div>
+            <span className="font-medium text-muted-foreground">Total Projected:</span>{" "}
+            ₹{team.totalProjected.toLocaleString("en-IN")}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Other statuses */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {otherStatuses.length > 0 && (
           <Card className="border shadow-sm bg-white">
             <CardHeader className="py-2 flex justify-between items-center">
               <CardTitle className="text-base font-medium text-foreground">
                 Other Statuses
               </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
                 {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </CardHeader>
@@ -172,10 +178,7 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
               {isExpanded && (
                 <ul className="divide-y divide-muted">
                   {otherStatuses.map((status) => (
-                    <li
-                      key={status.status}
-                      className="py-2 flex items-center justify-between text-sm"
-                    >
+                    <li key={status.status} className="py-2 flex items-center justify-between text-sm">
                       <span
                         className={cn(
                           "text-xs font-medium px-2 py-0.5 rounded",
@@ -186,7 +189,7 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
                       </span>
                       <div className="text-right space-y-0.5 text-xs text-gray-700">
                         <p>{status.count} leads</p>
-                        <p>₹{status.totalTicketAmount.toLocaleString("en-IN")}</p>
+                        <p>₹{status.generatedAmount.toLocaleString("en-IN")}</p>
                       </div>
                     </li>
                   ))}
@@ -197,36 +200,80 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
         )}
 
         {team.members?.length > 0 && (
+          <Card className="border shadow-sm bg-white">
+            <CardHeader className="py-2">
+              <CardTitle className="text-base font-medium text-foreground">
+                Member Breakdown
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="py-2 space-y-2">
+              {team.members.map((member) => (
+                <div key={member.memberId} className="border rounded p-2">
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-1">
+                    {member.memberName}
+                  </h3>
+                  {member.statuses.length === 0 ? (
+                    <p className="text-xs text-gray-500">No leads</p>
+                  ) : (
+                    <ul className="divide-y divide-muted">
+                      {member.statuses.map((status) => (
+                        <li
+                          key={status.status}
+                          className="py-1 flex justify-between text-sm"
+                        >
+                          <span
+                            className={cn(
+                              "text-xs font-medium px-2 py-0.5 rounded",
+                              statusColors[status.status] || "bg-gray-100 text-gray-800"
+                            )}
+                          >
+                            {status.status.replace(/_/g, " ")}
+                          </span>
+                          
+                          <div className="text-right text-xs">
+                            <p>{status.count} leads</p>
+                            <p>₹{status.generatedAmount.toLocaleString("en-IN")}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+        {team.leadOwnerStats && Object.keys(team.leadOwnerStats).length > 0 && (
   <Card className="border shadow-sm bg-white">
     <CardHeader className="py-2">
       <CardTitle className="text-base font-medium text-foreground">
-        Member Breakdown
+        Lead Owner Stats
       </CardTitle>
     </CardHeader>
     <CardContent className="py-2 space-y-2">
-      {team.members.map((member) => (
-        <div key={member.memberId} className="border rounded p-2">
+      {Object.entries(team.leadOwnerStats).map(([ownerName, statusMap]) => (
+        <div key={ownerName} className="border rounded p-2">
           <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-            {member.memberName}
+            {ownerName}
           </h3>
-          {member.statuses.length === 0 ? (
-            <p className="text-xs text-gray-500">No leads</p>
+          {Object.entries(statusMap).length === 0 ? (
+            <p className="text-xs text-gray-500">No statuses</p>
           ) : (
             <ul className="divide-y divide-muted">
-              {member.statuses.map((status) => (
-                <li key={status.status} className="py-1 flex justify-between text-sm">
+              {Object.entries(statusMap).map(([status, count]) => (
+                <li
+                  key={status}
+                  className="py-1 flex justify-between text-sm"
+                >
                   <span
                     className={cn(
                       "text-xs font-medium px-2 py-0.5 rounded",
-                      statusColors[status.status] || "bg-gray-100 text-gray-800"
+                      statusColors[status] || "bg-gray-100 text-gray-800"
                     )}
                   >
-                    {status.status.replace(/_/g, " ")}
+                    {status.replace(/_/g, " ")}
                   </span>
-                  <div className="text-right text-xs">
-                    <p>{status.count} leads</p>
-                    <p>₹{status.totalTicketAmount.toLocaleString("en-IN")}</p>
-                  </div>
+                  <span className="text-xs text-right">{count} leads</span>
                 </li>
               ))}
             </ul>
@@ -242,45 +289,39 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
   );
 };
 
-
-
+// --- Main Component ---
 export default function Analytics() {
+  const today = new Date();
+  const [fromDate, setFromDate] = useState<Date>(today);
+  const [toDate, setToDate] = useState<Date>(today);
+  const [selectedRange, setSelectedRange] = useState<"today" | "yesterday" | "custom">("today");
+
+
   const [allTeams, setAllTeams] = useState<TeamStatusAnalytics[]>([]);
   const [allData, setAllData] = useState<LeadAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
-  const [toDate, setToDate] = useState<Date | undefined>(undefined);
   const [showCalendar, setShowCalendar] = useState(false);
 
   const handleRangeFilter = (range: "today" | "yesterday") => {
-    const today = new Date();
-    if (range === "today") {
-      setFromDate(today);
-      setToDate(today);
-    } else {
-      const yday = subDays(today, 1);
-      setFromDate(yday);
-      setToDate(yday);
-    }
+    const date = range === "today" ? today : subDays(today, 1);
+    setSelectedRange(range );
+    setFromDate(date);
+    setToDate(date);
   };
 
   const handleRefresh = async () => {
+    if (!fromDate || !toDate) return;
+
     setLoading(true);
     try {
       setError(null);
-
-  const filters = {
-  fromDate: fromDate ?? new Date(),
-  toDate: toDate ?? new Date(),
-};
+      const filters = { fromDate, toDate };
       const [teamData, overallData] = await Promise.all([
         fetchAllTeamsAnalytics(filters),
         fetchAnalytics(filters),
       ]);
-      console.log(teamData,overallData)
-      setAllTeams(Array.isArray(teamData) ? teamData : [teamData]);
+      setAllTeams(teamData);
       setAllData(overallData);
     } catch (err) {
       console.error("Failed to fetch analytics:", err);
@@ -291,7 +332,9 @@ export default function Analytics() {
   };
 
   useEffect(() => {
-    handleRefresh();
+    if (fromDate && toDate) {
+      handleRefresh();
+    }
   }, [fromDate, toDate]);
 
   return (
@@ -308,18 +351,32 @@ export default function Analytics() {
           </div>
 
           <div className="flex gap-2 items-center flex-wrap">
-            <Button size="sm" variant="outline" onClick={() => handleRangeFilter("today")}>
+            <Button
+              size="sm"
+              variant="outline"
+              className={selectedRange === "today" ? "bg-red-400 text-white" : ""}
+              onClick={() => handleRangeFilter("today")}
+            >
               Today
             </Button>
-            <Button size="sm" variant="outline" onClick={() => handleRangeFilter("yesterday")}>
+            <Button
+              size="sm"
+              variant="outline"
+              className={ selectedRange === "yesterday" ? "bg-red-400 text-white" : ""}
+              onClick={() => handleRangeFilter("yesterday")}
+            >
               Yesterday
             </Button>
+
             <Popover open={showCalendar} onOpenChange={setShowCalendar}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className={cn("justify-start text-left font-normal min-w-[220px]", !fromDate && "text-muted-foreground")}
+                  className={cn(
+                    "justify-start text-left font-normal min-w-[220px]",
+                    !fromDate && "text-muted-foreground", selectedRange === "custom" && "bg-red-400 text-white"
+                  )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {fromDate && toDate
@@ -332,14 +389,18 @@ export default function Analytics() {
                   mode="range"
                   selected={{ from: fromDate, to: toDate }}
                   onSelect={(range) => {
-                    setFromDate(range?.from);
-                    setToDate(range?.to);
+                    if (range?.from && range?.to) {
+                      setFromDate(range.from);
+                      setToDate(range.to);
+                      setSelectedRange("custom");
+                    }
                   }}
                   initialFocus
                   numberOfMonths={2}
                 />
               </PopoverContent>
             </Popover>
+
             <Button size="sm" onClick={handleRefresh} disabled={loading}>
               Refresh
             </Button>
@@ -362,7 +423,7 @@ export default function Analytics() {
           </div>
         ) : (
           <>
-            {allData && <OverallSummary data={allData} />}
+            {allData && <OverallSummary data={allData} fromDate={fromDate} toDate={toDate} />}
             {allTeams.map((team) => (
               <TeamAnalyticsCard key={team.teamAssignedId} team={team} />
             ))}

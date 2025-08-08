@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { fetchOpsAnalytics,type OpsAnalyticsResponse } from "@/services/analytics.services";
+import { fetchOpsAnalytics, type OpsAnalyticsResponse } from "@/services/analytics.services";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { format,  subDays } from "date-fns";
 import { cn } from "@/lib/utils";
+import { handleApiError } from "@/utils/errorHandler";
 
 const statusColors: Record<string, string> = {
   PENDING: "bg-blue-100 text-blue-800",
-  PAID: "bg-emerald-100 text-emerald-800",
+  PAID: "bg-green-100 text-emerald-800",
+  FULLY_PAID: "bg-green-300 text-green-900",
 };
 
 const OpsAnalytics = () => {
@@ -19,6 +21,7 @@ const OpsAnalytics = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
   const [toDate, setToDate] = useState<Date | undefined>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedRange, setSelectedRange] = useState<"today" | "yesterday" | "custom">("today");
 
   const loadData = async () => {
     if (!fromDate || !toDate) return;
@@ -27,7 +30,7 @@ const OpsAnalytics = () => {
       const data = await fetchOpsAnalytics({ fromDate, toDate });
       setAnalytics(data);
     } catch (error) {
-      console.error("Failed to fetch analytics:", error);
+      handleApiError(error)
     } finally {
       setLoading(false);
     }
@@ -42,6 +45,23 @@ const OpsAnalytics = () => {
     const selected = range === "today" ? today : subDays(today, 1);
     setFromDate(selected);
     setToDate(selected);
+    setSelectedRange(range);
+  };
+
+  const isTodaySelected = selectedRange === "today";
+  const isYesterdaySelected = selectedRange === "yesterday";
+
+   const renderDateInfo = () => {
+    if (!fromDate || !toDate) return null;
+
+    const isSameDay = fromDate.toDateString() === toDate.toDateString();
+    return (
+      <p className="text-sm text-muted-foreground">
+        {isSameDay
+          ? `Showing data for: ${format(fromDate, "dd MMM yyyy")}`
+          : `Showing data from: ${format(fromDate, "dd MMM yyyy")} to ${format(toDate, "dd MMM yyyy")}`}
+      </p>
+    );
   };
 
   return (
@@ -50,20 +70,35 @@ const OpsAnalytics = () => {
         <div>
           <h1 className="text-2xl font-bold">Ops Analytics</h1>
           <p className="text-sm text-muted-foreground">Lead status and revenue summary</p>
+          {renderDateInfo()}
         </div>
         <div className="flex gap-2 items-center">
-          <Button size="sm" variant="outline" onClick={() => handleQuickPick("today")}>
+          <Button
+            size="sm"
+            variant="outline"
+            className={isTodaySelected ? "bg-red-400 text-white" : "bg-white"}
+            onClick={() => handleQuickPick("today")}
+          >
             Today
           </Button>
-          <Button size="sm" variant="outline" onClick={() => handleQuickPick("yesterday")}>
+          <Button
+            size="sm"
+            variant="outline"
+            className={isYesterdaySelected ? "bg-red-400 text-white" : "bg-white"}
+            onClick={() => handleQuickPick("yesterday")}
+          >
             Yesterday
           </Button>
+
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className={cn("min-w-[220px] justify-start", !fromDate && "text-muted-foreground")}
+                className={cn(
+                  "min-w-[220px] justify-start",
+                  selectedRange === "custom" && "bg-red-400 text-white"
+                )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {fromDate && toDate
@@ -78,13 +113,15 @@ const OpsAnalytics = () => {
                 onSelect={(range) => {
                   setFromDate(range?.from);
                   setToDate(range?.to);
+                  setSelectedRange("custom");
                 }}
                 numberOfMonths={2}
               />
             </PopoverContent>
           </Popover>
-          <Button size="sm" onClick={loadData} disabled={loading}>
-            Refresh
+
+          <Button size="sm" variant="default" onClick={loadData} disabled={loading}>
+            {loading ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
       </div>
@@ -93,14 +130,7 @@ const OpsAnalytics = () => {
         <p>Loading...</p>
       ) : analytics ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xl font-semibold">₹ {analytics.revenue.total.toLocaleString()}</p>
-            </CardContent>
-          </Card>
+          
 
           {analytics.leadStatusCounts.map((s) => (
             <Card key={s.status} className={statusColors[s.status] || "bg-gray-100 text-gray-800"}>

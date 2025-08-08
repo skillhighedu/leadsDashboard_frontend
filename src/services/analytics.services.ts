@@ -4,24 +4,38 @@ import type { ApiResponse } from "@/types/api";
 import { handleApiError } from "@/utils/errorHandler";
 import { type LeadStatus } from "@/constants/status.constant";
 
+export type LeadOwnerStats = {
+      [ownerName: string]: {
+        [status: string]: number;
+      };
+    };
+
 export type StatusSummary = {
   status: LeadStatus;
   count: number;
   totalTicketAmount: number;
-  generatedAmount:number;
-  projectedAmount:number;
+  generatedAmount: number;
+  projectedAmount: number;
+   leadOwnerNames: string[];
 };
+
 export type TeamStatusAnalytics = {
   teamAssignedId: number;
   teamName: string;
-  teamLeadName: string;
+  teamLeadName?: string; 
   statuses: StatusSummary[];
+ 
   members: {
     memberId: number;
     memberName: string;
     statuses: StatusSummary[];
   }[];
+  totalGenerated: number; 
+  totalProjected: number; 
+  
+  leadOwnerStats: LeadOwnerStats;
 };
+
 export interface LeadStatusCount {
   status: LeadStatus;
   count: number;
@@ -74,12 +88,11 @@ export type RawTeamAnalytics = {
 };
 
 
-export const fetchAllTeamsAnalytics = async (filters: DateFilters): Promise<TeamStatusAnalytics> => {
+export const fetchAllTeamsAnalytics = async (filters: DateFilters): Promise<TeamStatusAnalytics[]> => {
   try {
-    const response = await apiClient.get<ApiResponse<TeamStatusAnalytics>>(
+    const response = await apiClient.get<ApiResponse<TeamStatusAnalytics[]>>(
       "lead-analytics/lead-VM/analytics?fromDate=" + filters.fromDate.toISOString() + "&toDate=" + filters.toDate.toISOString()
     );
-    
     
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
@@ -142,9 +155,7 @@ type LeadStatusCounts = {
 };
 export type OpsAnalyticsResponse = {
   leadStatusCounts: LeadStatusCounts[];
-  revenue: {
-    total: number;
-  };
+ 
 };
 
 export const fetchOpsAnalytics = async (filters: DateFilters): Promise<OpsAnalyticsResponse> => {

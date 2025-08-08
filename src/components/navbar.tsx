@@ -19,6 +19,7 @@ import {
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { Roles } from "@/constants/role.constant";
 import { useNavigate } from "react-router-dom";
+import { handleApiError } from "@/utils/errorHandler";
 
 
 export function Navbar() {
@@ -48,8 +49,8 @@ export function Navbar() {
         user?.isActive ? "Deactivated successfully!" : "Activated successfully."
       );
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to update status");
+        handleApiError(error)
+     
     } finally {
       setLoading(false);
     }

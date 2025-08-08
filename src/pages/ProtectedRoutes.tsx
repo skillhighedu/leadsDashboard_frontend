@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
   const { user, loading } = useAuthStore();
 
-  console.log("user inside route:", user,requiredRole);
+
   // ✅ Correct loading check
   if (loading) {
     return <div>Loading...</div>;

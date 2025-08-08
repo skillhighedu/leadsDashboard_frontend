@@ -45,6 +45,8 @@ import {
 import { format, subDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { handleApiError } from "@/utils/errorHandler";
+
 
 export default function LeadsPage() {
   //   const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
@@ -68,7 +70,8 @@ export default function LeadsPage() {
       user?.role === Roles.LEAD_GEN_MANAGER
     )
       return "NEWLY_GENERATED";
-    return "ASSIGNED";
+    //   return "NEWLY_GENERATED";
+    return user?.role===Roles.OPSTEAM ? "PAID": "CGFL";
   });
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMembersResponse[]>([]);
@@ -101,7 +104,7 @@ export default function LeadsPage() {
       setLeads(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
-      console.error("Error fetching leads:", error);
+      handleApiError( error);
     } finally {
       setLoading(false);
     }
@@ -158,7 +161,7 @@ export default function LeadsPage() {
       // toast.error(
       //   error?.response?.data?.message || "Failed to update referred by."
       // );
-      console.error("Failed to update referred by:", error);
+      handleApiError( error);
     }
   };
 
@@ -178,7 +181,7 @@ export default function LeadsPage() {
         setIsAssignDialogOpen(false);
       }
     } catch (err) {
-      console.log(err);
+      handleApiError( err);
     } finally {
       setAssignLoading(false);
     }
@@ -200,7 +203,7 @@ export default function LeadsPage() {
         setIsAssignDialogOpen(false);
       }
     } catch (err) {
-      console.log(err);
+      handleApiError( err);
     } finally {
       setAssignLoading(false);
     }
@@ -240,7 +243,7 @@ export default function LeadsPage() {
     if (!ticket) return;
 
     const ticketValue = parseFloat(ticket.value);
-    if (isNaN(ticketValue) || ticketValue <= 0) return;
+    if (isNaN(ticketValue) || ticketValue < 0) return;
 
     try {
       const response = await addTicketAmount(id.toString(), ticketValue);
@@ -248,7 +251,7 @@ export default function LeadsPage() {
         await getLeads(page, search, statusFilter);
       }
     } catch (err) {
-      console.error("Error updating ticket amount:", err);
+      handleApiError( err);
     }
   };
   const handleUpFrontBlur = async (id: number) => {
@@ -268,7 +271,7 @@ export default function LeadsPage() {
         await getLeads(page, search, statusFilter);
       }
     } catch (err) {
-      console.error("Error updating ticket amount:", err);
+      handleApiError( err);
     }
   };
 
@@ -283,7 +286,7 @@ export default function LeadsPage() {
         await getLeads(page, search, statusFilter);
       }
     } catch (error) {
-      console.error("Failed to update status:", error);
+      handleApiError( error);
     }
   };
 
@@ -293,8 +296,7 @@ export default function LeadsPage() {
       toast.success(`Lead ${name} deleted successfully`);
       await getLeads(page, search, statusFilter);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete lead");
+      handleApiError( err);
     }
   };
 
@@ -306,14 +308,13 @@ export default function LeadsPage() {
         user?.role === Roles.LEAD_GEN_MANAGER
       ) {
         const teams = await fetchTeams();
-        console.log(teams);
         setTeams(teams);
       } else if (role === Roles.EXECUTIVE) {
         const response = await fetchTeamMembers(); // hypothetical
         setTeamMembers(response); // define this state
       }
     } catch (err) {
-      console.error("Failed to load team data", err);
+      handleApiError( err);
     } finally {
       setTeamsLoading(false);
     }
@@ -351,11 +352,11 @@ export default function LeadsPage() {
           <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
             <h2 className="text-xl font-semibold">All Leads</h2>
             <div className="flex flex-wrap gap-2">
-              {user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC && (
-                <Button onClick={() => setIsUploadDialogOpen(true)}>
+              
+                <Button onClick={() => setIsUploadDialogOpen(true)} disabled={user?.role === Roles.OPSTEAM }  >
                   Upload Leads
                 </Button>
-              )}
+
 
               <Popover>
                 <PopoverTrigger asChild>

@@ -6,7 +6,9 @@ import { type LeadStatus, LeadStatuses } from "@/constants/status.constant";
 export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
     [Roles.ADMIN]: [...LeadStatuses],
     [Roles.VERTICAL_MANAGER]: [
-        "ASSIGNED",
+        
+        // "ASSIGNED",
+        "CGFL",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
         "CBL", // Callback Later
@@ -22,10 +24,11 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "PENDING"
+        "FULLY_PAID",
+        // "PENDING"
     ],
     [Roles.LEAD_GEN_MANAGER]: [
-        "ASSIGNED",
+        "CGFL",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
         "CBL", // Callback Later
@@ -41,10 +44,10 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "PENDING"
+        "FULLY_PAID"
     ],
     [Roles.MARKETING_HEAD]: [
-        "ASSIGNED",
+        "CGFL",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
         "CBL", // Callback Later
@@ -60,10 +63,10 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "PENDING"
+        "FULLY_PAID"
     ],
     [Roles.EXECUTIVE]: [
-        "ASSIGNED",
+        "CGFL",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
         "CBL", // Callback Later
@@ -79,10 +82,10 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "PENDING"
+        "FULLY_PAID"
     ],
     [Roles.INTERN]: [
-        "ASSIGNED",
+        "CGFL",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
         "CBL", // Callback Later
@@ -98,10 +101,10 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "PENDING"
+        "FULLY_PAID"
     ],
     [Roles.TL_IC]: [
-        "ASSIGNED",
+        "CGFL",
         "DNP", // Do Not Pick
         "FOLLOW_UP",
         "CBL", // Callback Later
@@ -117,11 +120,11 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "PENDING"
+        "FULLY_PAID"
     ],
     [Roles.OPSTEAM]: [
         "PAID",
-        "PENDING",
+        "FULLY_PAID",
     ],
     [Roles.ALL]: [],
     [Roles.LEAD_MANAGER]: [],
