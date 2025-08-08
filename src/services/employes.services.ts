@@ -77,7 +77,6 @@ export const createEmployee = async (payload:Payload): Promise<Employee[]> => {
 
 export const deleteEmployee = async (uuid:string)=> {
   try {
-    console.log(uuid)
     const response = await apiClient.delete<ApiResponse<Employee[]>>(
       `/employees/employee/${uuid}`
     );
@@ -143,7 +142,6 @@ export const fetchProfile = async (
       throw new Error("No additional data returned from API");
     }
 
-    console.log(response)
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);

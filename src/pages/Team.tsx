@@ -33,6 +33,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Trash2 } from "lucide-react";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { handleApiError } from "@/utils/errorHandler";
+
 
 export default function AddTeam() {
   const [teams, setTeams] = useState<TeamResponse[]>([]);
@@ -63,8 +65,7 @@ export default function AddTeam() {
         setInterns(internsData);
         setExecutives(execsData);
       } catch (err) {
-        console.log(err)
-        toast.error("Failed to load data");
+        handleApiError(err)
       } finally {
         setLoading(false);
       }

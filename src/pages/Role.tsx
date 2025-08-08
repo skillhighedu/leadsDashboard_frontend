@@ -47,7 +47,7 @@ export default function Role() {
   const getRoles = async () => {
     try {
       const response = await fetchRoles();
-      console.log(response);
+     
       setRoles(response);
     } catch (error) {
       console.error("Error fetching roles:", error);

@@ -47,8 +47,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         withCredentials: true, // send cookie
       });
 
-      console.log("Auth response:", res);
-      console.log("Response data:", res.data);
+      
 
       // Handle different possible response structures
       //   let userRole = null;

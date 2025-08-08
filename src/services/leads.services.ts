@@ -34,12 +34,10 @@ export const fetchLeads = async (
       `/leads/all-leads?${query.toString()}`
     );
 
-    console.log(response)
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
 
-    // console.log(response.data.additional);
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
@@ -57,7 +55,6 @@ export const uploadLeadsFile = async (file: File) => {
                 "Content-Type": "multipart/form-data"
             },
         });
-        console.log(response.data.additional)
         return response.data.additional;
     } catch (error) {
         throw handleApiError(error);
@@ -135,7 +132,6 @@ export const leadAnalytics = async (): Promise<LeadAnalyticsResponse> => {
       throw new Error("No analytics data found in the response.");
     }
 
-    console.log(response.data.additional);
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);

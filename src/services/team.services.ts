@@ -99,7 +99,6 @@ export const fetchTeams = async (): Promise<TeamResponse[]> => {
     const response = await apiClient.get<ApiResponse<TeamResponse[]>>(
       "/teams/team-members"
     );
-    console.log(response)
     return response.data.additional ?? [];
   } catch (error) {
     throw handleApiError(error);
@@ -127,7 +126,6 @@ type Payload ={
 
 export const createTeam = async (payload:Payload): Promise<Employee[]> => {
   try {
-    console.log(payload);
     const response = await apiClient.post<ApiResponse<Employee[]>>(
       "/teams/create-team",payload
     );
@@ -145,7 +143,6 @@ export const fetchTeamLeads = async (): Promise<LeadsResponse> => {
       `/team-assignments/teams/assigned-leads`
     );
 
-    console.log(response.data)
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
@@ -160,7 +157,6 @@ export const fetchTeamMembers = async (): Promise<TeamMembersResponse[]> => {
     const response = await apiClient.get<ApiResponse<TeamMembersResponse[]>>(
       `/teams/team/members`
     );
-    console.log("Saikiran",response.data.additional)
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
@@ -175,7 +171,6 @@ export const deleteTeam = async (id: number) => {
   try {
     const response = await apiClient.delete<ApiResponse<DeleteTeamResponse>>(`/teams/team/${id}`);
     // The backend returns a SuccessResponse with message and code
-    console.log(response)
     return response.data;
   } catch (error) {
     throw handleApiError(error);

@@ -1,5 +1,6 @@
 export const LeadStatuses = [
-  "ASSIGNED",
+//   "ASSIGNED",
+"CGFL",
   "DNP", // Do Not Pick
   "FOLLOW_UP",
   "CBL", // Callback Later
@@ -15,7 +16,9 @@ export const LeadStatuses = [
   "GIVEN",
   "JUNK",
   "NEWLY_GENERATED",
-  "PENDING"
+  "FULLY_PAID"
+//   "PENDING"
+
 ] as const;
 
 export type LeadStatus = typeof LeadStatuses[number];

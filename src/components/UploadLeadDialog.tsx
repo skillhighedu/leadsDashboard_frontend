@@ -8,11 +8,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useRef, useState } from "react";
 import { uploadLeadsFile, createLead } from "@/services/leads.services";
 import { UploadResultDialog } from "@/components/ui/UploadResultDailog";
 import type { CreateLeadInput } from "@/types/leads";
 import { toast } from "sonner";
+import { handleApiError } from "@/utils/errorHandler";
+import { useAuthStore } from "@/store/AuthStore";
+import { Roles } from "@/constants/role.constant";
 
 interface UploadLeadDialogProps {
   open: boolean;
@@ -30,7 +34,8 @@ export function UploadLeadDialog({
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
+ 
+  const {user} = useAuthStore()
   const [uploadResult, setUploadResult] = useState<{
     insertedLeadsCount: number;
     skippedLeadsCount: number;
@@ -123,8 +128,7 @@ export function UploadLeadDialog({
         preferredLanguage: ""
       });
     } catch (error) {
-      console.error("Create Lead Error:", error);
-      toast.error("Failed to create lead.");
+      handleApiError( error);
     } finally {
       setSubmitting(false);
     }
@@ -138,8 +142,7 @@ export function UploadLeadDialog({
       setShowResultDialog(true);
       refreshLeads();
     } catch (error) {
-      console.error("Upload failed:", error);
-      toast.error("Upload failed. Please try again.");
+      handleApiError( error);
     } finally {
       setUploading(false);
     }
@@ -174,25 +177,48 @@ export function UploadLeadDialog({
                   { id: "email", label: "Email Address" },
                   { id: "phoneNumber", label: "Phone Number" },
                   { id: "whatsappNumber", label: "WhatsApp Number" },
-                  { id: "college", label: "College Name" },
-                  { id: "domain", label: "Domain" },
-                  { id: "branch", label: "Branch" },
                   { id: "graduationYear", label: "Graduation Year" },
-                  { id: "preferredLanguage", label: "Preferred Language" },
+                  { id: "branch", label: "Branch" },
+                  { id: "domain", label: "Domain" },
                   { id: "batch", label: "Batch" },
-                  { id: "upFrontFee", label: "Upfront Fee (₹)" },
-                  { id: "remainingFee", label: "Remaining Fee (₹)" },
+                  { id: "preferredLanguage", label: "Preferred Language" },
+                  { id: "college", label: "College Name" },
                 ] as const).map(({ id, label }) => (
                   <div key={id} className="space-y-1">
                     <Label htmlFor={id}>{label}</Label>
-                    <Input
-                      id={id}
-                      name={id}
-                      type={["upFrontFee", "remainingFee"].includes(id) ? "number" : "text"}
-                      value={formData[id as keyof CreateLeadInput]?.toString() || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
+                    {id === "graduationYear" ? (
+                      <Select
+                        value={formData.graduationYear}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            graduationYear: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger id="graduationYear" className="w-full">
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["1st YEAR", "2nd YEAR", "3rd YEAR", "4th YEAR","GRADUATED"].map(
+                            (year) => (
+                              <SelectItem key={year} value={year}>
+                                {year}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        id={id}
+                        name={id}
+                        type={["upFrontFee", "remainingFee"].includes(id) ? "number" : "text"}
+                        value={formData[id as keyof CreateLeadInput]?.toString() || ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -222,7 +248,10 @@ export function UploadLeadDialog({
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => fileInputRef.current?.click()}
+                disabled= {user?.role === Roles.TL_IC || user?.role === Roles.INTERN}
+                onClick={() => fileInputRef.current?.click()
+                
+                }
               >
                 {uploading ? "Uploading..." : "Upload from Excel File"}
               </Button>

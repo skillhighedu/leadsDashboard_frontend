@@ -15,11 +15,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { LeaveResponse } from "@/types/leaveApplication";
 import type { LeaveStatus } from "@/types/hr";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/AuthStore";
 
 const LeaveDashboard = () => {
   const [leaveData, setLeaveData] = useState<LeaveResponse[]>([]);
   const [loading, setLoading] = useState(false);
-
+ const {user} = useAuthStore()
   const getLeaves = async () => {
     try {
       setLoading(true);
@@ -51,7 +52,7 @@ const LeaveDashboard = () => {
     <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-8 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h1 className="text-2xl font-bold text-zinc-800 dark:text-white">
-          HR Leave Applications Dashboard
+          {user?.role} Leave Applications Dashboard
         </h1>
       </div>
 

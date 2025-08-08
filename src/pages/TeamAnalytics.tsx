@@ -1,18 +1,28 @@
 import { useEffect, useState } from "react";
-import { fetchTeamsActualAnalytics, fetchTeamsAnalytics, type LeadAnalyticsResponse, type RawTeamAnalytics } from "@/services/analytics.services";
+import {
+  fetchTeamsActualAnalytics,
+  fetchTeamsAnalytics,
+  type LeadAnalyticsResponse,
+  type RawTeamAnalytics,
+} from "@/services/analytics.services";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format, subDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
-  ASSIGNED: "bg-yellow-100 text-yellow-800",
+  CGFL: "bg-yellow-100 text-yellow-800",
   IN_PROGRESS: "bg-orange-100 text-orange-800",
   COMPLETED: "bg-green-100 text-green-800",
+  FULLY_PAID: "bg-green-300 text-green-800",
   REJECTED: "bg-red-100 text-red-800",
   PENDING: "bg-blue-100 text-blue-800",
   FOLLOW_UP: "bg-purple-100 text-purple-800",
@@ -28,20 +38,23 @@ const AnalyticsPage = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [leadSummary, setLeadSummary] = useState<LeadAnalyticsResponse | null>(null);
-
+  const [leadSummary, setLeadSummary] = useState<LeadAnalyticsResponse | null>(
+    null
+  );
+  const today = new Date();
+  const [selectedRange, setSelectedRange] = useState<"today" | "yesterday" | "custom">("today");
 
   const loadData = async () => {
     setLoading(true);
     try {
       const filters = {
-        fromDate: fromDate ?? new Date(),
-        toDate: toDate ?? new Date(),
+        fromDate: fromDate ?? today,
+        toDate: toDate ?? today,
       };
       const data = await fetchTeamsAnalytics(filters);
       const leadsAnalyticsData = await fetchTeamsActualAnalytics(filters);
       const normalizedTeams = Array.isArray(data) ? data : [data];
-      setLeadSummary(leadsAnalyticsData)
+      setLeadSummary(leadsAnalyticsData);
       setTeams(normalizedTeams);
     } catch (err) {
       console.error(err);
@@ -56,10 +69,23 @@ const AnalyticsPage = () => {
   }, [fromDate, toDate]);
 
   const handleDateQuickPick = (range: "today" | "yesterday") => {
-    const today = new Date();
-    const selected = range === "today" ? today : subDays(today, 1);
-    setFromDate(selected);
-    setToDate(selected);
+    const date = range === "today" ? today : subDays(today, 1);
+    setSelectedRange(range);
+    setFromDate(date);
+    setToDate(date);
+  };
+
+  const renderDateInfo = () => {
+    if (!fromDate || !toDate) return null;
+
+    const isSameDay = fromDate.toDateString() === toDate.toDateString();
+    return (
+      <p className="text-sm text-muted-foreground">
+        {isSameDay
+          ? `Showing data for: ${format(fromDate, "dd MMM yyyy")}`
+          : `Showing data from: ${format(fromDate, "dd MMM yyyy")} to ${format(toDate, "dd MMM yyyy")}`}
+      </p>
+    );
   };
 
   return (
@@ -72,17 +98,37 @@ const AnalyticsPage = () => {
           </p>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
-          <Button size="sm" variant="outline" onClick={() => handleDateQuickPick("today")}>Today</Button>
-          <Button size="sm" variant="outline" onClick={() => handleDateQuickPick("yesterday")}>Yesterday</Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className={selectedRange === "today" ? "bg-red-400" : "bg-white"}
+            onClick={() => handleDateQuickPick("today")}
+          >
+            Today
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className={selectedRange === "yesterday" ? "bg-red-400" : "bg-white"}
+            onClick={() => handleDateQuickPick("yesterday")}
+          >
+            Yesterday
+          </Button>
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className={cn("min-w-[220px] justify-start", !fromDate && "text-muted-foreground")}
+                className={cn(
+                  "min-w-[220px] justify-start",
+                  !fromDate && "text-muted-foreground",
+                  selectedRange === "custom" && "bg-red-400 text-white"
+                )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {fromDate && toDate ? `${format(fromDate, "dd MMM")} - ${format(toDate, "dd MMM")}` : "Pick date range"}
+                {fromDate && toDate
+                  ? `${format(fromDate, "dd MMM")} - ${format(toDate, "dd MMM")}`
+                  : "Pick date range"}
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-auto p-0">
@@ -92,12 +138,20 @@ const AnalyticsPage = () => {
                 onSelect={(range) => {
                   setFromDate(range?.from);
                   setToDate(range?.to);
+                  setSelectedRange("custom");
                 }}
                 numberOfMonths={2}
               />
             </PopoverContent>
           </Popover>
-          <Button size="sm" onClick={loadData} disabled={loading}>Refresh</Button>
+          <Button
+            size="sm"
+            variant={"default" }
+            onClick={loadData}
+            disabled={loading}
+          >
+            Refresh
+          </Button>
         </div>
       </div>
 
@@ -106,31 +160,37 @@ const AnalyticsPage = () => {
       ) : error ? (
         <div className="text-red-600">{error}</div>
       ) : (
-        
-         <div className="space-y-8">
-          {/* Lead Summary Section */}
-          {leadSummary?.fees && typeof leadSummary.fees.totalGenerated === "number" && (
-  <Card className="bg-muted/50 border border-muted-foreground/10 shadow-sm">
-    <CardHeader>
-      <CardTitle className="text-lg">Overall Lead Summary</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-        <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
-          <span className="text-muted-foreground">Total Generated Amount</span>
-          <span className="font-semibold">{leadSummary.fees.totalGenerated}</span>
-        </div>
-        <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
-          <span className="text-muted-foreground">Total Projected Amount</span>
-          <span className="font-semibold">₹ {leadSummary.fees.totalProjected}</span>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-)}
+        <div className="space-y-8">
+          {leadSummary?.fees &&
+            typeof leadSummary.fees.totalGenerated === "number" && (
+              <Card className="bg-muted/50 border border-muted-foreground/10 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Overall Lead Summary</CardTitle>
+                  {renderDateInfo()}
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
+                      <span className="text-muted-foreground">
+                        Total Generated Amount
+                      </span>
+                      <span className="font-semibold">
+                        ₹ {leadSummary.fees.totalGenerated}
+                      </span>
+                    </div>
+                    <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
+                      <span className="text-muted-foreground">
+                        Total Projected Amount
+                      </span>
+                      <span className="font-semibold">
+                        ₹ {leadSummary.fees.totalProjected}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-
-          {/* Per-Team Analytics Section */}
           {teams.map((team) => (
             <Card key={team.id} className="border shadow-sm">
               <CardHeader>
@@ -163,7 +223,9 @@ const AnalyticsPage = () => {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-muted-foreground text-sm">No team-level status available</p>
+                    <p className="text-muted-foreground text-sm">
+                      No team-level status available
+                    </p>
                   )}
                 </section>
 

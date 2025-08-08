@@ -37,7 +37,6 @@ export const fetchLeaveApplications = async(): Promise<LeavesResponse> => {
     if (!response.data.additional) {
         throw new Error("No additional data returned from API");
     }
-    console.log(response)
     return response.data.additional ;
 }
 

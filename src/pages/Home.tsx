@@ -87,14 +87,14 @@ const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const pendingStatus = useMemo(
-    () => team.statuses.find((s) => s.status === "PENDING"),
+    () => team.statuses.find((s) => s.status === "CGFL"),
     [team.statuses]
   );
 
   const otherStatuses = useMemo(
     () =>
       team.statuses.filter(
-        (s) => s.status !== "PENDING" && (s.count > 0 || s.totalTicketAmount > 0)
+        (s) => s.status !== "CGFL" && (s.count > 0 || s.totalTicketAmount > 0)
       ),
     [team.statuses]
   );

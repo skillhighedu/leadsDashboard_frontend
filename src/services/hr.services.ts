@@ -16,7 +16,6 @@ export const fetchStaffLogins = async (
     const data = response.data.additional?.data;
     const count = response.data.additional?.count ?? 0;
 
-    console.log(response);
 
     return {
       data: Array.isArray(data) ? data : [],
@@ -52,7 +51,6 @@ export const activateStaffLogin = async (): Promise<IsActiveResponse> => {
     const response = await apiClient.post<ApiResponse<IsActiveResponse>>(
       "/staff/activate"
     );
-    console.log(response)
     if (!response.data.additional) {
       throw new Error("No data returned from API");
     }
@@ -67,7 +65,6 @@ export const deactivateStaffLogin = async (): Promise<IsActiveResponse> => {
     const response = await apiClient.put<ApiResponse<IsActiveResponse>>(
       "/staff/deactivate"
     );
-    console.log(response)
     if (!response.data.additional) {
       throw new Error("No data returned from API");
     }
