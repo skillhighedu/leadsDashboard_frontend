@@ -127,9 +127,12 @@ export function LeadTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>
+          <TableHead className="left-0 z-10 sticky bg-background">
             {user?.role !== Roles.INTERN && (
-              <Checkbox checked={allSelected} onCheckedChange={handleSelectAll} />
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={handleSelectAll}
+              />
             )}
           </TableHead>
           <TableHead>Name</TableHead>
@@ -204,23 +207,23 @@ export function LeadTable({
                       : undefined,
                 }}
               >
-              {user?.role !== Roles.INTERN ? (
-                <TableCell>
-                  <Checkbox
-                    checked={selectedLeads.includes(lead.id)}
-                    onCheckedChange={() => onSelectLead(lead.id)}
-                    disabled={isDisabled}
-                  />
-                </TableCell>
-              ) : (
-                <TableCell />
-              )}
+                {user?.role !== Roles.INTERN ? (
+                  <TableCell className=" sticky left-0 z-10 bg-background ">
+                    <Checkbox
+                      checked={selectedLeads.includes(lead.id)}
+                      onCheckedChange={() => onSelectLead(lead.id)}
+                      disabled={isDisabled}
+                    />
+                  </TableCell>
+                ) : (
+                  <TableCell />
+                )}
                 <TableCell>{lead.name}</TableCell>
                 <TableCell>{lead.email}</TableCell>
                 <TableCell>{lead.phoneNumber}</TableCell>
                 <TableCell>{lead.whatsappNumber}</TableCell>
                 <TableCell>{lead.graduationYear}</TableCell>
-                
+
                 <TableCell>{lead.college}</TableCell>
                 <TableCell>{lead.branch}</TableCell>
                 <TableCell>{lead.domain}</TableCell>
@@ -323,8 +326,7 @@ export function LeadTable({
                         variant="outline"
                         size="sm"
                         className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      disabled={!canDelete || lead.teamAssignedId !== null}
-
+                        disabled={!canDelete || lead.teamAssignedId !== null}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
