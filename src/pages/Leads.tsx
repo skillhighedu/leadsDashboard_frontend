@@ -16,6 +16,7 @@ import { getLeadStatusesByRole } from "@/utils/get-lead-statuses-by-role";
 import {
   deleteLead,
   fetchLeads,
+  unAssginLead,
   updateReferredBy,
 } from "@/services/leads.services";
 import {
@@ -300,6 +301,18 @@ export default function LeadsPage() {
     }
   };
 
+  const handleUnAssignLead = async (uuid: string, name: string) => {
+    try {
+      await unAssginLead(uuid);
+      toast.success(`Lead ${name} un-Assigned successfully`);
+      await getLeads(page, search, statusFilter);
+    } catch (err) {
+      handleApiError( err);
+    }
+  };
+
+  
+
   const loadTeamData = async (role: string) => {
     try {
       if (
@@ -453,6 +466,7 @@ export default function LeadsPage() {
             setUpFrontFee={setUpFrontFees} // ✅ new
             onStatusChange={handleStatusChange}
             handleDeleteLead={handleDeleteLead}
+            handleUnAssignLead= {handleUnAssignLead}
             canDelete={
               user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC
             }
