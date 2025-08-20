@@ -50,7 +50,11 @@ export function AssignTeamDialog({
 
 
   const handleAssign = () => {
-    isExecutive ? onAssignToMember() : onAssign();
+    if (isExecutive) {
+      onAssignToMember();
+    } else {
+      onAssign();
+    }
   };
 
   const getPlaceholder = () => {

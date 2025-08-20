@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { submitLeaveApplication, fetchMyLeaveApplications } from "@/services/leave.services";
 import type { LeaveResponse } from "@/types/leaveApplication";
+import { handleApiError } from "@/utils/errorHandler";
 
 export default function LeaveApplication() {
   const [showForm, setShowForm] = useState(false);
@@ -49,7 +50,7 @@ export default function LeaveApplication() {
       const data = await fetchMyLeaveApplications();
       setLeaves(Array.isArray(data) ? data : [data]);
     } catch (error) {
-      console.error("Fetch error:", error);
+      handleApiError( error)
       toast.error("Failed to fetch leave history.");
     } finally {
       setFetching(false);
@@ -74,7 +75,7 @@ export default function LeaveApplication() {
       setShowForm(false);
       getMyLeaves(); // Refresh data after submission
     } catch (error) {
-      console.error("Submit error:", error);
+      handleApiError( error);
       toast.error("Failed to submit leave.");
     } finally {
       setLoading(false);

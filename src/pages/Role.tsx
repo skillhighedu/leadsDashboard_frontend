@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { PlusIcon, PencilIcon, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { handleApiError } from "@/utils/errorHandler";
 
 
 type Permission = {
@@ -50,7 +51,7 @@ export default function Role() {
      
       setRoles(response);
     } catch (error) {
-      console.error("Error fetching roles:", error);
+      handleApiError( error);
     }
   };
 
@@ -64,7 +65,7 @@ export default function Role() {
       await deleteRole(uuid);
       await getRoles(); // Refresh roles list
     } catch (error) {
-      console.error("Error deleting role:", error);
+      handleApiError( error);
     } finally {
       setLoadingId(null);
     }

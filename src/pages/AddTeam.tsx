@@ -13,6 +13,7 @@ import { fetchExecutives, createTeam } from "@/services/team.services"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
+import { handleApiError } from "@/utils/errorHandler"
 
 interface Employee {
   id: number
@@ -37,7 +38,7 @@ export default function AddTeam() {
         const response = await fetchExecutives()
         setEmployees(response)
       } catch (error) {
-        console.error("Failed to fetch executives", error)
+        handleApiError( error)
       } finally {
         setLoading(false)
       }
@@ -70,7 +71,7 @@ export default function AddTeam() {
       navigate("/teams", {state: {refresh: true}})
 
     } catch (error) {
-      console.error("Failed to create team", error)
+      handleApiError( error)
     } finally {
       setCreating(false)
     }

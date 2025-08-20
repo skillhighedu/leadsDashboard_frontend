@@ -57,6 +57,9 @@ interface LeadTableProps {
   onSelectAll: () => void;
   onStatusChange: (leadId: number, newStatus: string) => void;
   handleDeleteLead: (uuid: string, name: string) => void;
+
+  handleUnAssignLead: (uuid: string, name: string) => void;
+
   canDelete?: boolean;
   referredByInputs: { id: number; value: string }[];
 
@@ -80,6 +83,7 @@ export function LeadTable({
   onSelectLead,
   onStatusChange,
   handleDeleteLead,
+  handleUnAssignLead,
   canDelete,
   referredByInputs,
   handleReferredByChange,
@@ -124,10 +128,10 @@ export function LeadTable({
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="left-0 z-10 sticky bg-background">
+    <Table className="z-0">
+      <TableHeader >
+        <TableRow  >
+          <TableHead className="left-0  z-10 sticky bg-background">
             {user?.role !== Roles.INTERN && (
               <Checkbox
                 checked={allSelected}
@@ -135,7 +139,7 @@ export function LeadTable({
               />
             )}
           </TableHead>
-          <TableHead>Name</TableHead>
+          <TableHead >Name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Whatsapp Number</TableHead>
@@ -159,7 +163,7 @@ export function LeadTable({
           {/* <TableHead>Actions</TableHead> */}
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody >
         {loading ? (
           [...Array(10)].map((_, i) => (
             <TableRow key={i}>
@@ -196,6 +200,28 @@ export function LeadTable({
 
             // Remove this function definition. The actual handleDeleteLead is passed as a prop to LeadTable and should not be redefined here.
 
+            const isInternOrTL =
+              user?.role === Roles.INTERN ||
+              user?.role === Roles.TL_IC ||
+              user?.role === Roles.OPSTEAM;
+            const isExecutive = user?.role === Roles.EXECUTIVE;
+            const isManager = !!user && hasManagerRole(user.role);
+
+            // Who can unassign?
+            // - Managers: only if team is assigned
+            // - Executive: only if handler is assigned (team may be null)
+            // - Intern/TL_IC: never
+            const canUnassign = isManager
+              ? lead.teamAssignedId !== null
+              : isExecutive
+              ? lead.handlerId !== null
+              : false;
+
+            const isUnassignDisabled = isInternOrTL || !canUnassign;
+            const targetLabel =
+              user?.role === Roles.EXECUTIVE
+                ? lead.handler?.name ?? "handler"
+                : lead.teamAssigned?.teamName ?? "team";
             return (
               <TableRow
                 key={lead.id}
@@ -249,7 +275,7 @@ export function LeadTable({
 
                 <TableCell>{lead?.owner?.name}</TableCell>
                 <TableCell>
-                  {lead?.teamAssigned?.teamName ?? "Unassigned"}
+                  {lead?.teamAssigned?.teamName?.trim() || ""}
                 </TableCell>
                 <TableCell>
                   {lead.assignedAt
@@ -317,6 +343,49 @@ export function LeadTable({
                       ))}
                     </SelectContent>
                   </Select>
+                </TableCell>
+
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        disabled={isUnassignDisabled}
+                      >
+                        UnAssign
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Confirm Un-Assign</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to un-Assign{" "}
+                          <b>
+                            {targetLabel}
+                          </b>
+                          ? This action cannot be undone.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button
+                            variant="destructive"
+                            onClick={() =>
+                              handleUnAssignLead(lead.uuid, lead.name)
+                            }
+                            disabled={isUnassignDisabled}
+                          >
+                            Un-Assign
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </TableCell>
 
                 <TableCell>

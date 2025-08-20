@@ -21,7 +21,7 @@ export default function Layout({ children }: LayoutProps) {
           <Navbar />
 
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto px-6 py-6">
+          <main className=" relative flex-1 overflow-y-auto px-6 py-6">
             {children}
           </main>
         </div>

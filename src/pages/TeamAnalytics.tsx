@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { handleApiError } from "@/utils/errorHandler";
 
 const statusColors: Record<string, string> = {
   CGFL: "bg-yellow-100 text-yellow-800",
@@ -57,7 +58,7 @@ const AnalyticsPage = () => {
       setLeadSummary(leadsAnalyticsData);
       setTeams(normalizedTeams);
     } catch (err) {
-      console.error(err);
+      handleApiError(err);
       setError("Failed to load analytics.");
     } finally {
       setLoading(false);

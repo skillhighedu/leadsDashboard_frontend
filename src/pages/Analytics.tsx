@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { handleApiError } from "@/utils/errorHandler";
 
 // --- status colors ---
 const statusColors: Record<string, string> = {
@@ -324,7 +325,7 @@ export default function Analytics() {
       setAllTeams(teamData);
       setAllData(overallData);
     } catch (err) {
-      console.error("Failed to fetch analytics:", err);
+      handleApiError( err);
       setError("Failed to load team analytics. Please try again.");
     } finally {
       setLoading(false);

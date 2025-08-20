@@ -43,6 +43,7 @@ import type { RoleInfo } from "@/services/team.services";
 import { fetchRoles } from "@/services/role.services";
 
 import { toast } from "sonner";
+import { handleApiError } from "@/utils/errorHandler";
 
 export default function Employee() {
   const [employeeData, setEmployeeData] = useState<Employee[]>([]);
@@ -70,7 +71,7 @@ export default function Employee() {
         const response = await fetchEmployes();
         setEmployeeData(response);
       } catch (error) {
-        console.error("Error fetching employees:", error);
+        handleApiError( error);
       }
     };
     fetchData();
@@ -83,7 +84,7 @@ export default function Employee() {
 
         setRoles(response);
       } catch (error) {
-        console.error("Error fetching roles:", error);
+        handleApiError( error);
       }
     };
     fetchData();
@@ -120,7 +121,7 @@ export default function Employee() {
       setEditDialogOpen(false);
       setEmployeeToEdit(null);
     } catch (error) {
-      console.error("Edit failed", error);
+      handleApiError( error);
     }
   };
   const handleStatusChange = async (
@@ -134,7 +135,7 @@ export default function Employee() {
       const updated = await fetchEmployes();
       setEmployeeData(updated);
     } catch (error) {
-      console.error("Status update failed", error);
+      handleApiError( error);
       toast.error("Failed to update status");
     }
   };

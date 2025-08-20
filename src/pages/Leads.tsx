@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,  } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import { getLeadStatusesByRole } from "@/utils/get-lead-statuses-by-role";
 import {
   deleteLead,
   fetchLeads,
+  unAssginLead,
   updateReferredBy,
 } from "@/services/leads.services";
 import {
@@ -47,7 +48,6 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { handleApiError } from "@/utils/errorHandler";
 
-
 export default function LeadsPage() {
   //   const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
   const [referredByInputs, setReferredByInputs] = useState<
@@ -71,7 +71,7 @@ export default function LeadsPage() {
     )
       return "NEWLY_GENERATED";
     //   return "NEWLY_GENERATED";
-    return user?.role===Roles.OPSTEAM ? "PAID": "CGFL";
+    return user?.role === Roles.OPSTEAM ? "PAID" : "CGFL";
   });
   const [teams, setTeams] = useState<TeamResponse[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMembersResponse[]>([]);
@@ -104,7 +104,7 @@ export default function LeadsPage() {
       setLeads(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
-      handleApiError( error);
+      handleApiError(error);
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,7 @@ export default function LeadsPage() {
       // toast.error(
       //   error?.response?.data?.message || "Failed to update referred by."
       // );
-      handleApiError( error);
+      handleApiError(error);
     }
   };
 
@@ -181,7 +181,7 @@ export default function LeadsPage() {
         setIsAssignDialogOpen(false);
       }
     } catch (err) {
-      handleApiError( err);
+      handleApiError(err);
     } finally {
       setAssignLoading(false);
     }
@@ -203,7 +203,7 @@ export default function LeadsPage() {
         setIsAssignDialogOpen(false);
       }
     } catch (err) {
-      handleApiError( err);
+      handleApiError(err);
     } finally {
       setAssignLoading(false);
     }
@@ -251,7 +251,7 @@ export default function LeadsPage() {
         await getLeads(page, search, statusFilter);
       }
     } catch (err) {
-      handleApiError( err);
+      handleApiError(err);
     }
   };
   const handleUpFrontBlur = async (id: number) => {
@@ -271,7 +271,7 @@ export default function LeadsPage() {
         await getLeads(page, search, statusFilter);
       }
     } catch (err) {
-      handleApiError( err);
+      handleApiError(err);
     }
   };
 
@@ -286,7 +286,7 @@ export default function LeadsPage() {
         await getLeads(page, search, statusFilter);
       }
     } catch (error) {
-      handleApiError( error);
+      handleApiError(error);
     }
   };
 
@@ -296,7 +296,17 @@ export default function LeadsPage() {
       toast.success(`Lead ${name} deleted successfully`);
       await getLeads(page, search, statusFilter);
     } catch (err) {
-      handleApiError( err);
+      handleApiError(err);
+    }
+  };
+
+  const handleUnAssignLead = async (uuid: string, name: string) => {
+    try {
+      await unAssginLead(uuid);
+      toast.success(`Lead ${name} un-Assigned successfully`);
+      await getLeads(page, search, statusFilter);
+    } catch (err) {
+      handleApiError(err);
     }
   };
 
@@ -314,7 +324,7 @@ export default function LeadsPage() {
         setTeamMembers(response); // define this state
       }
     } catch (err) {
-      handleApiError( err);
+      handleApiError(err);
     } finally {
       setTeamsLoading(false);
     }
@@ -326,6 +336,7 @@ export default function LeadsPage() {
     }
   }, [user?.role]);
 
+  
   return (
     <div className="p-3">
       <UploadLeadDialog
@@ -347,94 +358,108 @@ export default function LeadsPage() {
         teamsLoading={teamsLoading}
       />
 
-      <Card className="p-4">
-        <CardContent>
-          <div className="flex justify-between items-center flex-wrap gap-2 mb-4">
-            <h2 className="text-xl font-semibold">All Leads</h2>
-            <div className="flex flex-wrap gap-2">
-              
-                <Button onClick={() => setIsUploadDialogOpen(true)} disabled={user?.role === Roles.OPSTEAM }  >
+      <Card >
+        <CardContent >
+        
+            <div className="flex justify-between items-center flex-wrap gap-2 mb-4  py-3">
+              <h2 className="text-xl font-semibold">All Leads</h2>
+
+              <div className="flex flex-wrap gap-2 ">
+                <Button
+                  onClick={() => setIsUploadDialogOpen(true)}
+                  disabled={
+                    !user?.permissions?.uploadData &&
+                    !user?.permissions?.createData
+                  }
+                >
                   Upload Leads
                 </Button>
 
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <CalendarIcon className="w-4 h-4" />
-                    {date ? format(date, "dd MMM yyyy") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-4">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(selected) => selected && setDate(selected)}
-                    captionLayout="dropdown"
-                    showOutsideDays
-                    weekStartsOn={1}
-                  />
-                  <div className="flex gap-2 mt-4">
+                <Popover>
+                  <PopoverTrigger asChild>
                     <Button
-                      variant="secondary"
-                      className="w-1/2"
-                      onClick={() => setDate(new Date())}
+                      variant="outline"
+                      className="flex items-center gap-2"
                     >
-                      Today
+                      <CalendarIcon className="w-4 h-4" />
+                      {date ? format(date, "dd MMM yyyy") : "Pick a date"}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-1/2"
-                      onClick={() => setDate(subDays(new Date(), 1))}
-                    >
-                      Yesterday
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-4">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(selected) => selected && setDate(selected)}
+                      captionLayout="dropdown"
+                      showOutsideDays
+                      weekStartsOn={1}
+                    />
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="secondary"
+                        className="w-1/2"
+                        onClick={() => setDate(new Date())}
+                      >
+                        Today
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-1/2"
+                        onClick={() => setDate(subDays(new Date(), 1))}
+                      >
+                        Yesterday
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
-              <Button
-                variant="outline"
-                disabled={!selectedLeads.length}
-                onClick={() => setSelectedLeads([])}
-              >
-                Clear Selection
-              </Button>
-              <Button
-                disabled={!selectedLeads.length || teamsLoading}
-                onClick={() => setIsAssignDialogOpen(true)}
-              >
-                Assign to{" "}
-                {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
-                {selectedLeads.length})
-              </Button>
+                <Button
+                  variant="outline"
+                  disabled={!selectedLeads.length}
+                  onClick={() => setSelectedLeads([])}
+                >
+                  Clear Selection
+                </Button>
+                <Button
+                  disabled={
+                    !selectedLeads.length ||
+                    teamsLoading ||
+                    !user?.permissions?.assignData
+                  }
+                  onClick={() => setIsAssignDialogOpen(true)}
+                >
+                  Assign to{" "}
+                  {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
+                  {selectedLeads.length})
+                </Button>
+              </div>
             </div>
-          </div>
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <Input
+                placeholder="Search leads..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="max-w-md"
+              />
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
-            <Input
-              placeholder="Search leads..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="max-w-md"
-            />
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="min-w-[220px] w-fit px-2 py-1">
-                {availableStatuses.map((s) => (
-                  <SelectItem key={s} value={s} className="text-sm px-3 py-2">
-                    {s
-                      .replace(/_/g, " ")
-                      .toLowerCase()
-                      .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent className="min-w-[220px] w-fit px-2 py-1">
+                  {availableStatuses.map((s) => (
+                    <SelectItem key={s} value={s} className="text-sm px-3 py-2">
+                      {s
+                        .replace(/_/g, " ")
+                        .toLowerCase()
+                        .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          
+          
 
           <LeadTable
             leads={leads}
@@ -453,9 +478,8 @@ export default function LeadsPage() {
             setUpFrontFee={setUpFrontFees} // ✅ new
             onStatusChange={handleStatusChange}
             handleDeleteLead={handleDeleteLead}
-            canDelete={
-              user?.role !== Roles.INTERN && user?.role !== Roles.TL_IC
-            }
+            handleUnAssignLead={handleUnAssignLead}
+            canDelete={user?.permissions?.deleteData}
             referredByInputs={referredByInputs}
             handleReferredByBlur={handleReferredByBlur}
             handleReferredByChange={handleReferredByChange}

@@ -16,7 +16,6 @@ import type { CreateLeadInput } from "@/types/leads";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/errorHandler";
 import { useAuthStore } from "@/store/AuthStore";
-import { Roles } from "@/constants/role.constant";
 
 interface UploadLeadDialogProps {
   open: boolean;
@@ -36,6 +35,8 @@ export function UploadLeadDialog({
   const [submitting, setSubmitting] = useState(false);
  
   const {user} = useAuthStore()
+
+
   const [uploadResult, setUploadResult] = useState<{
     insertedLeadsCount: number;
     skippedLeadsCount: number;
@@ -248,7 +249,7 @@ export function UploadLeadDialog({
               <Button
                 variant="outline"
                 className="w-full"
-                disabled= {user?.role === Roles.TL_IC || user?.role === Roles.INTERN}
+                disabled= {!user?.permissions?.uploadData}
                 onClick={() => fileInputRef.current?.click()
                 
                 }
@@ -275,6 +276,7 @@ export function UploadLeadDialog({
                   Close
                 </Button>
               </DialogFooter>
+              
             </div>
           )}
         </DialogContent>

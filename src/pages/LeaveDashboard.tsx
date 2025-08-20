@@ -16,6 +16,7 @@ import type { LeaveResponse } from "@/types/leaveApplication";
 import type { LeaveStatus } from "@/types/hr";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/AuthStore";
+import { handleApiError } from "@/utils/errorHandler";
 
 const LeaveDashboard = () => {
   const [leaveData, setLeaveData] = useState<LeaveResponse[]>([]);
@@ -27,7 +28,7 @@ const LeaveDashboard = () => {
       const { data } = await fetchLeaveApplications();
       setLeaveData(data);
     } catch (error) {
-      console.error("Error fetching leave applications:", error);
+      handleApiError( error);
     } finally {
       setLoading(false);
     }
@@ -40,7 +41,7 @@ const LeaveDashboard = () => {
       getLeaves();
     } catch (error) {
       toast.error("Failed to update status");
-      console.error(error);
+      handleApiError(error);
     }
   };
 

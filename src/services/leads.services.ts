@@ -55,6 +55,7 @@ export const uploadLeadsFile = async (file: File) => {
                 "Content-Type": "multipart/form-data"
             },
         });
+        
         return response.data.additional;
     } catch (error) {
         throw handleApiError(error);
@@ -111,14 +112,14 @@ export interface LeadStatusCount {
 }
 
 export interface RevenueData {
-  filtersApplied: Record<string, any>; // You can narrow this if needed
+  filtersApplied: Record<string, unknown>; // You can narrow this if needed
   value: number;
 }
 
 export interface LeadAnalyticsResponse {
   leadStatusCounts: LeadStatusCount[];
   revenue: RevenueData;
-  teamPaymentCounts: any[]; // Replace `any` with a proper type if needed
+  teamPaymentCounts: unknown[]; // Replace `any` with a proper type if needed
 }
 
 
@@ -148,6 +149,23 @@ export const deleteLead = async (uuid:string)=> {
       toast.success(response.data.message)
       
     }
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const unAssginLead = async (uuid:string)=> {
+  try {
+    const response = await apiClient.put<ApiResponse<LeadsResponse>>(
+      `/leads/unAssign/${uuid}`
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
+    
     return response.data.additional ?? []
   } catch (error) {
     throw handleApiError(error);
