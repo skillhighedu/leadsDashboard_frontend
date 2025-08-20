@@ -2,10 +2,18 @@
 import { create } from "zustand";
 import api from "@/config/axiosConfig";
 import { toast } from "sonner";
+import { handleApiError } from "@/utils/errorHandler";
 
 interface User {
   role: string;
   isActive?: boolean; // Optional for admin
+  permissions? : {
+    assignData: boolean,
+    createData: boolean,
+    deleteData: boolean,
+    editData: boolean,
+    uploadData: boolean
+  }
 }
 
 interface AuthState {
@@ -29,13 +37,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   checkAuth: async () => {
     // Prevent multiple simultaneous auth checks
     if (get().isCheckingAuth) {
-      console.log("Auth check already in progress, skipping...");
+    //   console.log("Auth check already in progress, skipping...");
       return;
     }
 
     // Check if we're on login page - if so, don't check auth
     if (window.location.pathname === "/login") {
-      console.log("On login page, skipping auth check");
+    //   console.log("On login page, skipping auth check");
       set({ loading: false, isCheckingAuth: false });
       return;
     }
@@ -47,8 +55,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         withCredentials: true, // send cookie
       });
 
-      
-
       // Handle different possible response structures
       //   let userRole = null;
 
@@ -59,23 +65,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const role = res.data?.additional?.role;
       const isActive = res.data?.additional?.isActive;
+      const permissions = res.data?.additional?.permissions;
+      
       
       
 
 
       if (role) {
         set({
-          user: { role: role, isActive },
+          user: { role: role, isActive, permissions },
           loading: false,
           error: null,
           isCheckingAuth: false,
         });
+        
       } else {
-        console.warn("No role found in response:", res.data);
+        // console.warn("No role found in response:", res.data);
         set({ user: null, loading: false, error: null, isCheckingAuth: false });
       }
     } catch (err: unknown) {
-      console.error("Auth check error:", err);
+    //   console.error("Auth check error:", err);
       // Handle 401 errors gracefully - just clear user state
       if (
         typeof err === "object" &&
@@ -83,7 +92,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         "response" in err &&
         (err as { response?: { status?: number } }).response?.status === 401
       ) {
-        console.log("401 Unauthorized - clearing user state");
+        // console.log("401 Unauthorized - clearing user state");
         set({ user: null, loading: false, error: null, isCheckingAuth: false });
       } else {
         // For other errors, still clear state but log the error
@@ -107,7 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: null, loading: false, error: null, isCheckingAuth: false });
         window.location.href = "/login";
     } catch (err: unknown) {
-        console.error("Logout API error:", err);
+        handleApiError( err);
         toast.error("To logout, first activate your login and then deactivate.");
     } 
   },

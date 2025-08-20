@@ -55,7 +55,7 @@ export const uploadLeadsFile = async (file: File) => {
                 "Content-Type": "multipart/form-data"
             },
         });
-        console.log("UPLOAODEDLEADSA", response)
+        
         return response.data.additional;
     } catch (error) {
         throw handleApiError(error);
@@ -165,7 +165,7 @@ export const unAssginLead = async (uuid:string)=> {
       toast.success(response.data.message)
       
     }
-    console.log(response)
+    
     return response.data.additional ?? []
   } catch (error) {
     throw handleApiError(error);

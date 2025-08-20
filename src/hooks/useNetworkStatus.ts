@@ -1,3 +1,4 @@
+import { handleApiError } from "@/utils/errorHandler";
 import { useEffect, useState } from "react";
 
 const useNetworkStatus = () => {
@@ -11,7 +12,7 @@ const useNetworkStatus = () => {
       });
       setIsOnline(true);
     } catch (error) {
-        console.log(error)
+        handleApiError(error)
       setIsOnline(false);
     }
   };

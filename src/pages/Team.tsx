@@ -78,7 +78,7 @@ export default function AddTeam() {
     try {
       const res = await deleteTeam(id);
       setTeams((prev) => prev.filter((team) => team.id !== id));
-      console.log(res)
+      
       toast.success(res.message);
     } catch {
       toast.error("Failed to delete team");

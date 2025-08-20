@@ -11,7 +11,7 @@ export const fetchIntrrnLeads = async (): Promise<LeadsResponse> => {
       `/team-assignments/teams/assigned-leads`
     );
 
-    console.log(response.data)
+    
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }

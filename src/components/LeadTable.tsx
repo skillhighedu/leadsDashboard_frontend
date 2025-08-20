@@ -128,10 +128,10 @@ export function LeadTable({
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="left-0 z-10 sticky bg-background">
+    <Table className="z-0">
+      <TableHeader >
+        <TableRow  >
+          <TableHead className="left-0  z-10 sticky bg-background">
             {user?.role !== Roles.INTERN && (
               <Checkbox
                 checked={allSelected}
@@ -139,7 +139,7 @@ export function LeadTable({
               />
             )}
           </TableHead>
-          <TableHead>Name</TableHead>
+          <TableHead >Name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Whatsapp Number</TableHead>
@@ -163,7 +163,7 @@ export function LeadTable({
           {/* <TableHead>Actions</TableHead> */}
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody >
         {loading ? (
           [...Array(10)].map((_, i) => (
             <TableRow key={i}>

@@ -49,6 +49,6 @@ export const updateLeaveStatus = async(uuid: string, payload: UpdateLeaveStatusP
     throw new Error("No data returned from server");
   }
 
-  console.log(response)
+ 
   return response.data.additional;
 } 

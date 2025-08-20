@@ -14,6 +14,7 @@ import { format, subDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { handleApiError } from "@/utils/errorHandler";
 
 
 // Status colors
@@ -226,7 +227,7 @@ export default function Home() {
       setAllTeams(Array.isArray(teamData) ? teamData : [teamData]);
       setAllData(overallData);
     } catch (err) {
-      console.error("Failed to fetch analytics:", err);
+      handleApiError( err);
       setError("Failed to load team analytics. Please try again.");
     } finally {
       setLoading(false);

@@ -30,6 +30,7 @@ import OpsAnalytics from "./pages/OpsAnalytics";
 
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
+  
 
   const hasCheckedAuth = useRef(false);
   const isOnline = useNetworkStatus();

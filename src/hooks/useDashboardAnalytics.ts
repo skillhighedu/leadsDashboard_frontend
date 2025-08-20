@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { leadAnalytics, type LeadAnalyticsResponse } from "@/services/leads.services";
+import { handleApiError } from "@/utils/errorHandler";
 
 
 export const useDashboardAnalytics = () => {
@@ -12,7 +13,7 @@ export const useDashboardAnalytics = () => {
         const response = await leadAnalytics();
         setData(response);
       } catch (error) {
-        console.error("Error fetching analytics", error);
+        handleApiError( error);
       } finally {
         setLoading(false);
       }

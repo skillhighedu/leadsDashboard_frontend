@@ -13,6 +13,7 @@ import {
 import { createEmployee, editEmployee } from "@/services/employes.services";
 import { fetchRoles } from "@/services/role.services";
 import { Eye, EyeOff } from "lucide-react";
+import { handleApiError } from "@/utils/errorHandler";
 
 export default function AddEmployee() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function AddEmployee() {
         const fetched = await fetchRoles();
         setRoles(fetched);
       } catch (err) {
-        console.error("Failed to fetch roles", err);
+        handleApiError( err);
       }
     };
 
@@ -76,7 +77,7 @@ export default function AddEmployee() {
 
       navigate("/employees");
     } catch (err) {
-      console.error("Failed to save employee", err);
+      handleApiError( err);
       setError("Something went wrong.");
     } finally {
       setLoading(false);

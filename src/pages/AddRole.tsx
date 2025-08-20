@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { createRole, editRole } from "@/services/role.services"
+import { handleApiError } from "@/utils/errorHandler"
 
 const validRoles = [
   "administrator",
@@ -76,7 +77,7 @@ export default function AddRole() {
 
       navigate("/roles")
     } catch (err) {
-      console.error("Failed to save role", err)
+      handleApiError(err)
     } finally {
       setLoading(false)
     }

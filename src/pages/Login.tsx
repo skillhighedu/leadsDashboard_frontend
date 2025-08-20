@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/AuthStore";
 import { Eye, EyeOff,  } from "lucide-react";
 
 import { toast } from "sonner";
+import { handleApiError } from "@/utils/errorHandler";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -54,7 +55,7 @@ export default function Login() {
         navigate("/");
       }
     } catch (error) {
-        console.log("Error: ",error)
+        handleApiError(error)
       toast.error("Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
