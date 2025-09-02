@@ -35,7 +35,6 @@ import { useAuthStore } from "@/store/AuthStore";
 import { Roles } from "@/constants/role.constant";
 import {
   addTicketAmount,
-  updateUpFrontAmount,
 } from "@/services/leads.services";
 import { toast } from "sonner";
 import {
@@ -239,14 +238,20 @@ export default function LeadsPage() {
 
   const handleTicketBlur = async (id: number) => {
     const ticket = ticketAmounts.find((t) => t.id === id);
+    const upFrontFee = upFrontFees.find((t) => t.id === id);
 
-    if (!ticket) return;
+
+    if (!ticket || !upFrontFee) return;
+    
+
 
     const ticketValue = parseFloat(ticket.value);
+    const upFrontValue = parseFloat(upFrontFee.value);
+
     if (isNaN(ticketValue) || ticketValue < 0) return;
 
     try {
-      const response = await addTicketAmount(id.toString(), ticketValue);
+      const response = await addTicketAmount(id.toString(), upFrontValue, ticketValue);
       if (response) {
         await getLeads(page, search, statusFilter);
       }
@@ -254,26 +259,26 @@ export default function LeadsPage() {
       handleApiError(err);
     }
   };
-  const handleUpFrontBlur = async (id: number) => {
-    const upFrontFee = upFrontFees.find((t) => t.id === id);
+//   const handleUpFrontBlur = async (id: number) => {
+//     const upFrontFee = upFrontFees.find((t) => t.id === id);
 
-    if (!upFrontFee) return;
+//     if (!upFrontFee) return;
 
-    const upFrontFeeValue = parseFloat(upFrontFee.value);
-    if (isNaN(upFrontFeeValue) || upFrontFeeValue <= 0) return;
+//     const upFrontFeeValue = parseFloat(upFrontFee.value);
+//     if (isNaN(upFrontFeeValue) || upFrontFeeValue <= 0) return;
 
-    try {
-      const response = await updateUpFrontAmount(
-        id.toString(),
-        upFrontFeeValue
-      );
-      if (response) {
-        await getLeads(page, search, statusFilter);
-      }
-    } catch (err) {
-      handleApiError(err);
-    }
-  };
+//     try {
+//       const response = await updateUpFrontAmount(
+//         id.toString(),
+//         upFrontFeeValue
+//       );
+//       if (response) {
+//         await getLeads(page, search, statusFilter);
+//       }
+//     } catch (err) {
+//       handleApiError(err);
+//     }
+//   };
 
   //Handle state change
   const handleStatusChange = async (leadId: number, newStatus: string) => {
@@ -434,6 +439,26 @@ export default function LeadsPage() {
                 </Button>
               </div>
             </div>
+
+            {/* Note about lead assignment requirements */}
+            {(user?.role === Roles.LEAD_MANAGER || 
+              user?.role === Roles.EXECUTIVE || 
+              user?.role === Roles.INTERN || 
+              user?.role === Roles.TL_IC) && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <div className="text-blue-600 mt-0.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="text-sm text-blue-800">
+                    <strong>Important Note:</strong> Leads must be assigned to a team member before updating upfront fees and ticket amounts. 
+                    Changes to these fields will only reflect in analytics after the lead has been properly assigned.
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
               <Input
                 placeholder="Search leads..."
@@ -470,7 +495,7 @@ export default function LeadsPage() {
             onSelectAll={handleSelectAll}
             handleTicketBlur={handleTicketBlur}
             handleTicketChange={handleTicketChange}
-            handleUpFrontBlur={handleUpFrontBlur}
+            // handleUpFrontBlur={handleUpFrontBlur}
             handleUpFrontChange={handleUpFrontChange}
             setTicketAmounts={setTicketAmounts}
             ticketAmounts={ticketAmounts}

@@ -47,6 +47,31 @@ export interface LeadsResponse {
   }
 }
 
+export interface SkippedLead {
+  row: {
+    name: string;
+    email: string;
+    phoneNumber: string;
+    whatsappNumber?: string;
+    graduationYear?: string;
+    branch?: string;
+    college?: string;
+    domain?: string;
+    preferredLanguage?: string;
+    hadReferred?: boolean;
+    batch?: string;
+    [key: string]: string | number | boolean | undefined;
+  };
+  reason: string;
+}
+
+export interface UploadLeadsResponse {
+  insertedLeads: Leads[];
+  insertedLeadsCount: number;
+  skippedLeads: SkippedLead[];
+  skippedLeadsCount: number;
+}
+
 export interface UpdateReferredByInput {
   referrerEmail: string;
 }

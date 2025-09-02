@@ -2,7 +2,7 @@
 
 import apiClient from "@/config/axiosConfig";
 import type { ApiResponse } from "@/types/api";
-import type { CreateLeadInput, Leads, LeadsResponse, UpdateReferredByInput } from "@/types/leads";
+import type { CreateLeadInput, Leads, LeadsResponse, UpdateReferredByInput, UploadLeadsResponse } from "@/types/leads";
 import { handleApiError } from "@/utils/errorHandler";
 import { toast } from "sonner";
 
@@ -45,17 +45,22 @@ export const fetchLeads = async (
 };
 
 
-export const uploadLeadsFile = async (file: File) => {
+export const uploadLeadsFile = async (file: File): Promise<UploadLeadsResponse> => {
     try {
         const formData = new FormData();
         formData.append("file",file);
 
-        const response = await apiClient.post("/leads/upload", formData, {
+        const response = await apiClient.post<ApiResponse<UploadLeadsResponse>>("/leads/upload", formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             },
         });
+        console.log("UPLOAD SHEET",response);
         
+        if (!response.data.additional) {
+            throw new Error("No upload data found in the response.");
+        }
+
         return response.data.additional;
     } catch (error) {
         throw handleApiError(error);
@@ -65,13 +70,14 @@ export const uploadLeadsFile = async (file: File) => {
 
 export const addTicketAmount = async (
   leadId: string,
+  upFrontFee:number,
   ticketAmount: number,
 ): Promise<LeadsResponse> => {
   try {
    
     const response = await apiClient.put<ApiResponse<LeadsResponse>>(
-      `/team-assignments/lead/${leadId}/ticket-amount`,
-      {ticketAmount}
+      `/team-assignments/lead/${leadId}/ticketDetails`,
+      {upFrontFee,ticketAmount}
     );
 
     if (!response.data.additional) {
