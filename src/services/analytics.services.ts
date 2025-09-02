@@ -142,6 +142,7 @@ export const fetchTeamsActualAnalytics = async (filters: DateFilters): Promise<L
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
+    console.log("TEAM ACTUAL ANALYTICS",response.data.additional);
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);

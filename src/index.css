@@ -161,3 +161,12 @@ html, body {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
+
+/* Hide scrollbars for LeadTable custom scroll container */
+.max-h-\[70vh\].overflow-y-auto::-webkit-scrollbar {
+  display: none !important;
+}
+.max-h-\[70vh\].overflow-y-auto {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

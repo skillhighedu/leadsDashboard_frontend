@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { uploadLeadsFile, createLead } from "@/services/leads.services";
 import { UploadResultDialog } from "@/components/ui/UploadResultDailog";
-import type { CreateLeadInput } from "@/types/leads";
+import type { CreateLeadInput, UploadLeadsResponse } from "@/types/leads";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/errorHandler";
 import { useAuthStore } from "@/store/AuthStore";
@@ -37,10 +37,7 @@ export function UploadLeadDialog({
   const {user} = useAuthStore()
 
 
-  const [uploadResult, setUploadResult] = useState<{
-    insertedLeadsCount: number;
-    skippedLeadsCount: number;
-  } | null>(null);
+  const [uploadResult, setUploadResult] = useState<UploadLeadsResponse | null>(null);
 
   const [showResultDialog, setShowResultDialog] = useState(false);
 
@@ -149,10 +146,10 @@ export function UploadLeadDialog({
     }
   };
 
-  const closeDialogs = (): void => {
+  const closeDialogs = useCallback((): void => {
     setShowResultDialog(false);
     onOpenChange(false);
-  };
+  }, [onOpenChange]);
 
   return (
     <>
@@ -288,6 +285,7 @@ export function UploadLeadDialog({
           onClose={closeDialogs}
           insertedCount={uploadResult.insertedLeadsCount}
           skippedCount={uploadResult.skippedLeadsCount}
+          skippedLeads={uploadResult.skippedLeads}
         />
       )}
     </>
