@@ -40,7 +40,7 @@ jobs:
             echo "Removing old build..."
             sudo rm -rf /var/www/html/*
             echo "Copying new build..."
-            sudo sudo cp -r dist/* /var/www/html/
+            sudo sudo cp -r /home/ubuntu/crm/leadsDashboard_frontend/dist/* /var/www/html/
             echo "Setting permissions for Nginx..."
             echo "Restarting Nginx..."
             sudo systemctl restart nginx
