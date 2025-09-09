@@ -1,4 +1,4 @@
-name: Deploy Frontend to EC2
+name: Frontend CI/CD
 
 on:
   push:
@@ -6,38 +6,42 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repo
-      uses: actions/checkout@v3
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      # 2. Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-    - name: Install & Build
-      run: |
-        npm ci
-        npm run build
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      # 4. Build frontend
+      - name: Build frontend
+        run: npm run build
 
-    - name: Upload Files to EC2
-      run: |
-        rsync -avz --delete dist/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.TARGET_DIR }}
-
-    - name: Restart Frontend on EC2
-      run: |
-        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          pm2 delete frontend || true
-          pm2 serve ${{ secrets.TARGET_DIR }} 3000 --name "frontend"
-          pm2 save
-        EOF
+      # 5. Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Removing old build..."
+            sudo rm -rf /var/www/html/*
+            echo "Copying new build..."
+            sudo sudo cp -r dist/* /var/www/html/
+            echo "Setting permissions for Nginx..."
+            echo "Restarting Nginx..."
+            sudo systemctl restart nginx
+            echo "Deployment complete."
