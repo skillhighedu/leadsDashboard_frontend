@@ -71,7 +71,7 @@ export default function Login() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border-0 p-8">
         <h1 className="text-xl font-bold text-center text-gray-800 mb-6">
-          Loginsss
+          Loginss
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">

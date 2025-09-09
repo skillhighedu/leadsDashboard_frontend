@@ -29,7 +29,7 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      # 5. Copy dist/ to EC2
+      # 5. Upload dist/ to EC2 (temp folder inside ubuntu home)
       - name: Upload build to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -37,14 +37,21 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "dist/*"
-          target: "/var/www/html/"
+          target: "~/deploy-temp/"
 
-      # 6. Restart Nginx
-      - name: Restart Nginx on EC2
+      # 6. Move into /var/www/html and restart nginx
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "Cleaning old build..."
+            sudo rm -rf /var/www/html/*
+            echo "Deploying new build..."
+            sudo cp -r ~/deploy-temp/* /var/www/html/
+            rm -rf ~/deploy-temp/*
+            echo "Restarting Nginx..."
             sudo systemctl restart nginx
+            echo "✅ Deployment complete!"
