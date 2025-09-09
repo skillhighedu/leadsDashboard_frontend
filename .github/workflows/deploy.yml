@@ -29,19 +29,22 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      # 5. Deploy to EC2
-      - name: Deploy to EC2
+      # 5. Copy dist/ to EC2
+      - name: Upload build to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "dist/*"
+          target: "/var/www/html/"
+
+      # 6. Restart Nginx
+      - name: Restart Nginx on EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "Removing old build..."
-            sudo rm -rf /var/www/html/*
-            echo "Copying new build..."
-            sudo sudo cp -r /home/ubuntu/crm/leadsDashboard_frontend/dist/* /var/www/html/
-            echo "Setting permissions for Nginx..."
-            echo "Restarting Nginx..."
             sudo systemctl restart nginx
-            echo "Deployment complete."
