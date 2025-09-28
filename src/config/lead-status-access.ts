@@ -25,6 +25,7 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "JUNK",
         "NEWLY_GENERATED",
         "FULLY_PAID",
+        "ALL"
         // "PENDING"
     ],
     [Roles.LEAD_GEN_MANAGER]: [
@@ -44,7 +45,8 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "FULLY_PAID"
+        "FULLY_PAID",
+        "ALL"
     ],
     [Roles.MARKETING_HEAD]: [
         "CGFL",
@@ -63,7 +65,8 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "FULLY_PAID"
+        "FULLY_PAID",
+        "ALL"
     ],
     [Roles.EXECUTIVE]: [
         "CGFL",
@@ -82,7 +85,8 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "FULLY_PAID"
+        "FULLY_PAID",
+        "ALL"
     ],
     [Roles.INTERN]: [
         "CGFL",
@@ -101,7 +105,8 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "FULLY_PAID"
+        "FULLY_PAID",
+        "ALL"
     ],
     [Roles.TL_IC]: [
         "CGFL",
@@ -120,7 +125,8 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "GIVEN",
         "JUNK",
         "NEWLY_GENERATED",
-        "FULLY_PAID"
+        "FULLY_PAID",
+        "ALL"
     ],
     [Roles.OPSTEAM]: [
         "PAID",

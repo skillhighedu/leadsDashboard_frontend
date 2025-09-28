@@ -1,4 +1,4 @@
-import { useState, useEffect,  } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
   fetchLeads,
   unAssginLead,
   updateReferredBy,
+  addComment, // ✅ NEW: import addComment service
 } from "@/services/leads.services";
 import {
   fetchTeamMembers,
@@ -33,9 +34,7 @@ import {
 import type { Leads } from "@/types/leads";
 import { useAuthStore } from "@/store/AuthStore";
 import { Roles } from "@/constants/role.constant";
-import {
-  addTicketAmount,
-} from "@/services/leads.services";
+import { addTicketAmount } from "@/services/leads.services";
 import { toast } from "sonner";
 import {
   Popover,
@@ -53,6 +52,11 @@ export default function LeadsPage() {
     { id: number; value: string; originalValue: string }[]
   >([]);
 
+  // ✅ NEW: comment inputs tracked by uuid
+  const [commentInputs, setCommentInputs] = useState<
+    { uuid: string; value: string; originalValue: string }[]
+  >([]);
+
   const [leads, setLeads] = useState<Leads[]>([]);
   const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
   const [page, setPage] = useState(1);
@@ -66,7 +70,8 @@ export default function LeadsPage() {
     if (
       user?.role === Roles.VERTICAL_MANAGER ||
       user?.role === Roles.MARKETING_HEAD ||
-      user?.role === Roles.LEAD_GEN_MANAGER
+      user?.role === Roles.LEAD_GEN_MANAGER ||
+      user?.role === Roles.ADMIN
     )
       return "NEWLY_GENERATED";
     //   return "NEWLY_GENERATED";
@@ -121,6 +126,14 @@ export default function LeadsPage() {
       originalValue: lead.referredBy ?? "",
     }));
     setReferredByInputs(referredData);
+
+    // ✅ NEW: initialize comment inputs per lead (by uuid)
+    const commentData = leads.map((lead) => ({
+      uuid: lead.uuid,
+      value: lead.comment ?? "",
+      originalValue: lead.comment ?? "",
+    }));
+    setCommentInputs(commentData);
   }, [leads]);
 
   const handleReferredByChange = (id: number, value: string) => {
@@ -161,6 +174,37 @@ export default function LeadsPage() {
       //   error?.response?.data?.message || "Failed to update referred by."
       // );
       handleApiError(error);
+    }
+  };
+
+  // ✅ NEW: comment handlers
+  const handleCommentChange = (uuid: string, value: string) => {
+    setCommentInputs((prev) =>
+      prev.map((item) => (item.uuid === uuid ? { ...item, value } : item))
+    );
+  };
+
+  const handleCommentBlur = async (uuid: string) => {
+    const item = commentInputs.find((c) => c.uuid === uuid);
+    if (!item) return;
+
+    // If no change, skip
+    if ((item.value ?? "") === (item.originalValue ?? "")) return;
+
+    try {
+      const res = await addComment(uuid, item.value ?? "");
+      if (res) {
+        toast.success("Comment updated.");
+        // sync original to current value to prevent re-trigger
+        setCommentInputs((prev) =>
+          prev.map((c) =>
+            c.uuid === uuid ? { ...c, originalValue: item.value ?? "" } : c
+          )
+        );
+        await getLeads(page, search, statusFilter);
+      }
+    } catch (err) {
+      handleApiError(err);
     }
   };
 
@@ -240,10 +284,7 @@ export default function LeadsPage() {
     const ticket = ticketAmounts.find((t) => t.id === id);
     const upFrontFee = upFrontFees.find((t) => t.id === id);
 
-
     if (!ticket || !upFrontFee) return;
-    
-
 
     const ticketValue = parseFloat(ticket.value);
     const upFrontValue = parseFloat(upFrontFee.value);
@@ -251,7 +292,11 @@ export default function LeadsPage() {
     if (isNaN(ticketValue) || ticketValue < 0) return;
 
     try {
-      const response = await addTicketAmount(id.toString(), upFrontValue, ticketValue);
+      const response = await addTicketAmount(
+        id.toString(),
+        upFrontValue,
+        ticketValue
+      );
       if (response) {
         await getLeads(page, search, statusFilter);
       }
@@ -259,36 +304,62 @@ export default function LeadsPage() {
       handleApiError(err);
     }
   };
-//   const handleUpFrontBlur = async (id: number) => {
-//     const upFrontFee = upFrontFees.find((t) => t.id === id);
+  //   const handleUpFrontBlur = async (id: number) => {
+  //     const upFrontFee = upFrontFees.find((t) => t.id === id);
 
-//     if (!upFrontFee) return;
+  //     if (!upFrontFee) return;
 
-//     const upFrontFeeValue = parseFloat(upFrontFee.value);
-//     if (isNaN(upFrontFeeValue) || upFrontFeeValue <= 0) return;
+  //     const upFrontFeeValue = parseFloat(upFrontFee.value);
+  //     if (isNaN(upFrontFeeValue) || upFrontFeeValue <= 0) return;
 
-//     try {
-//       const response = await updateUpFrontAmount(
-//         id.toString(),
-//         upFrontFeeValue
-//       );
-//       if (response) {
-//         await getLeads(page, search, statusFilter);
-//       }
-//     } catch (err) {
-//       handleApiError(err);
-//     }
-//   };
+  //     try {
+  //       const response = await updateUpFrontAmount(
+  //         id.toString(),
+  //         upFrontFeeValue
+  //       );
+  //       if (response) {
+  //         await getLeads(page, search, statusFilter);
+  //       }
+  //     } catch (err) {
+  //       handleApiError(err);
+  //     }
+  //   };
+
+  const toTitle = (s: string) =>
+    s
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/(^|\s)\w/g, (m) => m.toUpperCase());
 
   //Handle state change
   const handleStatusChange = async (leadId: number, newStatus: string) => {
     try {
-      const response = await updateLeadState(
+      const prevFilter = statusFilter;
+      const res = await updateLeadState(
         Number(leadId),
         newStatus.toUpperCase()
       );
-      if (response) {
-        await getLeads(page, search, statusFilter);
+      if (res) {
+        toast.success(`Status updated to ${toTitle(newStatus)}.`);
+
+        if (prevFilter !== newStatus) {
+          // Optimistically remove from current list (since it no longer matches filter)
+          setLeads((curr) => curr.filter((l) => l.id !== leadId));
+          // Switch the dropdown/filter to the new status and go to first page
+          setStatusFilter(newStatus);
+          setPage(1);
+
+          // (Optional) clear date filter so you can see the moved lead even if created earlier
+          // setDate(undefined);
+        } else {
+          // If still same filter, just refresh
+          await getLeads(
+            page,
+            search,
+            statusFilter,
+            date ? format(date, "yyyy-MM-dd") : undefined
+          );
+        }
       }
     } catch (error) {
       handleApiError(error);
@@ -341,7 +412,6 @@ export default function LeadsPage() {
     }
   }, [user?.role]);
 
-  
   return (
     <div className="p-3">
       <UploadLeadDialog
@@ -363,128 +433,132 @@ export default function LeadsPage() {
         teamsLoading={teamsLoading}
       />
 
-      <Card >
-        <CardContent >
-        
-            <div className="flex justify-between items-center flex-wrap gap-2 mb-4  py-3">
-              <h2 className="text-xl font-semibold">All Leads</h2>
+      <Card>
+        <CardContent>
+          <div className="flex justify-between items-center flex-wrap gap-2 mb-4  py-3">
+            <h2 className="text-xl font-semibold">All Leads</h2>
 
-              <div className="flex flex-wrap gap-2 ">
-                <Button
-                  onClick={() => setIsUploadDialogOpen(true)}
-                  disabled={
-                    !user?.permissions?.uploadData &&
-                    !user?.permissions?.createData
-                  }
-                >
-                  Upload Leads
-                </Button>
+            <div className="flex flex-wrap gap-2 ">
+              <Button
+                onClick={() => setIsUploadDialogOpen(true)}
+                disabled={
+                  !user?.permissions?.uploadData &&
+                  !user?.permissions?.createData
+                }
+              >
+                Upload Leads
+              </Button>
 
-                <Popover>
-                  <PopoverTrigger asChild>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <CalendarIcon className="w-4 h-4" />
+                    {date ? format(date, "dd MMM yyyy") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-4">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(selected) => selected && setDate(selected)}
+                    captionLayout="dropdown"
+                    showOutsideDays
+                    weekStartsOn={1}
+                  />
+                  <div className="flex gap-2 mt-4">
                     <Button
-                      variant="outline"
-                      className="flex items-center gap-2"
+                      variant="secondary"
+                      className="w-1/2"
+                      onClick={() => setDate(new Date())}
                     >
-                      <CalendarIcon className="w-4 h-4" />
-                      {date ? format(date, "dd MMM yyyy") : "Pick a date"}
+                      Today
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-4">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(selected) => selected && setDate(selected)}
-                      captionLayout="dropdown"
-                      showOutsideDays
-                      weekStartsOn={1}
-                    />
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        variant="secondary"
-                        className="w-1/2"
-                        onClick={() => setDate(new Date())}
-                      >
-                        Today
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-1/2"
-                        onClick={() => setDate(subDays(new Date(), 1))}
-                      >
-                        Yesterday
-                      </Button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                    <Button
+                      variant="ghost"
+                      className="w-1/2"
+                      onClick={() => setDate(subDays(new Date(), 1))}
+                    >
+                      Yesterday
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
-                <Button
-                  variant="outline"
-                  disabled={!selectedLeads.length}
-                  onClick={() => setSelectedLeads([])}
-                >
-                  Clear Selection
-                </Button>
-                <Button
-                  disabled={
-                    !selectedLeads.length ||
-                    teamsLoading ||
-                    !user?.permissions?.assignData
-                  }
-                  onClick={() => setIsAssignDialogOpen(true)}
-                >
-                  Assign to{" "}
-                  {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
-                  {selectedLeads.length})
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                disabled={!selectedLeads.length}
+                onClick={() => setSelectedLeads([])}
+              >
+                Clear Selection
+              </Button>
+              <Button
+                disabled={
+                  !selectedLeads.length ||
+                  teamsLoading ||
+                  !user?.permissions?.assignData
+                }
+                onClick={() => setIsAssignDialogOpen(true)}
+              >
+                Assign to{" "}
+                {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
+                {selectedLeads.length})
+              </Button>
             </div>
+          </div>
 
-            {/* Note about lead assignment requirements */}
-            {(user?.role === Roles.LEAD_MANAGER || 
-              user?.role === Roles.EXECUTIVE || 
-              user?.role === Roles.INTERN || 
-              user?.role === Roles.TL_IC) && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <div className="text-blue-600 mt-0.5">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="text-sm text-blue-800">
-                    <strong>Important Note:</strong> Leads must be assigned to a team member before updating upfront fees and ticket amounts. 
-                    Changes to these fields will only reflect in analytics after the lead has been properly assigned.
-                  </div>
+          {/* Note about lead assignment requirements */}
+          {(user?.role === Roles.LEAD_MANAGER ||
+            user?.role === Roles.EXECUTIVE ||
+            user?.role === Roles.INTERN ||
+            user?.role === Roles.TL_IC) && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-2">
+                <div className="text-blue-600 mt-0.5">
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="text-sm text-blue-800">
+                  <strong>Important Note:</strong> Leads must be assigned to a
+                  team member before updating upfront fees and ticket amounts.
+                  Changes to these fields will only reflect in analytics after
+                  the lead has been properly assigned.
                 </div>
               </div>
-            )}
-            <div className="flex flex-col sm:flex-row gap-4 mb-4">
-              <Input
-                placeholder="Search leads..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="max-w-md"
-              />
-
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[220px]">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent className="min-w-[220px] w-fit px-2 py-1">
-                  {availableStatuses.map((s) => (
-                    <SelectItem key={s} value={s} className="text-sm px-3 py-2">
-                      {s
-                        .replace(/_/g, " ")
-                        .toLowerCase()
-                        .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
-          
-          
+          )}
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+            <Input
+              placeholder="Search leads..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-md"
+            />
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent className="min-w-[220px] w-fit px-2 py-1">
+                {availableStatuses.map((s) => (
+                  <SelectItem key={s} value={s} className="text-sm px-3 py-2">
+                    {s
+                      .replace(/_/g, " ")
+                      .toLowerCase()
+                      .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <LeadTable
             leads={leads}
@@ -508,6 +582,10 @@ export default function LeadsPage() {
             referredByInputs={referredByInputs}
             handleReferredByBlur={handleReferredByBlur}
             handleReferredByChange={handleReferredByChange}
+            // ✅ NEW props
+            commentInputs={commentInputs}
+            handleCommentChange={handleCommentChange}
+            handleCommentBlur={handleCommentBlur}
           />
 
           <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">

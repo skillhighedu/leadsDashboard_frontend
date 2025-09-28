@@ -18,7 +18,8 @@ export const LeadStatuses = [
   "GIVEN",
   "JUNK",
   "NEWLY_GENERATED",
-  "FULLY_PAID"
+  "FULLY_PAID",
+  "ALL"
 //   "PENDING"
 
 ] as const;

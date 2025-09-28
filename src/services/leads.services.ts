@@ -213,3 +213,25 @@ export const updateReferredBy = async (
     throw handleApiError(error);
   }
 };
+
+
+export const addComment = async (
+  uuid: string,
+  comment:string,
+): Promise<LeadsResponse> => {
+  try {
+   
+    const response = await apiClient.put<ApiResponse<LeadsResponse>>(
+      `/leads/comment/${uuid}`,
+      {comment}
+    );
+
+    if (!response.data.additional) {
+      throw new Error("No leads data found in the response.");
+    }
+
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
