@@ -97,6 +97,7 @@ function App() {
                 Roles.TL_IC,
                 Roles.HR,
                 Roles.OPSTEAM,
+                Roles.ADMIN
               ]}
             />
           }

@@ -36,6 +36,8 @@ export interface Leads {
     colorCode: string;
   }
   assignedAt:string
+
+  comment?: string
 }
 
 export interface LeadsResponse {

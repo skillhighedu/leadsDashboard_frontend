@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/AuthStore";
 import { Input } from "./ui/input";
 import { LeadStatuses } from "@/constants/status.constant";
 import { Roles } from "@/constants/role.constant";
+import { Textarea } from "@/components/ui/textarea"; // ✅ NEW: textarea for comments
 
 import {
   Dialog,
@@ -50,10 +51,8 @@ interface LeadTableProps {
     React.SetStateAction<{ id: number; value: string }[]>
   >;
 
-  
-
   handleTicketBlur: (id: number) => void;
-//   handleUpFrontBlur: (id: number) => void;
+  //   handleUpFrontBlur: (id: number) => void;
   handleTicketChange: (id: number, value: string) => void;
   handleUpFrontChange: (id: number, value: string) => void;
   onSelectLead: (id: number) => void;
@@ -64,10 +63,15 @@ interface LeadTableProps {
   handleUnAssignLead: (uuid: string, name: string) => void;
 
   canDelete?: boolean;
-  referredByInputs: { id: number; value: string }[];
 
+  referredByInputs: { id: number; value: string }[];
   handleReferredByChange: (id: number, value: string) => void;
   handleReferredByBlur: (id: number) => void;
+
+  // ✅ NEW: comment props (uuid-based)
+  commentInputs: { uuid: string; value: string }[];
+  handleCommentChange: (uuid: string, value: string) => void;
+  handleCommentBlur: (uuid: string) => void;
 }
 
 export function LeadTable({
@@ -80,7 +84,7 @@ export function LeadTable({
   upFrontFees,
   setUpFrontFee,
   handleTicketBlur,
-//   handleUpFrontBlur,
+  // handleUpFrontBlur,
   handleTicketChange,
   handleUpFrontChange,
   onSelectLead,
@@ -91,6 +95,11 @@ export function LeadTable({
   referredByInputs,
   handleReferredByChange,
   handleReferredByBlur,
+
+  // ✅ NEW
+  commentInputs,
+  handleCommentChange,
+  handleCommentBlur,
 }: LeadTableProps) {
   const { user } = useAuthStore();
   const safeLeads = Array.isArray(leads) ? leads : [];
@@ -156,6 +165,7 @@ export function LeadTable({
     <TableHead className="sticky top-0 z-40 ">Batch</TableHead>
     <TableHead className="sticky top-0 z-40 ">Had Referred</TableHead>
     <TableHead className="sticky top-0 z-40 ">Referred By</TableHead>
+    {/* ✅ NEW column header */}
     <TableHead className="sticky top-0 z-40 ">Preferred Language</TableHead>
     <TableHead className="sticky top-0 z-40 ">Owner</TableHead>
     <TableHead className="sticky top-0 z-40 ">Assigned To Team</TableHead>
@@ -165,6 +175,7 @@ export function LeadTable({
     <TableHead className="sticky top-0 z-40 ">Remaining Fee</TableHead>
     <TableHead className="sticky top-0 z-40 ">Ticket Amount</TableHead>
     <TableHead className="sticky top-0 z-40 ">Status</TableHead>
+    <TableHead className="sticky top-0 z-40 ">Comment</TableHead>
     <TableHead className="sticky top-0 z-40 ">Un-Assign</TableHead>
     <TableHead className="sticky top-0 z-40 ">Delete</TableHead>
   </TableRow>
@@ -225,6 +236,12 @@ export function LeadTable({
                 user?.role === Roles.EXECUTIVE
                   ? lead.handler?.name ?? "handler"
                   : lead.teamAssigned?.teamName ?? "team";
+
+              // ✅ NEW: comment value lookup
+              const commentValue =
+                commentInputs.find((item) => item.uuid === lead.uuid)?.value ??
+                "";
+
               return (
                 <TableRow
                   key={lead.id}
@@ -273,6 +290,8 @@ export function LeadTable({
                       onBlur={() => handleReferredByBlur(lead.id)}
                     />
                   </TableCell>
+
+                  
 
                   <TableCell>{lead.preferredLanguage}</TableCell>
 
@@ -352,6 +371,20 @@ export function LeadTable({
                       </SelectContent>
                     </Select>
                   </TableCell>
+
+                  {/* ✅ NEW: Comment textarea */}
+                  <TableCell>
+                    <Textarea
+                      className="w-64"
+                      placeholder="Add a comment"
+                      value={commentValue}
+                      onChange={(e) =>
+                        handleCommentChange(lead.uuid, e.target.value)
+                      }
+                      onBlur={() => handleCommentBlur(lead.uuid)}
+                    />
+                  </TableCell>
+
 
                   <TableCell>
                     <Dialog>
