@@ -147,7 +147,7 @@ export function LeadTable({
         <TableHeader className="sticky top-0 z-30 ">
   <TableRow className="sticky top-0 z-40  border-b">
     <TableHead className="sticky left-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {user?.role !== Roles.INTERN && (
+      {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
         <Checkbox
           checked={allSelected}
           onCheckedChange={handleSelectAll}
@@ -219,6 +219,7 @@ export function LeadTable({
 
               const isInternOrTL =
                 user?.role === Roles.INTERN ||
+                user?.role === Roles.FRESHER ||
                 user?.role === Roles.TL_IC ||
                 user?.role === Roles.OPSTEAM;
               const isExecutive = user?.role === Roles.EXECUTIVE;
@@ -253,7 +254,7 @@ export function LeadTable({
                         : undefined,
                   }}
                 >
-                  {user?.role !== Roles.INTERN ? (
+                  {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER ? (
                     <TableCell className="sticky left-0 z-20 bg-background">
                       <Checkbox
                         checked={selectedLeads.includes(lead.id)}

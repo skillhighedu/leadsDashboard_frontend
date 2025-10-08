@@ -8,6 +8,7 @@ export const Roles = {
   EXECUTIVE: "bdm",
   INTERN: "experiencedIntern",
   TL_IC: "tl-ic",
+  FRESHER: "intern",
 
   HR: "hr",
   OPSTEAM: "OpsTeam",

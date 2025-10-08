@@ -108,6 +108,26 @@ export const LeadStatusAccessMap: Record<Roles, LeadStatus[]> = {
         "FULLY_PAID",
         "ALL"
     ],
+    [Roles.FRESHER]: [
+        "CGFL",
+        "DNP", // Do Not Pick
+        "FOLLOW_UP",
+        "CBL", // Callback Later
+        "NOT_INTERESTED",
+        "PAID",
+        "BUSY",
+        "SWITCH_OFF",
+        "OUT_OF_SERVICE",
+        "NOT_CONNECTED",
+        "SENT_DETAILS",
+        "TIME",
+        "HUNG_UP",
+        "GIVEN",
+        "JUNK",
+        "NEWLY_GENERATED",
+        "FULLY_PAID",
+        "ALL"
+    ],
     [Roles.TL_IC]: [
         "CGFL",
         "DNP", // Do Not Pick

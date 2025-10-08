@@ -174,6 +174,49 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
+        {user?.role?.toLowerCase() === Roles.FRESHER.toLowerCase()  && (
+          <SidebarGroup>
+            <Link to="/" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Home
+                </Button>
+              </Link>
+              <Link to="/team-analytics" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+                >
+                  <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
+                  Team Analytics
+             
+                </Button>
+              </Link>
+              
+  
+            <Link to="/allLeads" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Assigned Leads
+              </Button>
+            </Link>
+            <Link to="/leave-application" className="block">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
+              >
+                <UsersIcon className="mr-2 h-5 w-5" />
+                Leave Application
+              </Button>
+            </Link>
+          </SidebarGroup>
+        )}
         { user?.role?.toLowerCase() === Roles.TL_IC.toLowerCase() && (
           <SidebarGroup>
             <Link to="/" className="block">
