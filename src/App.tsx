@@ -97,7 +97,8 @@ function App() {
                 Roles.TL_IC,
                 Roles.HR,
                 Roles.OPSTEAM,
-                Roles.ADMIN
+                Roles.ADMIN,
+                Roles.FRESHER
               ]}
             />
           }
@@ -199,7 +200,7 @@ function App() {
         <Route
           element={
             <ProtectedRoute
-              requiredRole={[Roles.EXECUTIVE, Roles.INTERN, Roles.TL_IC]}
+              requiredRole={[Roles.EXECUTIVE, Roles.INTERN, Roles.FRESHER, Roles.TL_IC]}
             />
           }
         >
@@ -235,6 +236,7 @@ function App() {
                 Roles.LEAD_GEN_MANAGER,
                 Roles.MARKETING_HEAD,
                 Roles.INTERN,
+                Roles.FRESHER,
                 Roles.TL_IC,
                 Roles.HR,
                 Roles.OPSTEAM, Roles.ADMIN]}

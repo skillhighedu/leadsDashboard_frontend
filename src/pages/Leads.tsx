@@ -73,7 +73,10 @@ export default function LeadsPage() {
       user?.role === Roles.LEAD_GEN_MANAGER ||
       user?.role === Roles.ADMIN
     )
-      return "NEWLY_GENERATED";
+      return "NEWLY_GENERATED"
+    else if  (user?.role === Roles.FRESHER || user?.role === Roles.EXECUTIVE || user?.role === Roles.INTERN || user?.role === Roles.TL_IC  ) {
+        return "ALL"
+    }
     //   return "NEWLY_GENERATED";
     return user?.role === Roles.OPSTEAM ? "PAID" : "CGFL";
   });
@@ -510,6 +513,7 @@ export default function LeadsPage() {
           {(user?.role === Roles.LEAD_MANAGER ||
             user?.role === Roles.EXECUTIVE ||
             user?.role === Roles.INTERN ||
+            user?.role === Roles.FRESHER ||
             user?.role === Roles.TL_IC) && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-start gap-2">
@@ -548,7 +552,7 @@ export default function LeadsPage() {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="min-w-[220px] w-fit px-2 py-1">
-                {availableStatuses.map((s) => (
+                {availableStatuses && availableStatuses.map((s) => (
                   <SelectItem key={s} value={s} className="text-sm px-3 py-2">
                     {s
                       .replace(/_/g, " ")
