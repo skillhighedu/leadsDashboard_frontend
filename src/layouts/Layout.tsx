@@ -13,7 +13,7 @@ export default function Layout({ children }: LayoutProps) {
     
     const [open, setOpen] = useState(false);
 
-    useDailyPopup(()=> setOpen(true), 15,24, 0) 
+    useDailyPopup(()=> setOpen(true), 19,55, 0) 
 
 
   return (
