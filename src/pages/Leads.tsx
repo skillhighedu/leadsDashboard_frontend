@@ -18,7 +18,8 @@ import {
   fetchLeads,
   unAssginLead,
   updateReferredBy,
-  addComment, // ✅ NEW: import addComment service
+  addComment,
+  selfGenStatus, // ✅ NEW: import addComment service
 } from "@/services/leads.services";
 import {
   fetchTeamMembers,
@@ -73,9 +74,14 @@ export default function LeadsPage() {
       user?.role === Roles.LEAD_GEN_MANAGER ||
       user?.role === Roles.ADMIN
     )
-      return "NEWLY_GENERATED"
-    else if  (user?.role === Roles.FRESHER || user?.role === Roles.EXECUTIVE || user?.role === Roles.INTERN || user?.role === Roles.TL_IC  ) {
-        return "ALL"
+      return "NEWLY_GENERATED";
+    else if (
+      user?.role === Roles.FRESHER ||
+      user?.role === Roles.EXECUTIVE ||
+      user?.role === Roles.INTERN ||
+      user?.role === Roles.TL_IC
+    ) {
+      return "ALL";
     }
     //   return "NEWLY_GENERATED";
     return user?.role === Roles.OPSTEAM ? "PAID" : "CGFL";
@@ -389,6 +395,26 @@ export default function LeadsPage() {
     }
   };
 
+  const hanadleIsSelfGen = async (uuid: string, newStatus: boolean) => {
+    const prevLeads = leads;
+
+    setLeads((curr) =>
+      curr.map((l) => (l.uuid === uuid ? { ...l, isSelfGen: newStatus } : l))
+    );
+    try {
+        await selfGenStatus(uuid, newStatus);
+        await getLeads(
+            page,
+            search,
+            statusFilter,
+            date ? format(date, "yyyy-MM-dd") : undefined
+        )
+    } catch (error) {
+        setLeads(prevLeads);
+      handleApiError(error);
+    }
+  };
+
   const loadTeamData = async (role: string) => {
     try {
       if (
@@ -552,14 +578,15 @@ export default function LeadsPage() {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="min-w-[220px] w-fit px-2 py-1">
-                {availableStatuses && availableStatuses.map((s) => (
-                  <SelectItem key={s} value={s} className="text-sm px-3 py-2">
-                    {s
-                      .replace(/_/g, " ")
-                      .toLowerCase()
-                      .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
-                  </SelectItem>
-                ))}
+                {availableStatuses &&
+                  availableStatuses.map((s) => (
+                    <SelectItem key={s} value={s} className="text-sm px-3 py-2">
+                      {s
+                        .replace(/_/g, " ")
+                        .toLowerCase()
+                        .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -590,6 +617,7 @@ export default function LeadsPage() {
             commentInputs={commentInputs}
             handleCommentChange={handleCommentChange}
             handleCommentBlur={handleCommentBlur}
+            onSelfGenChange={hanadleIsSelfGen}
           />
 
           <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">

@@ -28,6 +28,7 @@ const statusColors: Record<string, string> = {
   PAID: "bg-green-100 text-green-800",
   CBL: "bg-cyan-100 text-cyan-800",
   NOT_INTERESTED: "bg-gray-100 text-gray-600",
+  SELF_GEN: "bg-yellow-400 text-yellow-900",
 };
 
 // Skeleton loader

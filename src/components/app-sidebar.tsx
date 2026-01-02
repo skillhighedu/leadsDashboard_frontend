@@ -148,7 +148,7 @@ export function AppSidebar() {
                   className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
                 >
                   <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
-                  Team Analytics
+                  Analytics
              
                 </Button>
               </Link>
@@ -191,8 +191,7 @@ export function AppSidebar() {
                   className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"
                 >
                   <ChartNoAxesColumnIncreasingIcon className="mr-2 h-5 w-5" />
-                  Team Analytics
-             
+                  Analytics
                 </Button>
               </Link>
               
@@ -300,7 +299,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-        {user?.role === Roles.VERTICAL_MANAGER  && (
+        {user?.role === Roles.VERTICAL_MANAGER   && (
           <SidebarGroup>
              <Link to="/" className="block">
                 <Button

@@ -22,6 +22,7 @@ import { handleApiError } from "@/utils/errorHandler";
 // --- status colors ---
 const statusColors: Record<string, string> = {
   CGFL: "bg-yellow-200 text-yellow-900",
+  SELF_GEN: "bg-yellow-400 text-yellow-900",
   IN_PROGRESS: "bg-orange-200 text-orange-900",
   COMPLETED: "bg-green-200 text-green-900",
   FULLY_PAID: "bg-green-300 text-green-900",

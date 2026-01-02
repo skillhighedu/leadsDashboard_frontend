@@ -20,7 +20,7 @@ import type { Leads } from "@/types/leads";
 import { useAuthStore } from "@/store/AuthStore";
 // import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { LeadStatuses } from "@/constants/status.constant";
+import {  LeadStatuses } from "@/constants/status.constant";
 import { Roles } from "@/constants/role.constant";
 import { Textarea } from "@/components/ui/textarea"; // ✅ NEW: textarea for comments
 
@@ -58,6 +58,7 @@ interface LeadTableProps {
   onSelectLead: (id: number) => void;
   onSelectAll: () => void;
   onStatusChange: (leadId: number, newStatus: string) => void;
+  onSelfGenChange: (uuid: string, newStatus: boolean) => void;
   handleDeleteLead: (uuid: string, name: string) => void;
 
   handleUnAssignLead: (uuid: string, name: string) => void;
@@ -100,6 +101,7 @@ export function LeadTable({
   commentInputs,
   handleCommentChange,
   handleCommentBlur,
+  onSelfGenChange
 }: LeadTableProps) {
   const { user } = useAuthStore();
   const safeLeads = Array.isArray(leads) ? leads : [];
@@ -145,42 +147,54 @@ export function LeadTable({
       <Table className="z-0 w-full border-separate border-spacing-0">
         {/* Sticky header: each TH is sticky with strong z-index and solid bg */}
         <TableHeader className="sticky top-0 z-30 ">
-  <TableRow className="sticky top-0 z-40  border-b">
-    <TableHead className="sticky left-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
-        <Checkbox
-          checked={allSelected}
-          onCheckedChange={handleSelectAll}
-        />
-      )}
-    </TableHead>
-    <TableHead className="sticky top-0 z-40 ">Name</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Email</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Phone</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Whatsapp Number</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Year</TableHead>
-    <TableHead className="sticky top-0 z-40 ">College</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Branch</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Interested Domain</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Batch</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Had Referred</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Referred By</TableHead>
-    {/* ✅ NEW column header */}
-    <TableHead className="sticky top-0 z-40 ">Preferred Language</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Owner</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Assigned To Team</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Assigned At</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Assigned To Member</TableHead>
-    <TableHead className="sticky top-0 z-40 ">UpFront Fee</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Remaining Fee</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Ticket Amount</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Status</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Comment</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Un-Assign</TableHead>
-    <TableHead className="sticky top-0 z-40 ">Delete</TableHead>
-  </TableRow>
-</TableHeader>
-
+          <TableRow className="sticky top-0 z-40  border-b">
+            <TableHead className="sticky left-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={handleSelectAll}
+                />
+              )}
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">Name</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Email</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Phone</TableHead>
+            <TableHead className="sticky top-0 z-40 ">
+              Whatsapp Number
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">Year</TableHead>
+            <TableHead className="sticky top-0 z-40 ">College</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Branch</TableHead>
+            <TableHead className="sticky top-0 z-40 ">
+              Interested Domain
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">Batch</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Had Referred</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Referred By</TableHead>
+            {/* ✅ NEW column header */}
+            <TableHead className="sticky top-0 z-40 ">
+              Preferred Language
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">Owner</TableHead>
+            <TableHead className="sticky top-0 z-40 ">
+              Is SelfGen Lead
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">
+              Assigned To Team
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">Assigned At</TableHead>
+            <TableHead className="sticky top-0 z-40 ">
+              Assigned To Member
+            </TableHead>
+            <TableHead className="sticky top-0 z-40 ">UpFront Fee</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Remaining Fee</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Ticket Amount</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Status</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Comment</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Un-Assign</TableHead>
+            <TableHead className="sticky top-0 z-40 ">Delete</TableHead>
+          </TableRow>
+        </TableHeader>
 
         <TableBody className=" max-h-[65vh] overflow-y-auto">
           {loading ? (
@@ -254,7 +268,8 @@ export function LeadTable({
                         : undefined,
                   }}
                 >
-                  {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER ? (
+                  {user?.role !== Roles.INTERN &&
+                  user?.role !== Roles.FRESHER ? (
                     <TableCell className="sticky left-0 z-20 bg-background">
                       <Checkbox
                         checked={selectedLeads.includes(lead.id)}
@@ -292,11 +307,22 @@ export function LeadTable({
                     />
                   </TableCell>
 
-                  
-
                   <TableCell>{lead.preferredLanguage}</TableCell>
 
                   <TableCell>{lead?.owner?.name}</TableCell>
+                  {/* <TableCell>{!lead?.isSelfGen ? "false" : "true"}</TableCell> */}
+                  <TableCell>
+                    <select
+                        value={String(!!lead.isSelfGen)}
+                        onChange={(e) => onSelfGenChange(lead.uuid, e.target.value === "true")}
+                        className="border rounded px-2 py-1"
+                    >
+                        <option value="true">true</option>
+                        <option value="false">false</option>
+                        
+                    </select>
+                  </TableCell>
+                  
                   <TableCell>
                     {lead?.teamAssigned?.teamName?.trim() || ""}
                   </TableCell>
@@ -317,7 +343,7 @@ export function LeadTable({
                       onChange={(e) =>
                         handleUpFrontChange(lead.id, e.target.value)
                       }
-                    //   onBlur={() => handleUpFrontBlur(lead.id)}
+                      //   onBlur={() => handleUpFrontBlur(lead.id)}
                       disabled={
                         user?.role === Roles.VERTICAL_MANAGER ||
                         user?.role === Roles.MARKETING_HEAD ||
@@ -335,7 +361,7 @@ export function LeadTable({
                         handleTicketChange(lead.id, e.target.value)
                       }
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === "Enter") {
                           handleTicketBlur(lead.id);
                           e.currentTarget.blur();
                         }
@@ -385,7 +411,6 @@ export function LeadTable({
                       onBlur={() => handleCommentBlur(lead.uuid)}
                     />
                   </TableCell>
-
 
                   <TableCell>
                     <Dialog>

@@ -34,6 +34,8 @@ export const fetchLeads = async (
       `/leads/all-leads?${query.toString()}`
     );
 
+    console.log("LEADS:", response);
+
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
@@ -165,6 +167,23 @@ export const unAssginLead = async (uuid:string)=> {
   try {
     const response = await apiClient.put<ApiResponse<LeadsResponse>>(
       `/leads/unAssign/${uuid}`
+    );
+    if(response.data.success)
+    {
+      toast.success(response.data.message)
+      
+    }
+    
+    return response.data.additional ?? []
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const selfGenStatus = async (uuid:string, newStatus: boolean)=> {
+  try {
+    const response = await apiClient.put<ApiResponse<null>>(
+      `/leads/isSelfGen/${uuid}`, {isSelfGen: newStatus}
     );
     if(response.data.success)
     {

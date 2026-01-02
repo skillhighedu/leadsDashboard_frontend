@@ -21,11 +21,12 @@ import LeaveDashboard from "@/pages/LeaveDashboard";
 import useNetworkStatus from "@/hooks/useNetworkStatus";
 import { toast } from "sonner";
 import Analytics from "@/pages/Analytics";
-import TeamAnalytics from "@/pages/TeamAnalytics";
+// import TeamAnalytics from "@/pages/analytics/TeamAnalytics";
 
 import Profile from "./pages/Profile";
 
 import OpsAnalytics from "./pages/OpsAnalytics";
+import AnalyticsHub from "./pages/analytics/AnalyticsHub";
 
 
 function App() {
@@ -208,7 +209,7 @@ function App() {
             path="/team-analytics"
             element={
               <Layout>
-                <TeamAnalytics />
+                <AnalyticsHub />
               </Layout>
             }
           />
