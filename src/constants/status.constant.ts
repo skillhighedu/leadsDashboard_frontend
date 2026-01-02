@@ -19,9 +19,12 @@ export const LeadStatuses = [
   "JUNK",
   "NEWLY_GENERATED",
   "FULLY_PAID",
-  "ALL"
+  "ALL",
+  "SELF_GEN"
 //   "PENDING"
 
 ] as const;
 
+
 export type LeadStatus = typeof LeadStatuses[number];
+
