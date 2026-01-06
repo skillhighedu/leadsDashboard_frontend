@@ -10,8 +10,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { handleApiError } from "@/utils/errorHandler";
 
-import { fetchTeamsAnalytics } from "@/services/analytics.services";
+import {
+  fetchTeamsAnalytics,
+} from "@/services/analytics.services";
 import type { TeamLeadAnalyticsResponse } from "@/types/analytics";
+import { EmployeeAnalyticsCard } from "./EmployeeAnalyticsCard";
 
 const statusColors: Record<string, string> = {
   FOLLOW_UP: "bg-purple-100 text-purple-800",
@@ -24,6 +27,8 @@ const statusColors: Record<string, string> = {
   UNKNOWN: "bg-gray-100 text-gray-700",
 };
 
+const prettyStatus = (s: string) => String(s || "UNKNOWN").replace(/_/g, " ");
+
 export default function TeamAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -31,7 +36,9 @@ export default function TeamAnalyticsPage() {
 
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
-  const [selectedRange, setSelectedRange] = useState<"today" | "yesterday" | "custom" | "month">("month");
+  const [selectedRange, setSelectedRange] = useState<
+    "today" | "yesterday" | "custom" | "month"
+  >("month");
 
   const [data, setData] = useState<TeamLeadAnalyticsResponse | null>(null);
 
@@ -40,9 +47,16 @@ export default function TeamAnalyticsPage() {
   const loadData = async () => {
     setLoading(true);
     setError(null);
+
     try {
+      // If from/to not set -> service sends no params -> backend returns current month
       const filters = fromDate && toDate ? { fromDate, toDate } : undefined;
+
       const res = await fetchTeamsAnalytics(filters);
+
+      // keeping this call since you had it already (side-effect / cache / actual totals)
+      // if not needed, you can remove it
+
       setData(res);
     } catch (err) {
       handleApiError(err);
@@ -70,7 +84,7 @@ export default function TeamAnalyticsPage() {
     setToDate(undefined);
   };
 
-  // ✅ same style as SelfAnalytics: read from API response range
+  // same style as SelfAnalytics: read from API response range
   const renderDateInfo = () => {
     if (!data?.range) return null;
     return (
@@ -82,17 +96,22 @@ export default function TeamAnalyticsPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Header (same as SelfAnalyticsPage style) */}
       <div className="flex flex-wrap items-center justify-between gap-4 sticky top-0 bg-muted/40 py-4 z-10 backdrop-blur-sm">
         <div>
           <h1 className="text-2xl font-bold">Team Analytics</h1>
-          <p className="text-sm text-muted-foreground">Team performance summary</p>
+          <p className="text-sm text-muted-foreground">
+            Team performance summary
+          </p>
         </div>
 
         <div className="flex gap-2 items-center flex-wrap">
           <Button
             size="sm"
             variant="outline"
-            className={selectedRange === "month" ? "bg-red-400 text-white" : "bg-white"}
+            className={
+              selectedRange === "month" ? "bg-red-400 text-white" : "bg-white"
+            }
             onClick={handleMonthDefault}
           >
             This Month
@@ -101,7 +120,9 @@ export default function TeamAnalyticsPage() {
           <Button
             size="sm"
             variant="outline"
-            className={selectedRange === "today" ? "bg-red-400 text-white" : "bg-white"}
+            className={
+              selectedRange === "today" ? "bg-red-400 text-white" : "bg-white"
+            }
             onClick={() => handleDateQuickPick("today")}
           >
             Today
@@ -110,7 +131,11 @@ export default function TeamAnalyticsPage() {
           <Button
             size="sm"
             variant="outline"
-            className={selectedRange === "yesterday" ? "bg-red-400 text-white" : "bg-white"}
+            className={
+              selectedRange === "yesterday"
+                ? "bg-red-400 text-white"
+                : "bg-white"
+            }
             onClick={() => handleDateQuickPick("yesterday")}
           >
             Yesterday
@@ -154,6 +179,7 @@ export default function TeamAnalyticsPage() {
         </div>
       </div>
 
+      {/* Body */}
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -162,34 +188,56 @@ export default function TeamAnalyticsPage() {
         <p className="text-muted-foreground">No data</p>
       ) : (
         <div className="space-y-6">
-          {/* ✅ Team Summary + SelfGen */}
+          {/* Team Summary (same “Summary card” feel as SelfAnalyticsPage) */}
           <Card className="bg-muted/50 border border-muted-foreground/10 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                {data.teamName} <Badge variant="outline">Lead: {data.teamLead?.name}</Badge>
+                {data.teamName}
+                <Badge variant="outline">Lead: {data.teamLead?.name}</Badge>
               </CardTitle>
               {renderDateInfo()}
             </CardHeader>
 
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm">
                 <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
-                  <span className="text-muted-foreground">Total Leads</span>
-                  <span className="font-semibold">{data.teamTotals.totalLeads}</span>
+                  <span className="text-muted-foreground">Generated</span>
+                  <span className="font-semibold">
+                    ₹ {data.teamTotals.totalGeneratedAmount}
+                  </span>
                 </div>
+
+                <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
+                  <span className="text-muted-foreground">Projected</span>
+                  <span className="font-semibold">
+                    ₹ {data.teamTotals.totalProjectedAmount}
+                  </span>
+                </div>
+
                 <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
                   <span className="text-muted-foreground">SelfGen Leads</span>
-                  <span className="font-semibold">{data.teamTotals.selfGenLeads}</span>
+                  <span className="font-semibold">
+                    {data.teamTotals.selfGenTrueCount}
+                  </span>
+                </div>
+
+                <div className="flex justify-between bg-white rounded-md p-3 shadow-sm">
+                  <span className="text-muted-foreground">Total Leads</span>
+                  <span className="font-semibold">
+                    {data.teamTotals.totalLeads}
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* ✅ Team status (count + selfgenCount) */}
+          {/* Team Status Breakdown (like SelfAnalytics Status Breakdown, but for teamStatuses) */}
           <Card className="border shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">Team Status Breakdown</CardTitle>
-              <p className="text-sm text-muted-foreground">Count + SelfGenCount</p>
+              <p className="text-sm text-muted-foreground">
+                Count + SelfGenCount + Amounts
+              </p>
             </CardHeader>
 
             <CardContent className="space-y-3">
@@ -203,13 +251,23 @@ export default function TeamAnalyticsPage() {
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">{s.status.replace(/_/g, " ")}</span>
+                      <span className="font-medium">{prettyStatus(s.status)}</span>
                       <Badge variant="outline">Count: {s.count}</Badge>
                     </div>
 
-                    <div className="text-xs bg-white rounded p-2 flex justify-between">
-                      <span className="text-muted-foreground">SelfGen</span>
-                      <span className="font-semibold">{s.selfGenCount}</span>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="bg-white rounded p-2">
+                        <div className="text-muted-foreground">SelfGen</div>
+                        <div className="font-semibold">{s.selfGenCount}</div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-muted-foreground">Generated</div>
+                        <div className="font-semibold">₹ {s.generatedAmount}</div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-muted-foreground">Projected</div>
+                        <div className="font-semibold">₹ {s.projectedAmount}</div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -217,48 +275,27 @@ export default function TeamAnalyticsPage() {
             </CardContent>
           </Card>
 
-          {/* ✅ Employee cards (show selfgen) */}
+          {/* Employee Breakdown */}
+          
           <Card className="border shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">Employee Breakdown</CardTitle>
-              <p className="text-sm text-muted-foreground">Status counts + SelfGen totals</p>
-            </CardHeader>
+  <CardHeader>
+    <CardTitle className="text-lg">Employee Breakdown</CardTitle>
+    <p className="text-sm text-muted-foreground">
+      Quick summary per member. Expand for full status + selfgen breakdown.
+    </p>
+  </CardHeader>
 
-            <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {data.employees.map((emp) => (
-                <Card key={emp.id} className="bg-muted/30 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="font-medium text-sm">{emp.name}</div>
-                    <Badge variant="outline">SelfGen: {emp.selfGenTrueCount}</Badge>
-                  </div>
-
-                  <ul className="space-y-1 text-xs text-muted-foreground">
-                    {emp.statuses.map((s) => (
-                      <li key={s.status} className="flex justify-between">
-                        <span>{s.status.replace(/_/g, " ")}</span>
-                        <span>{s.count}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* optional: SelfGen by status */}
-                  {Object.keys(emp.selfGenByStatus).length > 0 && (
-                    <div className="mt-3 text-xs">
-                      <div className="font-medium mb-1">SelfGen by Status</div>
-                      <ul className="space-y-1 text-muted-foreground">
-                        {Object.entries(emp.selfGenByStatus).map(([st, cnt]) => (
-                          <li key={st} className="flex justify-between">
-                            <span>{st.replace(/_/g, " ")}</span>
-                            <span>{cnt}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </CardContent>
-          </Card>
+  <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {data.employees.map((emp) => (
+      <EmployeeAnalyticsCard
+        key={emp.id}
+        emp={emp}
+        statusColors={statusColors}
+        prettyStatus={prettyStatus}
+      />
+    ))}
+  </CardContent>
+</Card>
         </div>
       )}
     </div>

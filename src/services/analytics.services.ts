@@ -164,6 +164,7 @@ export const fetchTeamsAnalytics = async (
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
+    console.log(response, "RESPONSE1");
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
@@ -193,6 +194,7 @@ export const fetchTeamsActualAnalytics = async (
       `/lead-analytics/team/analytics${query}`
     );
 
+    console.log(response, "Response2")
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
