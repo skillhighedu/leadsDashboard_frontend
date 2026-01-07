@@ -239,7 +239,7 @@ export function LeadTable({
               const isExecutive = user?.role === Roles.EXECUTIVE;
               const isManager = !!user && hasManagerRole(user.role);
 
-              // Who can unassign?
+              // Who can unassign??
               const canUnassign = isManager
                 ? lead.teamAssignedId !== null
                 : isExecutive
