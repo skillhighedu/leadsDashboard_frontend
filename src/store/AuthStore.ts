@@ -1,4 +1,4 @@
-// store/AuthStore.ts
+
 import { create } from "zustand";
 import api from "@/config/axiosConfig";
 import { toast } from "sonner";

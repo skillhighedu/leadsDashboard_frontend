@@ -57,7 +57,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="w-full bg-white border-b border-gray-200 shadow-sm px-4 py-3 flex items-center justify-between">
+    <header className="w-full bg-white border-b border-gray-200 shadow-sm px-4 py-3  flex items-center justify-between ">
       {/* Left: Sidebar Trigger + Dashboard Title */}
       <div className="flex items-center gap-3">
         <SidebarTrigger />

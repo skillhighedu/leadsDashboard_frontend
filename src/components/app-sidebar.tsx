@@ -25,7 +25,7 @@ export function AppSidebar() {
   const { user } = useAuthStore();
 
   return (
-    <Sidebar className="w-[250px] min-h-screen flex-shrink-0 flex-grow-0 bg-white  border-r border-gray-200 dark:border-gray-700 transition-all duration-300">
+    <Sidebar className="w-[200px] min-h-screen flex-shrink-0 flex-grow-0 bg-white  border-r border-gray-200 dark:border-gray-700 transition-all duration-300">
       <SidebarHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">

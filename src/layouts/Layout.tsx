@@ -1,33 +1,30 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Navbar } from "@/components/navbar";
-import {  type ReactNode } from "react";
+import type { ReactNode } from "react";
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
-
+export default function Layout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden bg-gray-50">
-        {/* Sidebar */}
-        <AppSidebar />
+      <div className="h-dvh w-full bg-gray-50">
+        <div className="flex h-full">
+          {/* Sidebar */}
+          <AppSidebar />
 
-        {/* Content Area */}
-        <div className="flex flex-col flex-1 min-w-0">
-          {/* Navbar: full-width always */}
-          <Navbar />
+          {/* Right side */}
+          <div className="flex min-w-0 flex-1 flex-col">
+            {/* Fixed navbar */}
+            <Navbar />
 
-          {/* Main Content */}
-          <main className=" relative flex-1 overflow-y-auto px-6 py-6">
-            {children}
-          </main>
+            {/* The ONLY scroll container */}
+            <div className="relative flex-1 overflow-y-auto">
+              <div className="mx-auto max-w-[1600px] px-6 py-6">
+                {children}
+              </div>
+            </div>
+          </div>
         </div>
-        
       </div>
     </SidebarProvider>
   );
 }
-

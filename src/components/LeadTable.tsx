@@ -16,7 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import type { Leads } from "@/types/leads";
+import type {  LeadTableProps } from "@/types/leads";
 import { useAuthStore } from "@/store/AuthStore";
 // import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -37,43 +37,7 @@ import {
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface LeadTableProps {
-  leads: Leads[];
-  loading: boolean;
-  selectedLeads: number[];
-  setSelectedLeads: React.Dispatch<React.SetStateAction<number[]>>;
-  ticketAmounts: { id: number; value: string }[];
-  setTicketAmounts: React.Dispatch<
-    React.SetStateAction<{ id: number; value: string }[]>
-  >;
-  upFrontFees: { id: number; value: string }[];
-  setUpFrontFee: React.Dispatch<
-    React.SetStateAction<{ id: number; value: string }[]>
-  >;
 
-  handleTicketBlur: (id: number) => void;
-  //   handleUpFrontBlur: (id: number) => void;
-  handleTicketChange: (id: number, value: string) => void;
-  handleUpFrontChange: (id: number, value: string) => void;
-  onSelectLead: (id: number) => void;
-  onSelectAll: () => void;
-  onStatusChange: (leadId: number, newStatus: string) => void;
-  onSelfGenChange: (uuid: string, newStatus: boolean) => void;
-  handleDeleteLead: (uuid: string, name: string) => void;
-
-  handleUnAssignLead: (uuid: string, name: string) => void;
-
-  canDelete?: boolean;
-
-  referredByInputs: { id: number; value: string }[];
-  handleReferredByChange: (id: number, value: string) => void;
-  handleReferredByBlur: (id: number) => void;
-
-  // ✅ NEW: comment props (uuid-based)
-  commentInputs: { uuid: string; value: string }[];
-  handleCommentChange: (uuid: string, value: string) => void;
-  handleCommentBlur: (uuid: string) => void;
-}
 
 export function LeadTable({
   leads,
@@ -156,6 +120,7 @@ export function LeadTable({
                 />
               )}
             </TableHead>
+            <TableHead className="sticky top-0 z-40 ">Timestamp</TableHead>
             <TableHead className="sticky top-0 z-40 ">Name</TableHead>
             <TableHead className="sticky top-0 z-40 ">Email</TableHead>
             <TableHead className="sticky top-0 z-40 ">Phone</TableHead>
@@ -280,6 +245,7 @@ export function LeadTable({
                   ) : (
                     <TableCell />
                   )}
+                  <TableCell>{lead.timestamp ? lead.timestamp : "No"}</TableCell>
                   <TableCell>{lead.name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
                   <TableCell>{lead.phoneNumber}</TableCell>
