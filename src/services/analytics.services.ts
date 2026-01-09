@@ -53,6 +53,8 @@ export interface LeadRevenue {
 }
 
 export interface LeadAnalyticsResponse {
+  conversionRatio:number,
+  totalLeads:number
   leadStatusCounts: LeadStatusCount[];
   revenue: LeadRevenue;
   fees: {
@@ -130,6 +132,8 @@ export const fetchAnalytics = async (
         "&toDate=" +
         filters.toDate.toISOString()
     );
+
+    console.log(response.data.additional)
 
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");

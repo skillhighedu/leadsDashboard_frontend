@@ -75,14 +75,39 @@ const OverallSummary = ({
 
   return (
     <Card className="border shadow-md bg-white">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-primary">
-          Overall Lead Summary
-        </CardTitle>
-        {fromDate && toDate && (
-          <p className="text-sm text-muted-foreground mt-1">{renderDateText()}</p>
-        )}
-      </CardHeader>
+    <CardHeader className="space-y-2">
+  <div className="flex items-center justify-between">
+    <CardTitle className="text-lg font-semibold tracking-tight">
+      Overall Lead Summary
+    </CardTitle>
+
+   <div className="flex gap-6 text-right">
+  {/* Total Leads */}
+  <div>
+    <div className="text-xs text-muted-foreground">Total Leads</div>
+    <div className="text-2xl font-bold tabular-nums">
+      {data.totalLeads}
+    </div>
+  </div>
+
+  {/* Conversion */}
+  <div>
+    <div className="text-xs text-muted-foreground">Conversion</div>
+    <div className="text-2xl font-bold tabular-nums">
+      {data.conversionRatio}%
+    </div>
+  </div>
+</div>
+
+  </div>
+
+  {fromDate && toDate && (
+    <p className="text-sm text-muted-foreground">
+      {renderDateText()}
+    </p>
+  )}
+</CardHeader>
+
       <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {data.leadStatusCounts.map((item) => (
           <div key={item.status} className="space-y-1">
@@ -426,9 +451,9 @@ export default function Analytics() {
         ) : (
           <>
             {allData && <OverallSummary data={allData} fromDate={fromDate} toDate={toDate} />}
-            {allTeams.map((team) => (
+            {/* {allTeams.map((team) => (
               <TeamAnalyticsCard key={team.teamAssignedId} team={team} />
-            ))}
+            ))} */}
           </>
         )}
       </div>
