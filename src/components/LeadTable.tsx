@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+// import { LeadDetailsDialog } from "@/features/leads/components/LeadDetailsDialog";
 
 interface LeadTableProps {
   leads: Leads[];
@@ -105,6 +106,7 @@ export function LeadTable({
 }: LeadTableProps) {
   const { user } = useAuthStore();
   const safeLeads = Array.isArray(leads) ? leads : [];
+// const [openLead, setOpenLead] = useState<Leads | null>(null);
 
   useEffect(() => {
     const initialTickets = safeLeads.map((lead) => ({
@@ -144,57 +146,50 @@ export function LeadTable({
   return (
     // Scroll container to keep header visible while body scrolls
     <div className="relative max-h-[70vh] overflow-y-auto rounded-md border">
-      <Table className="z-0 w-full border-separate border-spacing-0">
+      <Table className="z-0 w-full border-separate border-spacing-0 text-xs ">
         {/* Sticky header: each TH is sticky with strong z-index and solid bg */}
-        <TableHeader className="sticky top-0 z-30 ">
-          <TableRow className="sticky top-0 z-40  border-b">
-            <TableHead className="sticky left-0 top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={handleSelectAll}
-                />
-              )}
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">Name</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Email</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Phone</TableHead>
-            <TableHead className="sticky top-0 z-40 ">
-              Whatsapp Number
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">Year</TableHead>
-            <TableHead className="sticky top-0 z-40 ">College</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Branch</TableHead>
-            <TableHead className="sticky top-0 z-40 ">
-              Interested Domain
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">Batch</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Had Referred</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Referred By</TableHead>
-            {/* ✅ NEW column header */}
-            <TableHead className="sticky top-0 z-40 ">
-              Preferred Language
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">Owner</TableHead>
-            <TableHead className="sticky top-0 z-40 ">
-              Is SelfGen Lead
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">
-              Assigned To Team
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">Assigned At</TableHead>
-            <TableHead className="sticky top-0 z-40 ">
-              Assigned To Member
-            </TableHead>
-            <TableHead className="sticky top-0 z-40 ">UpFront Fee</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Remaining Fee</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Ticket Amount</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Status</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Comment</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Un-Assign</TableHead>
-            <TableHead className="sticky top-0 z-40 ">Delete</TableHead>
-          </TableRow>
-        </TableHeader>
+     <TableHeader className="sticky top-0 z-30 bg-neutral-900/90 backdrop-blur border-b border-white/10">
+  <TableRow className="sticky top-0 z-40 bg-neutral-900/40">
+
+    {/* Checkbox */}
+    <TableHead className="sticky left-0 top-0 z-50 bg-neutral-900/95 text-white">
+      {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
+        <Checkbox
+          checked={allSelected}
+          onCheckedChange={handleSelectAll}
+        />
+      )}
+    </TableHead>
+
+    <TableHead className="bg-neutral-900/40 text-white">TimeStamp</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Name</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Email</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Phone</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Whatsapp Number</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Year</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">College</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Branch</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Interested Domain</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Batch</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Had Referred</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Referred By</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Preferred Language</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Owner</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Is SelfGen Lead</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Assigned To Team</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Assigned At</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Assigned To Member</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">UpFront Fee</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Remaining Fee</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Ticket Amount</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Status</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Comment</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Un-Assign</TableHead>
+    <TableHead className="bg-neutral-900/40 text-white">Delete</TableHead>
+
+  </TableRow>
+</TableHeader>
+
 
         <TableBody className=" max-h-[65vh] overflow-y-auto">
           {loading ? (
@@ -258,20 +253,25 @@ export function LeadTable({
                 "";
 
               return (
-                <TableRow
-                  key={lead.id}
-                  className="hover:bg-muted/50"
-                  style={{
-                    backgroundColor:
-                      lead.teamAssignedId != null && lead.teamAssigned
-                        ? lead.teamAssigned.colorCode
-                        : undefined,
-                  }}
-                >
+                
+              <TableRow
+  key={lead.id}
+  // onClick={() => setOpenLead(lead)}
+  className="cursor-pointer hover:bg-muted/50"
+  style={{
+    backgroundColor:
+      lead.teamAssignedId != null && lead.teamAssigned
+        ? lead.teamAssigned.colorCode
+        : undefined,
+  }}
+>
+
                   {user?.role !== Roles.INTERN &&
                   user?.role !== Roles.FRESHER ? (
                     <TableCell className="sticky left-0 z-20 bg-background">
                       <Checkbox
+                       onClick={(e) => e.stopPropagation()}
+
                         checked={selectedLeads.includes(lead.id)}
                         onCheckedChange={() => onSelectLead(lead.id)}
                         disabled={isDisabled}
@@ -280,6 +280,7 @@ export function LeadTable({
                   ) : (
                     <TableCell />
                   )}
+                  <TableCell>{lead.timestamp ? lead.timestamp : "-"}</TableCell>
                   <TableCell>{lead.name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
                   <TableCell>{lead.phoneNumber}</TableCell>
@@ -506,6 +507,11 @@ export function LeadTable({
           )}
         </TableBody>
       </Table>
+      {/* <LeadDetailsDialog
+  lead={openLead}
+  onClose={() => setOpenLead(null)}
+/> */}
+
     </div>
   );
 }

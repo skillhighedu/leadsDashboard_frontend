@@ -240,7 +240,7 @@ export default function AddTeam() {
                         <DialogDescription>Are you sure you want to delete {team.teamName}?</DialogDescription>
                       </DialogHeader>
                       <DialogFooter>
-                        <Button variant="outline">Cancel</Button>
+                        <Button variant="outline" onClick={() =>setDeletingId(null)}>Cancel</Button>
                         <Button
                           variant="destructive"
                           onClick={() => handleDelete(team.id)}

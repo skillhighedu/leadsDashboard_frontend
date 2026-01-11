@@ -1,15 +1,15 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
   fetchAllTeamsAnalytics,
   fetchAnalytics,
-  type TeamStatusAnalytics,
+  // type TeamStatusAnalytics,
   type LeadAnalyticsResponse,
 } from "@/services/analytics.services";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, CalendarIcon } from "lucide-react";
+import {  CalendarIcon } from "lucide-react";
 import { format, subDays,  } from "date-fns";
 import {
   Popover,
@@ -149,172 +149,172 @@ const OverallSummary = ({
 };
 
 // --- Per-Team Analytics ---
-const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+// const TeamAnalyticsCard = ({ team }: { team: TeamStatusAnalytics }) => {
+//   const [isExpanded, setIsExpanded] = useState(false);
 
-  const otherStatuses = useMemo(
-    () =>
-      team.statuses.filter(
-        (s) => s.status !== "PAID" && (s.count > 0 || s.totalTicketAmount > 0)
-      ),
-    [team.statuses]
-  );
+//   const otherStatuses = useMemo(
+//     () =>
+//       team.statuses.filter(
+//         (s) => s.status !== "PAID" && (s.count > 0 || s.totalTicketAmount > 0)
+//       ),
+//     [team.statuses]
+//   );
 
-  return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">{team.teamName}</h2>
-        <Badge variant="outline" className="text-xs">
-          Team Lead: {team.teamLeadName}
-        </Badge>
-      </div>
+//   return (
+//     <section className="space-y-3">
+//       <div className="flex items-center justify-between">
+//         <h2 className="text-lg font-semibold text-foreground">{team.teamName}</h2>
+//         <Badge variant="outline" className="text-xs">
+//           Team Lead: {team.teamLeadName}
+//         </Badge>
+//       </div>
 
-      <Card className="border border-blue-400/40 shadow-sm bg-gradient-to-br from-blue-50 to-white">
-        <CardHeader className="py-2">
-          <CardTitle className="text-base text-blue-900 font-medium">
-            Team Revenue Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="py-2 text-sm text-gray-800 space-y-1">
-          <div>
-            <span className="font-medium text-muted-foreground">Total Generated:</span>{" "}
-            ₹{team.totalGenerated.toLocaleString("en-IN")}
-          </div>
-          <div>
-            <span className="font-medium text-muted-foreground">Total Projected:</span>{" "}
-            ₹{team.totalProjected.toLocaleString("en-IN")}
-          </div>
-        </CardContent>
-      </Card>
+//       <Card className="border border-blue-400/40 shadow-sm bg-gradient-to-br from-blue-50 to-white">
+//         <CardHeader className="py-2">
+//           <CardTitle className="text-base text-blue-900 font-medium">
+//             Team Revenue Summary
+//           </CardTitle>
+//         </CardHeader>
+//         <CardContent className="py-2 text-sm text-gray-800 space-y-1">
+//           <div>
+//             <span className="font-medium text-muted-foreground">Total Generated:</span>{" "}
+//             ₹{team.totalGenerated.toLocaleString("en-IN")}
+//           </div>
+//           <div>
+//             <span className="font-medium text-muted-foreground">Total Projected:</span>{" "}
+//             ₹{team.totalProjected.toLocaleString("en-IN")}
+//           </div>
+//         </CardContent>
+//       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {otherStatuses.length > 0 && (
-          <Card className="border shadow-sm bg-white">
-            <CardHeader className="py-2 flex justify-between items-center">
-              <CardTitle className="text-base font-medium text-foreground">
-                Other Statuses
-              </CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
-                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-            </CardHeader>
-            <CardContent className="py-2">
-              <p className="text-sm text-gray-700 mb-2">
-                Total: {otherStatuses.reduce((sum, s) => sum + s.count, 0)} leads
-              </p>
-              {isExpanded && (
-                <ul className="divide-y divide-muted">
-                  {otherStatuses.map((status) => (
-                    <li key={status.status} className="py-2 flex items-center justify-between text-sm">
-                      <span
-                        className={cn(
-                          "text-xs font-medium px-2 py-0.5 rounded",
-                          statusColors[status.status] || "bg-gray-200 text-gray-800"
-                        )}
-                      >
-                        {status.status.replace(/_/g, " ")}
-                      </span>
-                      <div className="text-right space-y-0.5 text-xs text-gray-700">
-                        <p>{status.count} leads</p>
-                        <p>₹{status.generatedAmount.toLocaleString("en-IN")}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        )}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+//         {otherStatuses.length > 0 && (
+//           <Card className="border shadow-sm bg-white">
+//             <CardHeader className="py-2 flex justify-between items-center">
+//               <CardTitle className="text-base font-medium text-foreground">
+//                 Other Statuses
+//               </CardTitle>
+//               <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+//                 {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+//               </Button>
+//             </CardHeader>
+//             <CardContent className="py-2">
+//               <p className="text-sm text-gray-700 mb-2">
+//                 Total: {otherStatuses.reduce((sum, s) => sum + s.count, 0)} leads
+//               </p>
+//               {isExpanded && (
+//                 <ul className="divide-y divide-muted">
+//                   {otherStatuses.map((status) => (
+//                     <li key={status.status} className="py-2 flex items-center justify-between text-sm">
+//                       <span
+//                         className={cn(
+//                           "text-xs font-medium px-2 py-0.5 rounded",
+//                           statusColors[status.status] || "bg-gray-200 text-gray-800"
+//                         )}
+//                       >
+//                         {status.status.replace(/_/g, " ")}
+//                       </span>
+//                       <div className="text-right space-y-0.5 text-xs text-gray-700">
+//                         <p>{status.count} leads</p>
+//                         <p>₹{status.generatedAmount.toLocaleString("en-IN")}</p>
+//                       </div>
+//                     </li>
+//                   ))}
+//                 </ul>
+//               )}
+//             </CardContent>
+//           </Card>
+//         )}
 
-        {team.members?.length > 0 && (
-          <Card className="border shadow-sm bg-white">
-            <CardHeader className="py-2">
-              <CardTitle className="text-base font-medium text-foreground">
-                Member Breakdown
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="py-2 space-y-2">
-              {team.members.map((member) => (
-                <div key={member.memberId} className="border rounded p-2">
-                  <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-                    {member.memberName}
-                  </h3>
-                  {member.statuses.length === 0 ? (
-                    <p className="text-xs text-gray-500">No leads</p>
-                  ) : (
-                    <ul className="divide-y divide-muted">
-                      {member.statuses.map((status) => (
-                        <li
-                          key={status.status}
-                          className="py-1 flex justify-between text-sm"
-                        >
-                          <span
-                            className={cn(
-                              "text-xs font-medium px-2 py-0.5 rounded",
-                              statusColors[status.status] || "bg-gray-100 text-gray-800"
-                            )}
-                          >
-                            {status.status.replace(/_/g, " ")}
-                          </span>
+//         {team.members?.length > 0 && (
+//           <Card className="border shadow-sm bg-white">
+//             <CardHeader className="py-2">
+//               <CardTitle className="text-base font-medium text-foreground">
+//                 Member Breakdown
+//               </CardTitle>
+//             </CardHeader>
+//             <CardContent className="py-2 space-y-2">
+//               {team.members.map((member) => (
+//                 <div key={member.memberId} className="border rounded p-2">
+//                   <h3 className="text-sm font-semibold text-muted-foreground mb-1">
+//                     {member.memberName}
+//                   </h3>
+//                   {member.statuses.length === 0 ? (
+//                     <p className="text-xs text-gray-500">No leads</p>
+//                   ) : (
+//                     <ul className="divide-y divide-muted">
+//                       {member.statuses.map((status) => (
+//                         <li
+//                           key={status.status}
+//                           className="py-1 flex justify-between text-sm"
+//                         >
+//                           <span
+//                             className={cn(
+//                               "text-xs font-medium px-2 py-0.5 rounded",
+//                               statusColors[status.status] || "bg-gray-100 text-gray-800"
+//                             )}
+//                           >
+//                             {status.status.replace(/_/g, " ")}
+//                           </span>
                           
-                          <div className="text-right text-xs">
-                            <p>{status.count} leads</p>
-                            <p>₹{status.generatedAmount.toLocaleString("en-IN")}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-        {team.leadOwnerStats && Object.keys(team.leadOwnerStats).length > 0 && (
-  <Card className="border shadow-sm bg-white">
-    <CardHeader className="py-2">
-      <CardTitle className="text-base font-medium text-foreground">
-        Lead Owner Stats
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="py-2 space-y-2">
-      {Object.entries(team.leadOwnerStats).map(([ownerName, statusMap]) => (
-        <div key={ownerName} className="border rounded p-2">
-          <h3 className="text-sm font-semibold text-muted-foreground mb-1">
-            {ownerName}
-          </h3>
-          {Object.entries(statusMap).length === 0 ? (
-            <p className="text-xs text-gray-500">No statuses</p>
-          ) : (
-            <ul className="divide-y divide-muted">
-              {Object.entries(statusMap).map(([status, count]) => (
-                <li
-                  key={status}
-                  className="py-1 flex justify-between text-sm"
-                >
-                  <span
-                    className={cn(
-                      "text-xs font-medium px-2 py-0.5 rounded",
-                      statusColors[status] || "bg-gray-100 text-gray-800"
-                    )}
-                  >
-                    {status.replace(/_/g, " ")}
-                  </span>
-                  <span className="text-xs text-right">{count} leads</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ))}
-    </CardContent>
-  </Card>
-)}
+//                           <div className="text-right text-xs">
+//                             <p>{status.count} leads</p>
+//                             <p>₹{status.generatedAmount.toLocaleString("en-IN")}</p>
+//                           </div>
+//                         </li>
+//                       ))}
+//                     </ul>
+//                   )}
+//                 </div>
+//               ))}
+//             </CardContent>
+//           </Card>
+//         )}
+//         {team.leadOwnerStats && Object.keys(team.leadOwnerStats).length > 0 && (
+//   <Card className="border shadow-sm bg-white">
+//     <CardHeader className="py-2">
+//       <CardTitle className="text-base font-medium text-foreground">
+//         Lead Owner Stats
+//       </CardTitle>
+//     </CardHeader>
+//     <CardContent className="py-2 space-y-2">
+//       {Object.entries(team.leadOwnerStats).map(([ownerName, statusMap]) => (
+//         <div key={ownerName} className="border rounded p-2">
+//           <h3 className="text-sm font-semibold text-muted-foreground mb-1">
+//             {ownerName}
+//           </h3>
+//           {Object.entries(statusMap).length === 0 ? (
+//             <p className="text-xs text-gray-500">No statuses</p>
+//           ) : (
+//             <ul className="divide-y divide-muted">
+//               {Object.entries(statusMap).map(([status, count]) => (
+//                 <li
+//                   key={status}
+//                   className="py-1 flex justify-between text-sm"
+//                 >
+//                   <span
+//                     className={cn(
+//                       "text-xs font-medium px-2 py-0.5 rounded",
+//                       statusColors[status] || "bg-gray-100 text-gray-800"
+//                     )}
+//                   >
+//                     {status.replace(/_/g, " ")}
+//                   </span>
+//                   <span className="text-xs text-right">{count} leads</span>
+//                 </li>
+//               ))}
+//             </ul>
+//           )}
+//         </div>
+//       ))}
+//     </CardContent>
+//   </Card>
+// )}
 
-      </div>
-    </section>
-  );
-};
+//       </div>
+//     </section>
+//   );
+// };
 
 // --- Main Component ---
 export default function Analytics() {
@@ -324,7 +324,7 @@ export default function Analytics() {
   const [selectedRange, setSelectedRange] = useState<"today" | "yesterday" | "custom">("today");
 
 
-  const [allTeams, setAllTeams] = useState<TeamStatusAnalytics[]>([]);
+  // const [allTeams, setAllTeams] = useState<TeamStatusAnalytics[]>([]);
   const [allData, setAllData] = useState<LeadAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -344,11 +344,11 @@ export default function Analytics() {
     try {
       setError(null);
       const filters = { fromDate, toDate };
-      const [teamData, overallData] = await Promise.all([
+      const [, overallData] = await Promise.all([
         fetchAllTeamsAnalytics(filters),
         fetchAnalytics(filters),
       ]);
-      setAllTeams(teamData);
+      // setAllTeams(teamData);
       setAllData(overallData);
     } catch (err) {
       handleApiError( err);

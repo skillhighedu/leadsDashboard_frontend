@@ -46,6 +46,7 @@ import { format, subDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { handleApiError } from "@/utils/errorHandler";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 export default function LeadsPage() {
   //   const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
@@ -67,6 +68,8 @@ export default function LeadsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 500)
+
   const [statusFilter, setStatusFilter] = useState(() => {
     if (
       user?.role === Roles.VERTICAL_MANAGER ||
@@ -125,8 +128,8 @@ export default function LeadsPage() {
 
   useEffect(() => {
     const formatted = date ? format(date, "yyyy-MM-dd") : undefined;
-    getLeads(page, search, statusFilter, formatted);
-  }, [user, page, search, statusFilter, date]);
+    getLeads(page, debouncedSearch, statusFilter, formatted);
+  }, [user, page, debouncedSearch, statusFilter, date]);
 
   useEffect(() => {
     const referredData = leads.map((lead) => ({

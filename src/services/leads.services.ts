@@ -168,11 +168,10 @@ export const unAssginLead = async (uuid:string)=> {
     const response = await apiClient.put<ApiResponse<LeadsResponse>>(
       `/leads/unAssign/${uuid}`
     );
-    if(response.data.success)
-    {
+   
       toast.success(response.data.message)
       
-    }
+    
     
     return response.data.additional ?? []
   } catch (error) {

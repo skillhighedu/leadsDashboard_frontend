@@ -44,6 +44,7 @@ export function UploadLeadDialog({
   const [formData, setFormData] = useState<CreateLeadInput>({
     name: "",
     email: "",
+    timestamp:"",
     phoneNumber: "",
     whatsappNumber: "",
     college: "",
@@ -78,6 +79,7 @@ export function UploadLeadDialog({
     const requiredFields: (keyof CreateLeadInput)[] = [
       "name",
       "email",
+      "timestamp",
       "phoneNumber",
       "whatsappNumber",
       "college",
@@ -113,6 +115,7 @@ export function UploadLeadDialog({
       setFormData({
         name: "",
         email: "",
+        timestamp:"",
         phoneNumber: "",
         whatsappNumber: "",
         college: "",
@@ -172,6 +175,7 @@ export function UploadLeadDialog({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {([
                   { id: "name", label: "Full Name" },
+                  { id: "timestamp", label: "Time Stamp" },
                   { id: "email", label: "Email Address" },
                   { id: "phoneNumber", label: "Phone Number" },
                   { id: "whatsappNumber", label: "WhatsApp Number" },
@@ -269,7 +273,25 @@ export function UploadLeadDialog({
               </Button>
 
               <DialogFooter>
-                <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                <Button variant="ghost" onClick={() => {
+                  onOpenChange(false);
+                  setFormData({
+                    name: "",
+                    email: "",
+                    timestamp:"",
+                    phoneNumber: "",
+                    whatsappNumber: "",
+                    college: "",
+                    domain: "",
+                    branch: "",
+                    graduationYear: "",
+                    hadReferred: false,
+                    upFrontFee: 0,
+                    remainingFee: 0,
+                    batch: "",
+                    preferredLanguage: ""
+                  });
+                }}>
                   Close
                 </Button>
               </DialogFooter>
