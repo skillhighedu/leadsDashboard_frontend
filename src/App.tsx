@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "@/pages/Login";
 import { ProtectedRoute } from "@/pages/ProtectedRoutes";
 import { useAuthStore } from "@/store/AuthStore";
-import { useEffect, useRef } from "react";
+import {  useEffect, useRef } from "react";
 import Employe from "@/pages/Employe";
 import AddRole from "@/pages/AddRole";
 import Leads from "@/pages/Leads";
@@ -27,11 +27,12 @@ import Profile from "./pages/Profile";
 
 import OpsAnalytics from "./pages/OpsAnalytics";
 import AnalyticsHub from "./pages/analytics/AnalyticsHub";
+import AdminAnalytics from "./pages/analytics/AdminAnalytics";
 
 
 function App() {
   const { checkAuth, loading, user } = useAuthStore();
-  
+  console.log("USER", user)
 
   const hasCheckedAuth = useRef(false);
   const isOnline = useNetworkStatus();
@@ -143,6 +144,15 @@ function App() {
           />
 
           <Route
+            path="/adminAnalytics"
+            element={
+              <Layout>
+                <AdminAnalytics />
+              </Layout>
+            }
+          />
+
+          <Route
             path="/employees"
             element={
               <Layout>
@@ -180,7 +190,6 @@ function App() {
           element={
             <ProtectedRoute
               requiredRole={[
-                Roles.ADMIN,
                 Roles.VERTICAL_MANAGER,
                 Roles.MARKETING_HEAD,
                 Roles.LEAD_GEN_MANAGER,
@@ -197,6 +206,7 @@ function App() {
             }
           />
         </Route>
+        
 
         <Route
           element={

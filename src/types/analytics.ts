@@ -39,3 +39,35 @@ export type TeamLeadAnalyticsResponse = {
   employees: TeamEmployeeAnalytics[];
   range: { from: string; to: string };
 };
+
+
+
+export type AnalyticsRange = {
+  from: string;
+  to: string;
+};
+
+export type AdminTeamAnalyticsSummary = {
+  id: number;
+  teamName: string;
+  teamLead: {
+    name: string;
+  };
+  range: AnalyticsRange;
+  teamTotals: AnalyticsTotals;
+};
+
+export type StatusRow = {
+  status: string;
+  count: number;
+  selfGenCount: number;
+  generatedAmount: number;
+  projectedAmount: number;
+};
+export type AdminAnalyticsSummaryResponse = {
+  range: AnalyticsRange;
+  totals: AnalyticsTotals;
+  selfGenByStatus: Record<string, number>;
+  statuses: StatusRow[];
+  teams: AdminTeamAnalyticsSummary[];
+};
