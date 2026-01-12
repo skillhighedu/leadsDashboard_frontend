@@ -16,7 +16,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import type {  LeadTableProps } from "@/types/leads";
 import { useAuthStore } from "@/store/AuthStore";
 // import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -36,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Leads } from "@/types/leads";
 // import { LeadDetailsDialog } from "@/features/leads/components/LeadDetailsDialog";
 
 interface LeadTableProps {
