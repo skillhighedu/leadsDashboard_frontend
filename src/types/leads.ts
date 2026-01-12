@@ -2,7 +2,6 @@
 
 export interface Leads {
   id: number;
-  timestamp:string,
   uuid: string;
   timestamp?:string;
   email: string;
