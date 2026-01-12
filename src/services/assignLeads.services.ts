@@ -2,6 +2,7 @@ import apiClient from "@/config/axiosConfig";
 import type { ApiResponse } from "@/types/api";
 
 import { handleApiError } from "@/utils/errorHandler";
+import { toast } from "sonner";
 
 export interface AssignmentResponse {
   count: number;
@@ -19,6 +20,9 @@ export const assignLeadToTeam = async (
     if (!response.data.additional) {
       throw new Error("Assignment response is missing");
     }
+
+    toast.success(response.data.message)
+
     
     return response.data.additional;
   } catch (error) {
@@ -38,6 +42,7 @@ export const assignLeadToTeamMemebers = async (
     if (!response.data.additional) {
       throw new Error("Assignment response is missing");
     }
+    toast.success(response.data.message)
     
     return response.data.additional;
   } catch (error) {
@@ -57,6 +62,9 @@ export const updateLeadState = async (
     if (!response.data.additional) {
       throw new Error("No leads data found in the response.");
     }
+
+    toast.success(response.data.message)
+
 
 
     return response.data.additional;

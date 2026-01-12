@@ -1,7 +1,8 @@
-// types/leads.ts
+
 
 export interface Leads {
   id: number;
+  timestamp:string,
   uuid: string;
   timestamp?:string;
   email: string;
@@ -55,6 +56,7 @@ export interface SkippedLead {
   row: {
     name: string;
     email: string;
+    timestamp:string;
     phoneNumber: string;
     whatsappNumber?: string;
     graduationYear?: string;

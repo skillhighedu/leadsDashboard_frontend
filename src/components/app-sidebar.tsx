@@ -54,7 +54,7 @@ export function AppSidebar() {
               </Link>
             </SidebarGroup>
              <SidebarGroup>
-              <Link to="/analytics" className="block">
+              <Link to="/adminAnalytics" className="block">
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-full mb-1"

@@ -46,7 +46,7 @@ import { format, subDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { handleApiError } from "@/utils/errorHandler";
-import { useDebounce } from "@/hooks/useDebounce";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 export default function LeadsPage() {
   //   const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
@@ -68,7 +68,7 @@ export default function LeadsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebouncedValue(search, 500)
 
   const [statusFilter, setStatusFilter] = useState(() => {
     if (

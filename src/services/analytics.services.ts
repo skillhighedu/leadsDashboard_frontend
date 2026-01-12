@@ -9,7 +9,7 @@ import type {
   SelfLeadAnalyticsSummaryResponse,
 } from "@/types/leads";
 import { format } from "date-fns";
-import type { TeamLeadAnalyticsResponse } from "@/types/analytics";
+import type { AdminAnalyticsSummaryResponse, TeamLeadAnalyticsResponse } from "@/types/analytics";
 
 export type LeadOwnerStats = {
   [ownerName: string]: {
@@ -53,6 +53,8 @@ export interface LeadRevenue {
 }
 
 export interface LeadAnalyticsResponse {
+  conversionRatio:number,
+  totalLeads:number
   leadStatusCounts: LeadStatusCount[];
   revenue: LeadRevenue;
   fees: {
@@ -131,6 +133,8 @@ export const fetchAnalytics = async (
         filters.toDate.toISOString()
     );
 
+    console.log(response.data.additional)
+
     if (!response.data.additional) {
       throw new Error("Analytics data is missing");
     }
@@ -150,13 +154,6 @@ export const fetchTeamsAnalytics = async (
     if (filters?.toDate) params.push(`toDate=${format(filters?.toDate, "yyyy-MM-dd")}`)
 
     const query = params.length ? `?${params.join("&")}` : "";
-
-    // const response = await apiClient.get<ApiResponse<RawTeamAnalytics[]>>(
-    //   "/lead-analytics/team-leads/analytics?fromDate=" +
-    //     filters?.fromDate?.toISOString() +
-    //     "&toDate=" +
-    //     filters?.toDate?.toISOString()
-    // );
     const response = await apiClient.get<ApiResponse<TeamLeadAnalyticsResponse>>(
       `/lead-analytics/team-leads/analytics${query}`
     );
@@ -165,6 +162,53 @@ export const fetchTeamsAnalytics = async (
       throw new Error("Analytics data is missing");
     }
     console.log(response, "RESPONSE1");
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const fetchTeamsAdminAnalyticsDetails = async (
+    teamId: number,
+  filters?: Partial<DateFilters>
+): Promise<TeamLeadAnalyticsResponse> => {
+  try {
+    if (!teamId) throw new Error("teamId is required");
+     const params: string[]= [];
+    
+    if (filters?.fromDate) params.push(`fromDate=${format(filters?.fromDate, "yyyy-MM-dd")}`)
+    if (filters?.toDate) params.push(`toDate=${format(filters?.toDate, "yyyy-MM-dd")}`)
+
+    const query = params.length ? `?${params.join("&")}` : "";
+    const response = await apiClient.get<ApiResponse<TeamLeadAnalyticsResponse>>(
+      `/lead-analytics/team/${teamId}/details${query}`
+    );
+
+    if (!response.data.additional) {
+      throw new Error("Analytics data is missing");
+    }
+    return response.data.additional;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+export const fetchTeamsAdminAnalyticsSummary = async (
+  filters?: Partial<DateFilters>
+): Promise<AdminAnalyticsSummaryResponse> => {
+  try {
+     const params: string[]= [];
+    
+    if (filters?.fromDate) params.push(`fromDate=${format(filters?.fromDate, "yyyy-MM-dd")}`)
+    if (filters?.toDate) params.push(`toDate=${format(filters?.toDate, "yyyy-MM-dd")}`)
+
+    const query = params.length ? `?${params.join("&")}` : "";
+    const response = await apiClient.get<ApiResponse<AdminAnalyticsSummaryResponse>>(
+      `/lead-analytics/lead-admin/analytics${query}`
+    );
+
+    if (!response.data.additional) {
+      throw new Error("Analytics data is missing");
+    }
     return response.data.additional;
   } catch (error) {
     throw handleApiError(error);
