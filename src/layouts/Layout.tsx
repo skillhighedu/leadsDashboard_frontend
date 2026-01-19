@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <div className="h-dvh w-full bg-gray-50">
         <div className="flex h-full">
           {/* Sidebar */}
-          <AppSidebar />
+          <AppSidebar  />
 
           {/* Right side */}
           <div className="flex min-w-0 flex-1 flex-col">
@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
             {/* The ONLY scroll container */}
             <div className="relative flex-1 overflow-y-auto">
-              <div className="mx-auto max-w-[1600px] px-6 py-6">
+              <div className="mx-auto max-w-[1600px] ">
                 {children}
               </div>
             </div>

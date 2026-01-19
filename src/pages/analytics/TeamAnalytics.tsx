@@ -95,7 +95,7 @@ export default function TeamAnalyticsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-6 max-w-8xl mx-auto space-y-6">
       {/* Header (same as SelfAnalyticsPage style) */}
       <div className="flex flex-wrap items-center justify-between gap-4 sticky top-0 bg-muted/40 py-4 z-10 backdrop-blur-sm">
         <div>

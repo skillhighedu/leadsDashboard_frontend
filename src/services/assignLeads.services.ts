@@ -63,8 +63,7 @@ export const updateLeadState = async (
       throw new Error("No leads data found in the response.");
     }
 
-    toast.success(response.data.message)
-
+  
 
 
     return response.data.additional;

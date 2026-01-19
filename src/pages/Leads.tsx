@@ -47,6 +47,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { handleApiError } from "@/utils/errorHandler";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { BulkActionsDropdown } from "@/features/leads/components/Actions";
 
 export default function LeadsPage() {
   //   const allowedRoles: Roles[] = [Roles.VERTICAL_MANAGER, Roles.EXECUTIVE];
@@ -344,39 +345,40 @@ export default function LeadsPage() {
       .replace(/(^|\s)\w/g, (m) => m.toUpperCase());
 
   //Handle state change
-  const handleStatusChange = async (leadId: number, newStatus: string) => {
-    try {
-      const prevFilter = statusFilter;
-      const res = await updateLeadState(
-        Number(leadId),
-        newStatus.toUpperCase()
-      );
-      if (res) {
-        toast.success(`Status updated to ${toTitle(newStatus)}.`);
+ const handleStatusChange = async (leadId: number, newStatus: string) => {
+  try {
+    const res = await updateLeadState(leadId, newStatus.toUpperCase())
 
-        if (prevFilter !== newStatus) {
-          // Optimistically remove from current list (since it no longer matches filter)
-          setLeads((curr) => curr.filter((l) => l.id !== leadId));
-          // Switch the dropdown/filter to the new status and go to first page
-          setStatusFilter(newStatus);
-          setPage(1);
+    if (!res) return
 
-          // (Optional) clear date filter so you can see the moved lead even if created earlier
-          // setDate(undefined);
-        } else {
-          // If still same filter, just refresh
-          await getLeads(
-            page,
-            search,
-            statusFilter,
-            date ? format(date, "yyyy-MM-dd") : undefined
-          );
-        }
-      }
-    } catch (error) {
-      handleApiError(error);
+    toast.success(`Status updated to ${toTitle(newStatus)}`)
+
+    // If the new status doesn't belong to current filter → remove locally
+    if (statusFilter !== "ALL" && statusFilter !== newStatus) {
+      setLeads(curr => curr.filter(l => l.id !== leadId))
+      return
     }
-  };
+
+    // Otherwise update the row locally
+    setLeads(curr =>
+      curr.map(l =>
+        l.id === leadId ? { ...l, status: newStatus } : l
+      )
+    )
+
+    // Now refresh the page data to stay in sync
+    await getLeads(
+      page,
+      search,
+      statusFilter,
+      date ? format(date, "yyyy-MM-dd") : undefined
+    )
+
+  } catch (error) {
+    handleApiError(error)
+  }
+}
+
 
   const handleDeleteLead = async (uuid: string, name: string) => {
     try {
@@ -445,7 +447,7 @@ export default function LeadsPage() {
   }, [user?.role]);
 
   return (
-    <div className="p-3">
+    <div className="p-1">
       <UploadLeadDialog
         open={isUploadDialogOpen}
         onOpenChange={setIsUploadDialogOpen}
@@ -465,198 +467,185 @@ export default function LeadsPage() {
         teamsLoading={teamsLoading}
       />
 
-      <Card>
-        <CardContent>
-          <div className="flex justify-between items-center flex-wrap gap-2 mb-4  py-3 ">
-            <h2 className="text-xl font-semibold">All Leads</h2>
+      <Card className="rounded-none ">
+  <CardContent >
 
-            <div className="flex flex-wrap gap-2 ">
-              <Button
-                onClick={() => setIsUploadDialogOpen(true)}
-                disabled={
-                  !user?.permissions?.uploadData &&
-                  !user?.permissions?.createData
-                }
-              >
-                Upload Leads
-              </Button>
+    {/* ================= HEADER ================= */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <CalendarIcon className="w-4 h-4" />
-                    {date ? format(date, "dd MMM yyyy") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-4">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(selected) => selected && setDate(selected)}
-                    captionLayout="dropdown"
-                    showOutsideDays
-                    weekStartsOn={1}
-                  />
-                  <div className="flex gap-2 mt-4">
-                    <Button
-                      variant="secondary"
-                      className="w-1/2"
-                      onClick={() => setDate(new Date())}
-                    >
-                      Today
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-1/2"
-                      onClick={() => setDate(subDays(new Date(), 1))}
-                    >
-                      Yesterday
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
+      {/* LEFT SIDE */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 ">
+      
 
-              <Button
-                variant="outline"
-                disabled={!selectedLeads.length}
-                onClick={() => setSelectedLeads([])}
-              >
-                Clear Selection
-              </Button>
-              <Button
-                disabled={
-                  !selectedLeads.length ||
-                  teamsLoading ||
-                  !user?.permissions?.assignData
-                }
-                onClick={() => setIsAssignDialogOpen(true)}
-              >
-                Assign to{" "}
-                {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
-                {selectedLeads.length})
-              </Button>
-            </div>
-          </div>
+        <Input
+          placeholder="Search leads..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:max-w-xs h-9"
+        />
+      </div>
 
-          {/* Note about lead assignment requirements */}
-          {(user?.role === Roles.LEAD_MANAGER ||
-            user?.role === Roles.EXECUTIVE ||
-            user?.role === Roles.INTERN ||
-            user?.role === Roles.FRESHER ||
-            user?.role === Roles.TL_IC) && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-2">
-                <div className="text-blue-600 mt-0.5">
-                  <svg
-                    className="w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="text-sm text-blue-800">
-                  <strong>Important Note:</strong> Leads must be assigned to a
-                  team member before updating upfront fees and ticket amounts.
-                  Changes to these fields will only reflect in analytics after
-                  the lead has been properly assigned.
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
-            <Input
-              placeholder="Search leads..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="max-w-md"
+      {/* RIGHT SIDE */}
+      <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
+
+        <Button
+          size="sm"
+          onClick={() => setIsUploadDialogOpen(true)}
+          disabled={
+            !user?.permissions?.uploadData &&
+            !user?.permissions?.createData
+          }
+        >
+          Upload
+        </Button>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <CalendarIcon className="w-4 h-4" />
+              {date ? format(date, "dd MMM") : "Date"}
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent className="w-auto p-2">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(d) => d && setDate(d)}
+              captionLayout="dropdown"
+              showOutsideDays
             />
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="min-w-[220px] w-fit px-2 py-1">
-                {availableStatuses &&
-                  availableStatuses.map((s) => (
-                    <SelectItem key={s} value={s} className="text-sm px-3 py-2">
-                      {s
-                        .replace(/_/g, " ")
-                        .toLowerCase()
-                        .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <LeadTable
-            leads={leads}
-            loading={loading}
-            selectedLeads={selectedLeads}
-            setSelectedLeads={setSelectedLeads}
-            onSelectLead={handleSelectLead}
-            onSelectAll={handleSelectAll}
-            handleTicketBlur={handleTicketBlur}
-            handleTicketChange={handleTicketChange}
-            // handleUpFrontBlur={handleUpFrontBlur}
-            handleUpFrontChange={handleUpFrontChange}
-            setTicketAmounts={setTicketAmounts}
-            ticketAmounts={ticketAmounts}
-            upFrontFees={upFrontFees} // ✅ new
-            setUpFrontFee={setUpFrontFees} // ✅ new
-            onStatusChange={handleStatusChange}
-            handleDeleteLead={handleDeleteLead}
-            handleUnAssignLead={handleUnAssignLead}
-            canDelete={user?.permissions?.deleteData}
-            referredByInputs={referredByInputs}
-            handleReferredByBlur={handleReferredByBlur}
-            handleReferredByChange={handleReferredByChange}
-            // ✅ NEW props
-            commentInputs={commentInputs}
-            handleCommentChange={handleCommentChange}
-            handleCommentBlur={handleCommentBlur}
-            onSelfGenChange={hanadleIsSelfGen}
-          />
-
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
-            <Button
-              disabled={page === 1 || loading}
-              onClick={() => setPage(page - 1)}
-              variant="outline"
-            >
-              Previous
-            </Button>
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-muted-foreground">
-                Page {page} of {totalPages}
-              </p>
-              <Input
-                type="number"
-                min={1}
-                max={totalPages}
-                value={page}
-                onChange={(e) => {
-                  const newPage = parseInt(e.target.value);
-                  if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
-                }}
-                className="w-20"
-              />
+            <div className="flex gap-2 mt-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="w-full"
+                onClick={() => setDate(new Date())}
+              >
+                Today
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setDate(subDays(new Date(), 1))}
+              >
+                Yesterday
+              </Button>
             </div>
-            <Button
-              disabled={page === totalPages || loading}
-              onClick={() => setPage(page + 1)}
-              variant="outline"
-            >
-              Next
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </PopoverContent>
+        </Popover>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="h-9 w-[150px] text-xs">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            {availableStatuses.map((s) => (
+              <SelectItem className="text-xs cursor-pointer" key={s} value={s}>
+                {s.replace(/_/g, " ")}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+       
+    <BulkActionsDropdown
+  selectedCount={selectedLeads.length}
+  canAssign={!!user?.permissions?.assignData}
+  canDelete={!!user?.permissions?.deleteData}
+  onClear={() => setSelectedLeads([])}
+  onUnassignAll={() => setIsUnassignAllDialogOpen(true)}
+  onDeleteAll={() => setIsDeleteAllDialogOpen(true)}
+/>
+
+      </div>
+    </div>
+
+    {/* ================= NOTE ================= */}
+    {/* {(user?.role === Roles.LEAD_MANAGER ||
+      user?.role === Roles.EXECUTIVE ||
+      user?.role === Roles.INTERN ||
+      user?.role === Roles.FRESHER ||
+      user?.role === Roles.TL_IC) && (
+      <div className="mb-4 p-3 text-sm bg-blue-50 border border-blue-200 rounded-lg">
+        Leads must be assigned before ticket or upfront fees update.
+      </div>
+    )} */}
+
+    {/* ================= TABLE ================= */}
+    <LeadTable
+      leads={leads}
+      loading={loading}
+      selectedLeads={selectedLeads}
+      setSelectedLeads={setSelectedLeads}
+      onSelectLead={handleSelectLead}
+      onSelectAll={handleSelectAll}
+      handleTicketBlur={handleTicketBlur}
+      handleTicketChange={handleTicketChange}
+      handleUpFrontChange={handleUpFrontChange}
+      setTicketAmounts={setTicketAmounts}
+      ticketAmounts={ticketAmounts}
+      upFrontFees={upFrontFees}
+      setUpFrontFee={setUpFrontFees}
+      onStatusChange={handleStatusChange}
+      handleDeleteLead={handleDeleteLead}
+      handleUnAssignLead={handleUnAssignLead}
+      canDelete={user?.permissions?.deleteData}
+      referredByInputs={referredByInputs}
+      handleReferredByBlur={handleReferredByBlur}
+      handleReferredByChange={handleReferredByChange}
+      commentInputs={commentInputs}
+      handleCommentChange={handleCommentChange}
+      handleCommentBlur={handleCommentBlur}
+      onSelfGenChange={hanadleIsSelfGen}
+    />
+
+    {/* ================= PAGINATION ================= */}
+    <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
+
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={page === 1 || loading}
+        onClick={() => setPage(page - 1)}
+      >
+        Prev
+      </Button>
+
+      <div className="flex items-center gap-2 text-sm">
+        Page {page} of {totalPages}
+        <Input
+          type="number"
+          min={1}
+          max={totalPages}
+          value={page}
+          onChange={(e) => {
+            const p = Number(e.target.value)
+            if (p >= 1 && p <= totalPages) setPage(p)
+          }}
+          className="w-16 h-8 text-center"
+        />
+      </div>
+
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={page === totalPages || loading}
+        onClick={() => setPage(page + 1)}
+      >
+        Next
+      </Button>
+
+    </div>
+
+  </CardContent>
+</Card>
+
     </div>
   );
 }
