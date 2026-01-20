@@ -553,6 +553,18 @@ export default function LeadsPage() {
           </SelectContent>
         </Select>
 
+  <Button
+                disabled={
+                  !selectedLeads.length ||
+                  teamsLoading ||
+                  !user?.permissions?.assignData
+                }
+                onClick={() => setIsAssignDialogOpen(true)}
+              >
+                Assign to{" "}
+                {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
+                {selectedLeads.length})
+              </Button>
        
     <BulkActionsDropdown
   selectedCount={selectedLeads.length}

@@ -8,7 +8,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { useRef, useState, useCallback } from "react";
 import { uploadLeadsFile, createLead } from "@/services/leads.services";
 import { UploadResultDialog } from "@/components/ui/UploadResultDailog";
@@ -23,6 +29,25 @@ interface UploadLeadDialogProps {
   refreshLeads: () => void;
 }
 
+/* ------------------ helpers ------------------ */
+
+const getEmptyForm = (): CreateLeadInput => ({
+  name: "",
+  email: "",
+  timestamp: "",
+  phoneNumber: "",
+  whatsappNumber: "",
+  college: "",
+  domain: "",
+  branch: "",
+  graduationYear: "",
+  hadReferred: false,
+  upFrontFee: 0,
+  remainingFee: 0,
+  batch: "",
+  preferredLanguage: "",
+});
+
 export function UploadLeadDialog({
   open,
   onOpenChange,
@@ -33,34 +58,25 @@ export function UploadLeadDialog({
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
- 
-  const {user} = useAuthStore()
 
+  const { user } = useAuthStore();
 
-  const [uploadResult, setUploadResult] = useState<UploadLeadsResponse | null>(null);
-
+  const [uploadResult, setUploadResult] =
+    useState<UploadLeadsResponse | null>(null);
   const [showResultDialog, setShowResultDialog] = useState(false);
 
-  const [formData, setFormData] = useState<CreateLeadInput>({
-    name: "",
-    email: "",
-    timestamp:"",
-    phoneNumber: "",
-    whatsappNumber: "",
-    college: "",
-    domain: "",
-    branch: "",
-    graduationYear: "",
-    hadReferred: false,
-    upFrontFee: 0,
-    remainingFee: 0,
-    batch: "",
-    preferredLanguage: ""
-  });
+  const [formData, setFormData] = useState<CreateLeadInput>(getEmptyForm());
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  /* ------------------ reset logic ------------------ */
+
+  const resetForm = useCallback(() => {
+    setFormData(getEmptyForm());
+    setShowForm(false);
+  }, []);
+
+  /* ------------------ handlers ------------------ */
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -68,14 +84,12 @@ export function UploadLeadDialog({
     }));
   };
 
-  const handleCheckboxChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setFormData((prev) => ({ ...prev, [name]: checked }));
   };
 
-  const handleFormSubmit = async (): Promise<void> => {
+  const handleFormSubmit = async () => {
     const requiredFields: (keyof CreateLeadInput)[] = [
       "name",
       "email",
@@ -89,7 +103,7 @@ export function UploadLeadDialog({
       "upFrontFee",
       "remainingFee",
       "batch",
-      "preferredLanguage"
+      "preferredLanguage",
     ];
 
     for (const field of requiredFields) {
@@ -110,32 +124,16 @@ export function UploadLeadDialog({
       await createLead(formData);
       refreshLeads();
       toast.success("Lead created successfully!");
+      resetForm();
       onOpenChange(false);
-      setShowForm(false);
-      setFormData({
-        name: "",
-        email: "",
-        timestamp:"",
-        phoneNumber: "",
-        whatsappNumber: "",
-        college: "",
-        domain: "",
-        branch: "",
-        graduationYear: "",
-        hadReferred: false,
-        upFrontFee: 0,
-        remainingFee: 0,
-        batch: "",
-        preferredLanguage: ""
-      });
     } catch (error) {
-      handleApiError( error);
+      handleApiError(error);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleUpload = async (file: File): Promise<void> => {
+  const handleUpload = async (file: File) => {
     setUploading(true);
     try {
       const result = await uploadLeadsFile(file);
@@ -143,27 +141,30 @@ export function UploadLeadDialog({
       setShowResultDialog(true);
       refreshLeads();
     } catch (error) {
-      handleApiError( error);
+      handleApiError(error);
     } finally {
       setUploading(false);
     }
   };
 
-  const closeDialogs = useCallback((): void => {
+  const closeDialogs = useCallback(() => {
     setShowResultDialog(false);
+    resetForm();
     onOpenChange(false);
-  }, [onOpenChange]);
+  }, [onOpenChange, resetForm]);
+
+  /* ------------------ render ------------------ */
 
   return (
     <>
       <Dialog
         open={open}
         onOpenChange={(val) => {
+          if (!val) resetForm(); // 🔥 KEY FIX
           onOpenChange(val);
-          if (!val) setShowForm(false);
         }}
       >
-        <DialogContent>
+        <DialogContent key={showForm ? "form" : "upload"}>
           <DialogHeader>
             <DialogTitle>
               {showForm ? "Create a New Lead" : "Upload Leads"}
@@ -173,7 +174,7 @@ export function UploadLeadDialog({
           {showForm ? (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {([
+                {[
                   { id: "name", label: "Full Name" },
                   { id: "timestamp", label: "Time Stamp" },
                   { id: "email", label: "Email Address" },
@@ -185,9 +186,10 @@ export function UploadLeadDialog({
                   { id: "batch", label: "Batch" },
                   { id: "preferredLanguage", label: "Preferred Language" },
                   { id: "college", label: "College Name" },
-                ] as const).map(({ id, label }) => (
+                ].map(({ id, label }) => (
                   <div key={id} className="space-y-1">
                     <Label htmlFor={id}>{label}</Label>
+
                     {id === "graduationYear" ? (
                       <Select
                         value={formData.graduationYear}
@@ -198,27 +200,31 @@ export function UploadLeadDialog({
                           }))
                         }
                       >
-                        <SelectTrigger id="graduationYear" className="w-full">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select year" />
                         </SelectTrigger>
                         <SelectContent>
-                          {["1st YEAR", "2nd YEAR", "3rd YEAR", "4th YEAR","GRADUATED"].map(
-                            (year) => (
-                              <SelectItem key={year} value={year}>
-                                {year}
-                              </SelectItem>
-                            )
-                          )}
+                          {[
+                            "1st YEAR",
+                            "2nd YEAR",
+                            "3rd YEAR",
+                            "4th YEAR",
+                            "GRADUATED",
+                          ].map((year) => (
+                            <SelectItem key={year} value={year}>
+                              {year}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     ) : (
                       <Input
                         id={id}
                         name={id}
-                        type={["upFrontFee", "remainingFee"].includes(id) ? "number" : "text"}
-                        value={formData[id as keyof CreateLeadInput]?.toString() || ""}
+                        value={String(
+                          formData[id as keyof CreateLeadInput] ?? ""
+                        )}
                         onChange={handleInputChange}
-                        required
                       />
                     )}
                   </div>
@@ -237,7 +243,7 @@ export function UploadLeadDialog({
               </div>
 
               <DialogFooter className="flex justify-between">
-                <Button variant="outline" onClick={() => setShowForm(false)}>
+                <Button variant="outline" onClick={resetForm}>
                   Back
                 </Button>
                 <Button onClick={handleFormSubmit} disabled={submitting}>
@@ -250,16 +256,15 @@ export function UploadLeadDialog({
               <Button
                 variant="outline"
                 className="w-full"
-                disabled= {!user?.permissions?.uploadData}
-                onClick={() => fileInputRef.current?.click()
-                
-                }
+                disabled={!user?.permissions?.uploadData}
+                onClick={() => fileInputRef.current?.click()}
               >
                 {uploading ? "Uploading..." : "Upload from Excel File"}
               </Button>
+
               <input
                 type="file"
-                accept=".xlsx, .xls"
+                accept=".xlsx,.xls"
                 hidden
                 ref={fileInputRef}
                 onChange={(e) => {
@@ -273,29 +278,10 @@ export function UploadLeadDialog({
               </Button>
 
               <DialogFooter>
-                <Button variant="ghost" onClick={() => {
-                  onOpenChange(false);
-                  setFormData({
-                    name: "",
-                    email: "",
-                    timestamp:"",
-                    phoneNumber: "",
-                    whatsappNumber: "",
-                    college: "",
-                    domain: "",
-                    branch: "",
-                    graduationYear: "",
-                    hadReferred: false,
-                    upFrontFee: 0,
-                    remainingFee: 0,
-                    batch: "",
-                    preferredLanguage: ""
-                  });
-                }}>
+                <Button variant="ghost" onClick={() => onOpenChange(false)}>
                   Close
                 </Button>
               </DialogFooter>
-              
             </div>
           )}
         </DialogContent>
