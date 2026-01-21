@@ -30,6 +30,45 @@ export const assignLeadToTeam = async (
   }
 };
 
+
+export const unAssignTeamLeads = async (
+  leadIds: number[]
+): Promise<void> => {
+  try {
+    const response = await apiClient.put<ApiResponse<null>>(
+      `/team-assignments/unassign-team-leads`,
+     { leadIds }
+    );
+    // if (!response.data.additional) {
+    //   throw new Error("Assignment response is missing");
+    // }
+
+    console.log("RESPONSE",response)
+    toast.success(response.data.message);
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const unAssignTeamMemberLeads = async (
+  leadIds: number[]
+): Promise<void> => {
+  try {
+    const response = await apiClient.put<ApiResponse<null>>(
+      `/team-assignments/unassign-team-member-leads`,
+     { leadIds }
+    );
+
+
+    toast.success(response.data.message);
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+
+
+
 export const assignLeadToTeamMemebers = async (
   memberId: number,
   leadIds: string[]
@@ -63,8 +102,7 @@ export const updateLeadState = async (
       throw new Error("No leads data found in the response.");
     }
 
-    toast.success(response.data.message)
-
+  
 
 
     return response.data.additional;

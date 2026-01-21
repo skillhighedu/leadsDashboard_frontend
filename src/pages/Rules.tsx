@@ -72,7 +72,7 @@ const operationalRules = [
 
 export default function Rules() {
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
+    <div className="max-w-8xl mx-auto py-10 px-4 space-y-6">
       <h1 className="text-3xl font-bold text-primary">Platform Rules & Permissions</h1>
       <p className="text-muted-foreground text-sm">
         These rules govern how users interact with leads, teams, and revenue on the CRM.

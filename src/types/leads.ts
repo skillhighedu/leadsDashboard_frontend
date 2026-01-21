@@ -2,8 +2,8 @@
 
 export interface Leads {
   id: number;
-  timestamp:string,
   uuid: string;
+  timestamp?:string;
   email: string;
   phoneNumber: string;
   domain: string;
@@ -194,3 +194,42 @@ export type SelfLeadAnalyticsDailyResponse = {
 
 
 export type SelfAnalticsMode = "summary" | "day";
+
+
+export interface LeadTableProps {
+  leads: Leads[];
+  loading: boolean;
+  selectedLeads: number[];
+  setSelectedLeads: React.Dispatch<React.SetStateAction<number[]>>;
+  ticketAmounts: { id: number; value: string }[];
+  setTicketAmounts: React.Dispatch<
+    React.SetStateAction<{ id: number; value: string }[]>
+  >;
+  upFrontFees: { id: number; value: string }[];
+  setUpFrontFee: React.Dispatch<
+    React.SetStateAction<{ id: number; value: string }[]>
+  >;
+
+  handleTicketBlur: (id: number) => void;
+  //   handleUpFrontBlur: (id: number) => void;
+  handleTicketChange: (id: number, value: string) => void;
+  handleUpFrontChange: (id: number, value: string) => void;
+  onSelectLead: (id: number) => void;
+  onSelectAll: () => void;
+  onStatusChange: (leadId: number, newStatus: string) => void;
+  onSelfGenChange: (uuid: string, newStatus: boolean) => void;
+  handleDeleteLead: (uuid: string, name: string) => void;
+
+  handleUnAssignLead: (uuid: string, name: string) => void;
+
+  canDelete?: boolean;
+
+  referredByInputs: { id: number; value: string }[];
+  handleReferredByChange: (id: number, value: string) => void;
+  handleReferredByBlur: (id: number) => void;
+
+  // ✅ NEW: comment props (uuid-based)
+  commentInputs: { uuid: string; value: string }[];
+  handleCommentChange: (uuid: string, value: string) => void;
+  handleCommentBlur: (uuid: string) => void;
+}

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import { useAuthStore } from "@/store/AuthStore";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+// import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useState } from "react";
 import {
   activateStaffLogin,
@@ -20,18 +20,21 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 import { Roles } from "@/constants/role.constant";
 import { useNavigate } from "react-router-dom";
 import { handleApiError } from "@/utils/errorHandler";
-
+import { useProfile } from "@/hooks/useProfile";
 
 export function Navbar() {
   const { user, setUser } = useAuthStore();
+  const { profile, loading: profileLoading } = useProfile();
   const [loading, setLoading] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const getUserDisplayName = () => {
-    if (!user?.role) return "User";
-    return user.role.charAt(0).toUpperCase() + user.role.slice(1);
-  };
-
   const navigate = useNavigate();
+
+  const name = profile?.name || "User";
+  const role = profile?.role || "";
+  // @ts-ignore
+  const team = profile?.team?.name || profile?.teamName || "";
+
+
 
   const handleToggleActivation = async () => {
     try {
@@ -45,36 +48,50 @@ export function Navbar() {
         ...user!,
         isActive: updatedLogin.isActive,
       });
+
       toast.success(
-        user?.isActive ? "Deactivated successfully!" : "Activated successfully."
+        user?.isActive
+          ? "Deactivated successfully!"
+          : "Activated successfully."
       );
     } catch (error) {
-        handleApiError(error)
-     
+      handleApiError(error);
     } finally {
       setLoading(false);
+      setConfirmDialogOpen(false);
     }
   };
 
   return (
-    <header className="w-full bg-white border-b border-gray-200 shadow-sm px-4 py-3 flex items-center justify-between">
-      {/* Left: Sidebar Trigger + Dashboard Title */}
-      <div className="flex items-center gap-3">
+    <header className="w-full bg-white border-b border-gray-200 px-3 py-1 flex items-center justify-end">
+      
+      {/* LEFT — navigation only */}
+      {/* <div className="flex items-center">
         <SidebarTrigger />
-        <span className="text-xl font-bold text-gray-900 select-none cursor-default">
-          {getUserDisplayName()} Dashboard
-        </span>
-      </div>
-      {/* Right: User Info & Logout */}
+      </div> */}
+
+      {/* RIGHT — identity + actions */}
       <div className="flex items-center gap-4">
-        <div className="hidden sm:block text-right">
-          <p className="text-sm font-medium text-gray-900">
-            {getUserDisplayName()}
-          </p>
-          <p className="text-xs text-gray-500">{user?.role || "User"}</p>
+
+        {/* Identity */}
+        <div className="flex items-center gap-3 text-right">
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-gray-900">
+              {profileLoading ? "Loading…" : name}
+            </span>
+            <span className="text-xs text-gray-500">
+              {team ? `${team} • ${role}` : role}
+            </span>
+          </div>
+
+          {/* Avatar */}
+          {/* <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-semibold text-sm shadow">
+            {profileLoading ? "…" : initials}
+          </div> */}
         </div>
 
-         {user?.role !== Roles.ADMIN && (
+        {/* Activation */}
+        {user?.role !== Roles.ADMIN && (
           user?.isActive ? (
             <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
               <DialogTrigger asChild>
@@ -122,8 +139,13 @@ export function Navbar() {
           )
         )}
 
-        <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
-          <User className="h-15 w-15" />
+        {/* Profile */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/profile")}
+        >
+          <User className="h-5 w-5" />
         </Button>
       </div>
     </header>
