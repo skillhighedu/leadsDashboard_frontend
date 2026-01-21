@@ -6,7 +6,10 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Trash2, XCircle, RotateCcw } from "lucide-react";
+import { MoreHorizontal,  XCircle, RotateCcw, Trash2 } from "lucide-react";
+import { useAuthStore } from "@/store/AuthStore";
+// import Role from "@/pages/Role";
+import { Roles } from "@/constants/role.constant";
 
 interface BulkActionsDropdownProps {
   selectedCount: number;
@@ -14,7 +17,9 @@ interface BulkActionsDropdownProps {
   canDelete: boolean;
 
   onClear: () => void;
-  onUnassignAll: () => void;
+  onUnassignTeamLeads: () => void;
+  onUnassignTeamMemberLeads: () => void;
+//   onUnassignAll: () => void;
   onDeleteAll: () => void;
 }
 
@@ -23,10 +28,13 @@ export function BulkActionsDropdown({
   canAssign,
   canDelete,
   onClear,
-  onUnassignAll,
+  onUnassignTeamLeads,
+  onUnassignTeamMemberLeads,
   onDeleteAll,
 }: BulkActionsDropdownProps) {
   const isDisabled = selectedCount === 0;
+  const {user} = useAuthStore();
+  console.log("BOOLEN", canDelete)
 
   return (
     <DropdownMenu>
@@ -56,24 +64,33 @@ export function BulkActionsDropdown({
 
         {/* Unassign all */}
         <DropdownMenuItem
-          disabled={!canAssign}
-          onClick={onUnassignAll}
+          disabled={user?.role !== Roles.LEAD_GEN_MANAGER || canAssign === false }
+          onClick={onUnassignTeamLeads}
           className="cursor-pointer"
         >
           <XCircle className="mr-2 h-4 w-4" />
-          Unassign all ({selectedCount})
+          Unassign Team Leads({selectedCount})
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={user?.role !== Roles.EXECUTIVE || canAssign === false }
+          onClick={onUnassignTeamMemberLeads}
+          className="cursor-pointer"
+        >
+          <XCircle className="mr-2 h-4 w-4" />
+          Unassign Members Leads({selectedCount})
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
         {/* Delete all */}
         <DropdownMenuItem
-          disabled={!canDelete}
+          disabled={canDelete  === false}
           onClick={onDeleteAll}
           className="cursor-pointer text-red-600 focus:text-red-600"
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete all ({selectedCount})
+          Delete
+           all ({selectedCount})
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
