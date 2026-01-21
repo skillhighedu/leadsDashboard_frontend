@@ -162,6 +162,20 @@ export const deleteLead = async (uuid:string)=> {
     throw handleApiError(error);
   }
 };
+export const deleteManyLeads = async (leadIds: number[]) : Promise<void>=> {
+  try {
+
+    const response = await apiClient.delete<ApiResponse<null>>(
+      `/leads/delete-leads`,
+     { data: {leadIds} }
+    );
+    
+
+toast.success(response.data.message);
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
 
 export const unAssginLead = async (uuid:string)=> {
   try {

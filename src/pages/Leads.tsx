@@ -19,7 +19,8 @@ import {
   unAssginLead,
   updateReferredBy,
   addComment,
-  selfGenStatus, // ✅ NEW: import addComment service
+  selfGenStatus,
+  deleteManyLeads, // ✅ NEW: import addComment service
 } from "@/services/leads.services";
 import {
   fetchTeamMembers,
@@ -30,6 +31,8 @@ import {
 import {
   assignLeadToTeam,
   assignLeadToTeamMemebers,
+  unAssignTeamLeads,
+  unAssignTeamMemberLeads,
   updateLeadState,
 } from "@/services/assignLeads.services";
 import type { Leads } from "@/types/leads";
@@ -69,7 +72,7 @@ export default function LeadsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebouncedValue(search, 500)
+  const debouncedSearch = useDebouncedValue(search, 500);
 
   const [statusFilter, setStatusFilter] = useState(() => {
     if (
@@ -105,14 +108,14 @@ export default function LeadsPage() {
   const [date, setDate] = useState<Date | undefined>(undefined);
 
   const availableStatuses = getLeadStatusesByRole(
-    (user?.role as Roles) ?? Roles.MARKETING_HEAD
+    (user?.role as Roles) ?? Roles.MARKETING_HEAD,
   );
 
   const getLeads = async (
     page: number,
     search: string,
     status: string,
-    day?: string
+    day?: string,
   ) => {
     if (!user?.role) return;
     setLoading(true);
@@ -151,7 +154,7 @@ export default function LeadsPage() {
 
   const handleReferredByChange = (id: number, value: string) => {
     setReferredByInputs((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, value } : item))
+      prev.map((item) => (item.id === id ? { ...item, value } : item)),
     );
   };
 
@@ -176,8 +179,8 @@ export default function LeadsPage() {
         // ✅ Update original value locally to avoid re-triggering
         setReferredByInputs((prev) =>
           prev.map((r) =>
-            r.id === id ? { ...r, originalValue: referred.value } : r
-          )
+            r.id === id ? { ...r, originalValue: referred.value } : r,
+          ),
         );
 
         await getLeads(page, search, statusFilter);
@@ -193,7 +196,7 @@ export default function LeadsPage() {
   // ✅ NEW: comment handlers
   const handleCommentChange = (uuid: string, value: string) => {
     setCommentInputs((prev) =>
-      prev.map((item) => (item.uuid === uuid ? { ...item, value } : item))
+      prev.map((item) => (item.uuid === uuid ? { ...item, value } : item)),
     );
   };
 
@@ -211,8 +214,8 @@ export default function LeadsPage() {
         // sync original to current value to prevent re-trigger
         setCommentInputs((prev) =>
           prev.map((c) =>
-            c.uuid === uuid ? { ...c, originalValue: item.value ?? "" } : c
-          )
+            c.uuid === uuid ? { ...c, originalValue: item.value ?? "" } : c,
+          ),
         );
         await getLeads(page, search, statusFilter);
       }
@@ -227,7 +230,7 @@ export default function LeadsPage() {
     try {
       const res = await assignLeadToTeam(
         Number(selectedTeam),
-        selectedLeads.map(String)
+        selectedLeads.map(String),
       );
       if (res) {
         const data = await fetchLeads(page, search, statusFilter);
@@ -249,7 +252,7 @@ export default function LeadsPage() {
     try {
       const res = await assignLeadToTeamMemebers(
         Number(selectedTeam),
-        selectedLeads.map(String)
+        selectedLeads.map(String),
       );
       if (res) {
         const data = await fetchLeads(page, search, statusFilter);
@@ -267,7 +270,7 @@ export default function LeadsPage() {
 
   const handleSelectAll = () => {
     setSelectedLeads(
-      selectedLeads.length === leads.length ? [] : leads.map((lead) => lead.id)
+      selectedLeads.length === leads.length ? [] : leads.map((lead) => lead.id),
     );
   };
 
@@ -275,21 +278,21 @@ export default function LeadsPage() {
     setSelectedLeads((prev) =>
       prev.includes(leadId)
         ? prev.filter((id) => id !== leadId)
-        : [...prev, leadId]
+        : [...prev, leadId],
     );
   };
 
   // ✅ Handle typing
   const handleTicketChange = (id: number, value: string) => {
     setTicketAmounts((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, value } : item))
+      prev.map((item) => (item.id === id ? { ...item, value } : item)),
     );
   };
 
   // ✅ Handle typing
   const handleUpFrontChange = (id: number, value: string) => {
     setUpFrontFees((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, value } : item))
+      prev.map((item) => (item.id === id ? { ...item, value } : item)),
     );
   };
 
@@ -308,7 +311,7 @@ export default function LeadsPage() {
       const response = await addTicketAmount(
         id.toString(),
         upFrontValue,
-        ticketValue
+        ticketValue,
       );
       if (response) {
         await getLeads(page, search, statusFilter);
@@ -345,46 +348,53 @@ export default function LeadsPage() {
       .replace(/(^|\s)\w/g, (m) => m.toUpperCase());
 
   //Handle state change
- const handleStatusChange = async (leadId: number, newStatus: string) => {
-  try {
-    const res = await updateLeadState(leadId, newStatus.toUpperCase())
+  const handleStatusChange = async (leadId: number, newStatus: string) => {
+    try {
+      const res = await updateLeadState(leadId, newStatus.toUpperCase());
 
-    if (!res) return
+      if (!res) return;
 
-    toast.success(`Status updated to ${toTitle(newStatus)}`)
+      toast.success(`Status updated to ${toTitle(newStatus)}`);
 
-    // If the new status doesn't belong to current filter → remove locally
-    if (statusFilter !== "ALL" && statusFilter !== newStatus) {
-      setLeads(curr => curr.filter(l => l.id !== leadId))
-      return
+      // If the new status doesn't belong to current filter → remove locally
+      if (statusFilter !== "ALL" && statusFilter !== newStatus) {
+        setLeads((curr) => curr.filter((l) => l.id !== leadId));
+        return;
+      }
+
+      // Otherwise update the row locally
+      setLeads((curr) =>
+        curr.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l)),
+      );
+
+      // Now refresh the page data to stay in sync
+      await getLeads(
+        page,
+        search,
+        statusFilter,
+        date ? format(date, "yyyy-MM-dd") : undefined,
+      );
+    } catch (error) {
+      handleApiError(error);
     }
-
-    // Otherwise update the row locally
-    setLeads(curr =>
-      curr.map(l =>
-        l.id === leadId ? { ...l, status: newStatus } : l
-      )
-    )
-
-    // Now refresh the page data to stay in sync
-    await getLeads(
-      page,
-      search,
-      statusFilter,
-      date ? format(date, "yyyy-MM-dd") : undefined
-    )
-
-  } catch (error) {
-    handleApiError(error)
-  }
-}
-
+  };
 
   const handleDeleteLead = async (uuid: string, name: string) => {
     try {
       await deleteLead(uuid);
       toast.success(`Lead ${name} deleted successfully`);
       await getLeads(page, search, statusFilter);
+    } catch (err) {
+      handleApiError(err);
+    }
+  };
+
+  const handleDeleteManyLeads = async (leadIds: number[]) => {
+    try {
+      await deleteManyLeads(leadIds);
+      setSelectedLeads([])
+        await getLeads(page, search, statusFilter);
+          
     } catch (err) {
       handleApiError(err);
     }
@@ -400,22 +410,40 @@ export default function LeadsPage() {
     }
   };
 
+
+  const handleUnAssignTeamLeads = async (leadIds:number[]) => {
+    try {
+      await unAssignTeamLeads(leadIds);
+      await getLeads(page, debouncedSearch, statusFilter, );
+    } catch (err) {
+      handleApiError(err);
+    }
+  };
+  const handleUnAssignTeamMembersLeads = async (leadIds:number[]) => {
+    try {
+      await unAssignTeamMemberLeads(leadIds);
+      await getLeads(page, debouncedSearch, statusFilter, );
+    } catch (err) {
+      handleApiError(err);
+    }
+  };
+
   const hanadleIsSelfGen = async (uuid: string, newStatus: boolean) => {
     const prevLeads = leads;
 
     setLeads((curr) =>
-      curr.map((l) => (l.uuid === uuid ? { ...l, isSelfGen: newStatus } : l))
+      curr.map((l) => (l.uuid === uuid ? { ...l, isSelfGen: newStatus } : l)),
     );
     try {
-        await selfGenStatus(uuid, newStatus);
-        await getLeads(
-            page,
-            search,
-            statusFilter,
-            date ? format(date, "yyyy-MM-dd") : undefined
-        )
+      await selfGenStatus(uuid, newStatus);
+      await getLeads(
+        page,
+        search,
+        statusFilter,
+        date ? format(date, "yyyy-MM-dd") : undefined,
+      );
     } catch (error) {
-        setLeads(prevLeads);
+      setLeads(prevLeads);
       handleApiError(error);
     }
   };
@@ -468,118 +496,118 @@ export default function LeadsPage() {
       />
 
       <Card className="rounded-none ">
-  <CardContent >
-
-    {/* ================= HEADER ================= */}
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
-
-      {/* LEFT SIDE */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 ">
-      
-
-        <Input
-          placeholder="Search leads..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:max-w-xs h-9"
-        />
-      </div>
-
-      {/* RIGHT SIDE */}
-      <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
-
-        <Button
-          size="sm"
-          onClick={() => setIsUploadDialogOpen(true)}
-          disabled={
-            !user?.permissions?.uploadData &&
-            !user?.permissions?.createData
-          }
-        >
-          Upload
-        </Button>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <CalendarIcon className="w-4 h-4" />
-              {date ? format(date, "dd MMM") : "Date"}
-            </Button>
-          </PopoverTrigger>
-
-          <PopoverContent className="w-auto p-2">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(d) => d && setDate(d)}
-              captionLayout="dropdown"
-              showOutsideDays
-            />
-            <div className="flex gap-2 mt-2">
-              <Button
-                size="sm"
-                variant="secondary"
-                className="w-full"
-                onClick={() => setDate(new Date())}
-              >
-                Today
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setDate(subDays(new Date(), 1))}
-              >
-                Yesterday
-              </Button>
+        <CardContent>
+          {/* ================= HEADER ================= */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+            {/* LEFT SIDE */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 ">
+              <Input
+                placeholder="Search leads..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full sm:max-w-xs h-9"
+              />
             </div>
-          </PopoverContent>
-        </Popover>
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-9 w-[150px] text-xs">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableStatuses.map((s) => (
-              <SelectItem className="text-xs cursor-pointer" key={s} value={s}>
-                {s.replace(/_/g, " ")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-  <Button
+            {/* RIGHT SIDE */}
+            <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
+              <Button
+                size="sm"
+                onClick={() => setIsUploadDialogOpen(true)}
                 disabled={
-                  !selectedLeads.length ||
-                  teamsLoading ||
-                  !user?.permissions?.assignData
+                  !user?.permissions?.uploadData &&
+                  !user?.permissions?.createData
                 }
+              >
+                Upload
+              </Button>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <CalendarIcon className="w-4 h-4" />
+                    {date ? format(date, "dd MMM") : "Date"}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-auto p-2">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(d) => d && setDate(d)}
+                    captionLayout="dropdown"
+                    showOutsideDays
+                  />
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => setDate(new Date())}
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => setDate(subDays(new Date(), 1))}
+                    >
+                      Yesterday
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-9 w-[150px] text-xs">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableStatuses.map((s) => (
+                    <SelectItem
+                      className="text-xs cursor-pointer"
+                      key={s}
+                      value={s}
+                    >
+                      {s.replace(/_/g, " ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                // disabled={
+                //   !selectedLeads.length ||
+                //   teamsLoading ||
+                //   !user?.permissions?.assignData
+                // }
                 onClick={() => setIsAssignDialogOpen(true)}
               >
                 Assign to{" "}
                 {user?.role !== Roles.MARKETING_HEAD ? "Members" : "Teams"} (
                 {selectedLeads.length})
               </Button>
-       
-    <BulkActionsDropdown
-  selectedCount={selectedLeads.length}
-  canAssign={!!user?.permissions?.assignData}
-  canDelete={!!user?.permissions?.deleteData}
-  onClear={() => setSelectedLeads([])}
-  onUnassignAll={() => setIsUnassignAllDialogOpen(true)}
-  onDeleteAll={() => setIsDeleteAllDialogOpen(true)}
-/>
 
-      </div>
-    </div>
+              <BulkActionsDropdown
+                selectedCount={selectedLeads.length}
+                canAssign={!!user?.permissions?.assignData}
+                canDelete={!!user?.permissions?.deleteData}
+                onClear={() => setSelectedLeads([])}
+                onUnassignTeamLeads={() => handleUnAssignTeamLeads(selectedLeads)}
+                onUnassignTeamMemberLeads={() => handleUnAssignTeamMembersLeads(selectedLeads)}
+                    onDeleteAll={() => handleDeleteManyLeads(selectedLeads)}
+                // onDeleteAll={() => setIsDeleteAllDialogOpen(true)} 
+              />
+            </div>
+          </div>
 
-    {/* ================= NOTE ================= */}
-    {/* {(user?.role === Roles.LEAD_MANAGER ||
+          {/* ================= NOTE ================= */}
+          {/* {(user?.role === Roles.LEAD_MANAGER ||
       user?.role === Roles.EXECUTIVE ||
       user?.role === Roles.INTERN ||
       user?.role === Roles.FRESHER ||
@@ -589,75 +617,71 @@ export default function LeadsPage() {
       </div>
     )} */}
 
-    {/* ================= TABLE ================= */}
-    <LeadTable
-      leads={leads}
-      loading={loading}
-      selectedLeads={selectedLeads}
-      setSelectedLeads={setSelectedLeads}
-      onSelectLead={handleSelectLead}
-      onSelectAll={handleSelectAll}
-      handleTicketBlur={handleTicketBlur}
-      handleTicketChange={handleTicketChange}
-      handleUpFrontChange={handleUpFrontChange}
-      setTicketAmounts={setTicketAmounts}
-      ticketAmounts={ticketAmounts}
-      upFrontFees={upFrontFees}
-      setUpFrontFee={setUpFrontFees}
-      onStatusChange={handleStatusChange}
-      handleDeleteLead={handleDeleteLead}
-      handleUnAssignLead={handleUnAssignLead}
-      canDelete={user?.permissions?.deleteData}
-      referredByInputs={referredByInputs}
-      handleReferredByBlur={handleReferredByBlur}
-      handleReferredByChange={handleReferredByChange}
-      commentInputs={commentInputs}
-      handleCommentChange={handleCommentChange}
-      handleCommentBlur={handleCommentBlur}
-      onSelfGenChange={hanadleIsSelfGen}
-    />
+          {/* ================= TABLE ================= */}
+          <LeadTable
+            leads={leads}
+            loading={loading}
+            selectedLeads={selectedLeads}
+            setSelectedLeads={setSelectedLeads}
+            onSelectLead={handleSelectLead}
+            onSelectAll={handleSelectAll}
+            handleTicketBlur={handleTicketBlur}
+            handleTicketChange={handleTicketChange}
+            handleUpFrontChange={handleUpFrontChange}
+            setTicketAmounts={setTicketAmounts}
+            ticketAmounts={ticketAmounts}
+            upFrontFees={upFrontFees}
+            setUpFrontFee={setUpFrontFees}
+            onStatusChange={handleStatusChange}
+            handleDeleteLead={handleDeleteLead}
+            handleUnAssignLead={handleUnAssignLead}
+            canDelete={user?.permissions?.deleteData}
+            referredByInputs={referredByInputs}
+            handleReferredByBlur={handleReferredByBlur}
+            handleReferredByChange={handleReferredByChange}
+            commentInputs={commentInputs}
+            handleCommentChange={handleCommentChange}
+            handleCommentBlur={handleCommentBlur}
+            onSelfGenChange={hanadleIsSelfGen}
+          />
 
-    {/* ================= PAGINATION ================= */}
-    <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
+          {/* ================= PAGINATION ================= */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={page === 1 || loading}
+              onClick={() => setPage(page - 1)}
+            >
+              Prev
+            </Button>
 
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={page === 1 || loading}
-        onClick={() => setPage(page - 1)}
-      >
-        Prev
-      </Button>
+            <div className="flex items-center gap-2 text-sm">
+              Page {page} of {totalPages}
+              <Input
+                type="number"
+                min={1}
+                max={totalPages}
+                value={page}
+                onChange={(e) => {
+                  const p = Number(e.target.value);
+                  if (p >= 1 && p <= totalPages) setPage(p);
+                }}
+                className="w-16 h-8 text-center"
+              />
+            </div>
 
-      <div className="flex items-center gap-2 text-sm">
-        Page {page} of {totalPages}
-        <Input
-          type="number"
-          min={1}
-          max={totalPages}
-          value={page}
-          onChange={(e) => {
-            const p = Number(e.target.value)
-            if (p >= 1 && p <= totalPages) setPage(p)
-          }}
-          className="w-16 h-8 text-center"
-        />
-      </div>
-
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={page === totalPages || loading}
-        onClick={() => setPage(page + 1)}
-      >
-        Next
-      </Button>
-
-    </div>
-
-  </CardContent>
-</Card>
-
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={page === totalPages || loading}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

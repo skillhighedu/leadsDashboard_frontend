@@ -19,7 +19,7 @@ import {
 import { useAuthStore } from "@/store/AuthStore";
 // import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import {  LeadStatuses } from "@/constants/status.constant";
+import { LeadStatuses } from "@/constants/status.constant";
 import { Roles } from "@/constants/role.constant";
 import { Textarea } from "@/components/ui/textarea"; // ✅ NEW: textarea for comments
 
@@ -102,11 +102,11 @@ export function LeadTable({
   commentInputs,
   handleCommentChange,
   handleCommentBlur,
-  onSelfGenChange
+  onSelfGenChange,
 }: LeadTableProps) {
   const { user } = useAuthStore();
   const safeLeads = Array.isArray(leads) ? leads : [];
-// const [openLead, setOpenLead] = useState<Leads | null>(null);
+  // const [openLead, setOpenLead] = useState<Leads | null>(null);
 
   useEffect(() => {
     const initialTickets = safeLeads.map((lead) => ({
@@ -127,7 +127,7 @@ export function LeadTable({
     user?.role === Roles.MARKETING_HEAD ||
     user?.role === Roles.LEAD_GEN_MANAGER
       ? lead.teamAssignedId === null
-      : lead.handlerId === null
+      : lead.handlerId === null,
   );
 
   const selectedSet = new Set(selectedLeads);
@@ -143,56 +143,97 @@ export function LeadTable({
     }
   };
 
-  
-
   return (
     // Scroll container to keep header visible while body scrolls
     <div className="relative max-h-[100vh] overflow-y-auto rounded-md border">
       <Table className="z-0 w-full text-xs border-separate border-border border-spacing-0 ">
         {/* Sticky header: each TH is sticky with strong z-index and solid bg */}
-     <TableHeader className="sticky top-0 z-30 bg-neutral-900/90 backdrop-blur border-b border-white/10">
-  <TableRow className="sticky top-0 z-40 bg-neutral-900/40 ">
+        <TableHeader className="sticky top-0 z-30 bg-neutral-900/90 backdrop-blur border-b border-white/10">
+          <TableRow className="sticky top-0 z-40 bg-neutral-900/40 ">
+            {/* Checkbox */}
+            <TableHead className="sticky left-0 top-0 z-50 bg-neutral-900/95 text-white">
+              {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={handleSelectAll}
+                />
+              )}
+            </TableHead>
 
-    {/* Checkbox */}
-    <TableHead className="sticky left-0 top-0 z-50 bg-neutral-900/95 text-white">
-      {user?.role !== Roles.INTERN && user?.role !== Roles.FRESHER && (
-        <Checkbox
-          checked={allSelected}
-          onCheckedChange={handleSelectAll}
-        />
-      )}
-    </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white ">
+              TimeStamp
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">Name</TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Email
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Phone
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Whatsapp Number
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">Year</TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              College
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Branch
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Interested Domain
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Preferred Language
+            </TableHead>
 
-    <TableHead className="bg-neutral-900/40 text-white ">TimeStamp</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Name</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Email</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Phone</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Whatsapp Number</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Year</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">College</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Branch</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Interested Domain</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Preferred Language</TableHead>
-
-    <TableHead className="bg-neutral-900/40 text-white">Batch</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Had Referred</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Referred By</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Owner</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Is SelfGen Lead</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Assigned To Team</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Assigned At</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Assigned To Member</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">UpFront Fee</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Remaining Fee</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Ticket Amount</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Status</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Comment</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Un-Assign</TableHead>
-    <TableHead className="bg-neutral-900/40 text-white">Delete</TableHead>
-
-  </TableRow>
-</TableHeader>
-
+            <TableHead className="bg-neutral-900/40 text-white">
+              Batch
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Had Referred
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Referred By
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Owner
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Is SelfGen Lead
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Assigned To Team
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Assigned At
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Assigned To Member
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              UpFront Fee
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Remaining Fee
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Ticket Amount
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Status
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Comment
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Un-Assign
+            </TableHead>
+            <TableHead className="bg-neutral-900/40 text-white">
+              Delete
+            </TableHead>
+          </TableRow>
+        </TableHeader>
 
         <TableBody className=" max-h-[65vh] overflow-y-auto">
           {loading ? (
@@ -218,10 +259,10 @@ export function LeadTable({
               const hasManagerRole = (role: string): role is ManagerRole =>
                 (MANAGER_ROLES as readonly string[]).includes(role);
 
-              const isDisabled =
-                user && !hasManagerRole(user.role)
-                  ? lead.handlerId !== null
-                  : lead.teamAssignedId !== null;
+            //   const isDisabled =
+            //     user && !hasManagerRole(user.role)
+            //       ? lead.handlerId !== null
+            //       : lead.teamAssignedId !== null;
 
               const ticketValue =
                 ticketAmounts.find((item) => item.id === lead.id)?.value || "";
@@ -241,14 +282,14 @@ export function LeadTable({
               const canUnassign = isManager
                 ? lead.teamAssignedId !== null
                 : isExecutive
-                ? lead.handlerId !== null
-                : false;
+                  ? lead.handlerId !== null
+                  : false;
 
               const isUnassignDisabled = isInternOrTL || !canUnassign;
               const targetLabel =
                 user?.role === Roles.EXECUTIVE
-                  ? lead.handler?.name ?? "handler"
-                  : lead.teamAssigned?.teamName ?? "team";
+                  ? (lead.handler?.name ?? "handler")
+                  : (lead.teamAssigned?.teamName ?? "team");
 
               // ✅ NEW: comment value lookup
               const commentValue =
@@ -256,54 +297,74 @@ export function LeadTable({
                 "";
 
               return (
-                
-         <TableRow
-  key={lead.id}
-  data-colored={!!lead.teamAssigned?.colorCode}
-  style={{
-    "--row-color": lead.teamAssigned?.colorCode ?? "transparent",
-  } as React.CSSProperties}
-  className="
+                <TableRow
+                  key={lead.id}
+                  data-colored={!!lead.teamAssigned?.colorCode}
+                  style={
+                    {
+                      "--row-color":
+                        lead.teamAssigned?.colorCode ?? "transparent",
+                    } as React.CSSProperties
+                  }
+                  className="
     border-b
     cursor-pointer
     bg-[var(--row-color)]
     hover:bg-muted/50
   "
->
-
-
+                >
                   {user?.role !== Roles.INTERN &&
                   user?.role !== Roles.FRESHER ? (
-                    <TableCell className="sticky left-0 z-20 bg-background align-top " >
+                    <TableCell className="sticky left-0 z-20 bg-background align-top ">
                       <Checkbox
-                       onClick={(e) => e.stopPropagation()}
-
+                        onClick={(e) => e.stopPropagation()}
                         checked={selectedLeads.includes(lead.id)}
                         onCheckedChange={() => onSelectLead(lead.id)}
-                        disabled={isDisabled}
+                        // disabled={isDisabled}
                       />
                     </TableCell>
                   ) : (
                     <TableCell />
                   )}
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.timestamp ? lead.timestamp : "-"}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.name}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.email}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.phoneNumber}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.whatsappNumber}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.graduationYear}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.timestamp ? lead.timestamp : "-"}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.name}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.email}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.phoneNumber}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.whatsappNumber}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.graduationYear}
+                  </TableCell>
 
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.college}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top" >{lead.branch}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.domain}</TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.preferredLanguage}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.college}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.branch}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.domain}
+                  </TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.preferredLanguage}
+                  </TableCell>
 
-               <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
-  {lead.batch}
-</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.batch}
+                  </TableCell>
 
-
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.hadReferred ? "Yes" : "No"}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.hadReferred ? "Yes" : "No"}
+                  </TableCell>
                   <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
                     <Input
                       className="w-32"
@@ -320,21 +381,23 @@ export function LeadTable({
                     />
                   </TableCell>
 
-
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead?.owner?.name}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead?.owner?.name}
+                  </TableCell>
                   {/* <TableCell>{!lead?.isSelfGen ? "false" : "true"}</TableCell> */}
                   <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
                     <select
-                        value={String(!!lead.isSelfGen)}
-                        onChange={(e) => onSelfGenChange(lead.uuid, e.target.value === "true")}
-                        className="border rounded px-2 py-1"
+                      value={String(!!lead.isSelfGen)}
+                      onChange={(e) =>
+                        onSelfGenChange(lead.uuid, e.target.value === "true")
+                      }
+                      className="border rounded px-2 py-1"
                     >
-                        <option value="true">true</option>
-                        <option value="false">false</option>
-                        
+                      <option value="true">true</option>
+                      <option value="false">false</option>
                     </select>
                   </TableCell>
-                  
+
                   <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
                     {lead?.teamAssigned?.teamName?.trim() || ""}
                   </TableCell>
@@ -346,7 +409,9 @@ export function LeadTable({
                         })
                       : "-"}
                   </TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.handler?.name || "-"}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.handler?.name || "-"}
+                  </TableCell>
                   <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
                     <Input
                       type="number"
@@ -363,7 +428,9 @@ export function LeadTable({
                       }
                     />
                   </TableCell>
-                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">{lead.remainingFee}</TableCell>
+                  <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
+                    {lead.remainingFee}
+                  </TableCell>
                   <TableCell className="w-[200px] max-w-[200px] whitespace-normal break-words align-top">
                     <Input
                       type="number"
@@ -400,7 +467,11 @@ export function LeadTable({
                       </SelectTrigger>
                       <SelectContent>
                         {LeadStatuses.map((status) => (
-                          <SelectItem className="text-xs" key={status} value={status}>
+                          <SelectItem
+                            className="text-xs"
+                            key={status}
+                            value={status}
+                          >
                             {status
                               .replace(/_/g, " ")
                               .toLowerCase()
@@ -412,7 +483,7 @@ export function LeadTable({
                   </TableCell>
 
                   {/* ✅ NEW: Comment textarea */}
-                  <TableCell >
+                  <TableCell>
                     <Textarea
                       className="w-44"
                       placeholder="Add a comment"
@@ -522,7 +593,6 @@ export function LeadTable({
   lead={openLead}
   onClose={() => setOpenLead(null)}
 /> */}
-
     </div>
   );
 }
